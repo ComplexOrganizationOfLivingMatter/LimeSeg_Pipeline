@@ -153,7 +153,9 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     
     nEmptyPixelsPrevious = 0;
     nEmptyPixels3xPrevious = 0;
+    vertices2D_Left = [];
     vertices2D = [];
+    vertices2D_Right = [];
     for coordZ = 1 : size(img3d,3)
         rowOfCoord3x = imgFinalCoordinates3x{coordZ};
         rowOfCoord = imgFinalCoordinates{coordZ};
@@ -171,7 +173,15 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
             verticesPoints = imgFinalVerticesCoordinates{coordZ};
             for numPoint = 1:length(verticesPoints)
                 %hold on; plot(verticesPoints(numPoint) + nEmptyPixels, coordZ, 'rx');
+                
+                % Left side
+                vertices2D_Left(end+1, 1:2) = [verticesPoints(numPoint) + nEmptyPixels3x, coordZ];
+                
+                % Middle side
                 vertices2D(end+1, 1:2) = [verticesPoints(numPoint) + nEmptyPixels, coordZ];
+                
+                % Right side
+                vertices2D_Right(end+1, 1:2) = [verticesPoints(numPoint) + nEmptyPixels + length(rowOfCoord), coordZ];
             end
             imgFinalVerticesCoordinates{coordZ} = imgFinalVerticesCoordinates{coordZ} + nEmptyPixels;
             
@@ -259,17 +269,34 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     
     
     %% Connect vertices to obtain an image from the vertices
-    figure, imshow(deployedImg+1, colours);
-    for numCell = validCellsFinal
-        actualVertices = any(ismember(neighbours2D, numCell), 2);
-        if ismember(numCell, borderCells)
+    figure, imshow(deployedImg3x+1, colours);
+    for numCentroid = 1:size(centroids, 1)
+        numCell = midSectionImage(midSectionNewLabels == numCentroid);
+        numCell = numCell(1);
+        if ismember(numCell, finalValidCells)
             continue
         end
+        actualVertices = any(ismember(neighbours2D, numCell), 2);
         %%Remove border vertices
         %actualVertices(ismember(neighbours2D, borderCells)) = 0;
         
+        
+        actualImg = wholeImage == numCell;
+        centroids3x = regionprops(actualImg, 'Centroid');
+        centroids3x = vertcat(centroids3x.Centroid);
+        
+        if size(centroids3x, 1) > 3
+           disp('CAREEEEE') 
+        end
+        
+        allActualVertices = [vertices2D(actualVertices, :); vertices2D_Left(actualVertices, :); vertices2D_Right(actualVertices, :)];
+        
+        [~, closestIndices] = pdist2(centroids3x, allActualVertices, 'euclidean', 'Smallest', 1);
+
+        [~, midCentroid] = pdist2(centroids3x, centroids(numCell, :), 'euclidean', 'Smallest', 1);
+        
         sum(actualVertices)
-        [newVertOrder] = boundaryOfCell(vertices2D(actualVertices, :), centroids(numCell, :));
+        [newVertOrder] = boundaryOfCell(allActualVertices(closestIndices == midCentroid, :), centroids(numCell, :));
         [newOrderX, newOrderY] = poly2cw(newVertOrder((1:end-1), 1), newVertOrder((1:end-1), 2));
         verticesRadius = [];
         
