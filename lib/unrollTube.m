@@ -6,13 +6,14 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     %% Unroll
     pixelSizeThreshold = 2;
     
+    [neighbours] = calculateNeighbours3D(img3d_original); %Correct neighbours
     img3d_original = permute(img3d_original, [1 3 2]);
 %     axesLength = regionprops3(img3d>0,'PrincipalAxisLength');
 %     [~,maxLeng] = max(cat(1,axesLength.PrincipalAxisLength));
 %     [~,orderLengAxis] = sort(cat(1,axesLength.PrincipalAxisLength(maxLeng(1),:)));
 %     img3d=permute(img3d,orderLengAxis);
 
-    [neighbours] = calculateNeighbours3D(img3d_original);
+    
     [verticesInfo] = getVertices3D(img3d_original, neighbours.neighbourhood);
     vertices3D = vertcat(verticesInfo.verticesPerCell{:});
     vertices3D_Neighbours = verticesInfo.verticesConnectCells;
