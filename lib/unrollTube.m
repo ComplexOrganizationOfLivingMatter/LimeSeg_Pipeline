@@ -273,7 +273,7 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     for numCentroid = 1:size(centroids, 1)
         numCell = midSectionImage(midSectionNewLabels == numCentroid);
         numCell = numCell(1);
-        if ismember(numCell, finalValidCells)
+        if ismember(numCell, validCellsFinal) == 0
             continue
         end
         actualVertices = any(ismember(neighbours2D, numCell), 2);
@@ -291,6 +291,11 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
         
         allActualVertices = [vertices2D(actualVertices, :); vertices2D_Left(actualVertices, :); vertices2D_Right(actualVertices, :)];
         
+        [yValidRegion, xValidRegion] = find(imdilate(actualImg, strel('disk', 10)));
+        
+        %Get only the closest vertices to the captured region
+        allActualVertices(ismember(allActualVertices, [xValidRegion, yValidRegion], 'rows') == 0, :) = [];
+        
         [~, closestIndices] = pdist2(centroids3x, allActualVertices, 'euclidean', 'Smallest', 1);
 
         [~, midCentroid] = pdist2(centroids3x, centroids(numCell, :), 'euclidean', 'Smallest', 1);
@@ -303,7 +308,7 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
              
         hold on
         plot(newVertOrder(:, 1), newVertOrder(:, 2))
-        plot(vertices2D(actualVertices, 1), vertices2D(actualVertices, 2), 'r+');
+        plot(allActualVertices(closestIndices == midCentroid, 1), allActualVertices(closestIndices == midCentroid, 2), 'r+');
     end
     
 end
