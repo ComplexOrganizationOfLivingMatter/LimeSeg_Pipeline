@@ -4,7 +4,7 @@ close all
 
 addpath(genpath('src'))
 addpath(genpath('lib'))
-addpath(genpath(fullfile('..','InSilicoModels', 'TubularModel', 'src')));
+addpath(genpath(fullfile('..','Epithelia3D', 'InSilicoModels', 'TubularModel', 'src')));
 
 files = dir('**/Salivary gland/**/Results/3d_layers_info.mat');
 
