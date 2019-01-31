@@ -1,4 +1,4 @@
-function [ verticesInfo] = getVertices3D( L_img, neighbours)
+function [ verticesInfo] = getVertices3D( L_img, neighbours, invalidRegion)
 % With a labelled image as input, the objective is get all vertex for each
 % cell
 
@@ -10,6 +10,10 @@ neighboursVertices = buildTripletsOfNeighs( neighbours );%intersect dilatation o
 vertices = cell(size(neighboursVertices, 1), 1);
 
 initBorderImg = L_img==0;
+
+if exist('invalidRegion', 'var') >0
+    initBorderImg(invalidRegion) = 0; 
+end
 
 % We first calculate the perimeter of the cell to improve efficiency
 % If the image is small, is better not to use bwperim

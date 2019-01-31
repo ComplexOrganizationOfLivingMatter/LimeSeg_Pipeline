@@ -13,8 +13,8 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
 %     [~,orderLengAxis] = sort(cat(1,axesLength.PrincipalAxisLength(maxLeng(1),:)));
 %     img3d=permute(img3d,orderLengAxis);
 
-    
-    [verticesInfo] = getVertices3D(img3d_original, neighbours.neighbourhood);
+    insideGland = imdilate(img3d_original>0, strel('sphere', 1));
+    [verticesInfo] = getVertices3D(img3d_original, neighbours.neighbourhood, insideGland == 0);
     vertices3D = vertcat(verticesInfo.verticesPerCell{:});
     vertices3D_Neighbours = verticesInfo.verticesConnectCells;
     vertices3D_Neighbours(cellfun(@isempty, verticesInfo.verticesPerCell), :) = [];
