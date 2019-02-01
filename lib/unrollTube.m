@@ -298,10 +298,10 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
         
         [~, closestIndices] = pdist2(centroids3x, allActualVertices, 'euclidean', 'Smallest', 1);
 
-        [~, midCentroid] = pdist2(centroids3x, centroids(numCell, :), 'euclidean', 'Smallest', 1);
+        [~, midCentroid] = pdist2(centroids3x, centroids(numCentroid, :), 'euclidean', 'Smallest', 1);
         
         sum(actualVertices)
-        [newVertOrder] = boundaryOfCell(allActualVertices(closestIndices == midCentroid, :), centroids(numCell, :));
+        [newVertOrder] = boundaryOfCell(allActualVertices(closestIndices == midCentroid, :), centroids(numCentroid, :));
         [newOrderX, newOrderY] = poly2cw(newVertOrder((1:end-1), 1), newVertOrder((1:end-1), 2));
         verticesRadius = [];
         
