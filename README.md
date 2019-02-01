@@ -32,7 +32,7 @@ Extracted from:
 
 1. Open the image, whose cell outlines are the best to segment the cells.
 
-2. Select "ellipse" and put an ellipsoidal ROI near to the basal region of the cell*. Press 'T'.
+2. Select "ellipse" and put an ellipsoidal ROI near to the basal region of the cell*. Press 'T'.*1
 
 3. Plugins -> Limeseg -> Sphere Seg (advanced).
 
@@ -42,7 +42,7 @@ Extracted from:
 
 6. **Remember** to clear the 3D viewer each time you run LimeSeg. 'Plugins -> Limeseg -> Clear all'.
 
-7. Repeat 2-6  by groups (until all the cells have an assigned ROI), adding each time more cells and save the ROIs as a zip:               'Roi Manager -> More -> Save...'
+7. Repeat 2-6 by groups *2 (until all the cells have an assigned ROI), adding each time more cells and save the ROIs as a zip:             'Roi Manager -> More -> Save...'
 
 8. When all the cells have a ROI,you have to save their data:
 	1. Plugins -> Limeseg -> Show GUI
@@ -50,7 +50,11 @@ Extracted from:
 	3. Press 'SaveStateToXmlPly'. A directory will be created for each cell. Don't care about the ids of the cell.
 	
 	
- *Note:if the cell's shapes were not correct, you could try to improve the shape by changing the positions of the seeds and positioning them not only in the basal region, for instance in the middle of the cell.
+	
+ *Note 1:Don't save the image or the ImageSequence after adding the ROIs because you will also save the ROIs and not only the image or images, and it is no possible to remove these regions from the image.
+ 
+ *Note 2:if the cell's shapes were not correct, you could try to improve the shape by changing the positions of the seeds and positioning them not only in the basal region, for instance in the middle of the cell.
+ 
  
 ### Refining the cells
 
