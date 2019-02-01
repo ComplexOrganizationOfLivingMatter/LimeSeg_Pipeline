@@ -18,8 +18,9 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     vertices3D = vertcat(verticesInfo.verticesPerCell{:});
     vertices3D_Neighbours = verticesInfo.verticesConnectCells;
     vertices3D_Neighbours(cellfun(@isempty, verticesInfo.verticesPerCell), :) = [];
+    cellNumNeighbours = cellfun(@length, neighbours.neighbourhood);
     
-    resizeImg = 1;
+    resizeImg = 1/4.06;
     imgSize = round(size(img3d_original)/resizeImg);
     img3d = imresize3(img3d_original, imgSize, 'nearest');
     vertices3D = round(vertices3D / resizeImg);
@@ -249,27 +250,13 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     imwrite(finalImageWithValidCells+1, colours, strcat(outputDir, '_', 'img_MidSection_ValidCells.tif'));
     imwrite(wholeImage+1, colours, strcat(outputDir, '_', 'img_WholeImage.tif'));
     
-    %% Calculating surface ratio
-    validCellsProp = regionprops(midSectionImage, 'EulerNumber');
-    borderCells = find([validCellsProp.EulerNumber] > 1);
-    midRange = 1:round(size(finalImageWithValidCells, 2)/2);
-    imageNewLabels = bwlabel(finalImageWithValidCells, 4);
-    imageNewLabelsMid = imageNewLabels(:, midRange);
-    borderCellsDuplicated = unique(imageNewLabelsMid(ismember(finalImageWithValidCells(:, midRange), borderCells)));
-    finalImageWithValidCells(ismember(imageNewLabels, borderCellsDuplicated)) = 0;
-    %figure; imshow(finalImageWithValidCells+1, colours);
-    areaOfValidCells = sum(finalImageWithValidCells(:)>0);
-    
-    if exist('apicalArea', 'var') == 0
-        surfaceRatio = 1;
-    else
-        surfaceRatio = areaOfValidCells / apicalArea;
-    end
-    save(strcat(outputDir, '_', 'img.mat'), 'finalImageWithValidCells', 'midSectionImage', 'wholeImage', 'validCellsFinal', 'surfaceRatio', 'cylindre2DImage', 'deployedImg', 'deployedImg3x', 'imgFinalVerticesCoordinates', 'imgFinalVerticesCoordinates_Neighbours');
-    
     
     %% Connect vertices to obtain an image from the vertices
-    figure, imshow(deployedImg3x+1, colours);
+    h = figure;
+    imshow(deployedImg3x+1, colours);
+    ax = get(h, 'Children');
+    set(ax,'Units','normalized')
+    set(ax,'Position',[0 0 1 1])
     for numCentroid = 1:size(centroids, 1)
         numCell = midSectionImage(midSectionNewLabels == numCentroid);
         numCell = numCell(1);
@@ -277,9 +264,6 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
             continue
         end
         actualVertices = any(ismember(neighbours2D, numCell), 2);
-        %%Remove border vertices
-        %actualVertices(ismember(neighbours2D, borderCells)) = 0;
-        
         
         actualImg = wholeImage == numCell;
         centroids3x = regionprops(actualImg, 'Centroid');
@@ -301,6 +285,19 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
         [~, midCentroid] = pdist2(centroids3x, centroids(numCentroid, :), 'euclidean', 'Smallest', 1);
         
         sum(actualVertices)
+        cellNumNeighbours(numCell)
+        
+        if sum(actualVertices) ~= cellNumNeighbours(numCell)
+            for numRegion = 1:size(centroids3x, 1)
+                figure; imshow(actualImg)
+                hold on;
+                actualVerticesRegion = allActualVertices(closestIndices == numRegion, :);
+                for numVertex = 1:size(actualVerticesRegion, 1)
+                    plot(actualVerticesRegion(numVertex, 1), actualVerticesRegion(numVertex, 2), 'x')
+                end
+            end
+        end
+        
         [newVertOrder] = boundaryOfCell(allActualVertices(closestIndices == midCentroid, :), centroids(numCentroid, :));
         [newOrderX, newOrderY] = poly2cw(newVertOrder((1:end-1), 1), newVertOrder((1:end-1), 2));
         verticesRadius = [];
@@ -310,6 +307,25 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
         plot(newVertOrder(:, 1), newVertOrder(:, 2))
         plot(allActualVertices(closestIndices == midCentroid, 1), allActualVertices(closestIndices == midCentroid, 2), 'r+');
     end
+    h.InvertHardcopy = 'off';
+    saveas(h, strcat(outputDir, '_', '_vertices.tif'));
     
+    %% Calculating surface ratio
+    validCellsProp = regionprops(midSectionImage, 'EulerNumber');
+    borderCells = find([validCellsProp.EulerNumber] > 1);
+    midRange = 1:round(size(finalImageWithValidCells, 2)/2);
+    imageNewLabels = bwlabel(finalImageWithValidCells, 4);
+    imageNewLabelsMid = imageNewLabels(:, midRange);
+    borderCellsDuplicated = unique(imageNewLabelsMid(ismember(finalImageWithValidCells(:, midRange), borderCells)));
+    finalImageWithValidCells(ismember(imageNewLabels, borderCellsDuplicated)) = 0;
+    %figure; imshow(finalImageWithValidCells+1, colours);
+    areaOfValidCells = sum(finalImageWithValidCells(:)>0);
+    
+    if exist('apicalArea', 'var') == 0
+        surfaceRatio = 1;
+    else
+        surfaceRatio = areaOfValidCells / apicalArea;
+    end
+    save(strcat(outputDir, '_', 'img.mat'), 'finalImageWithValidCells', 'midSectionImage', 'wholeImage', 'validCellsFinal', 'surfaceRatio', 'cylindre2DImage', 'deployedImg', 'deployedImg3x', 'imgFinalVerticesCoordinates', 'imgFinalVerticesCoordinates_Neighbours');  
 end
 
