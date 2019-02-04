@@ -1,4 +1,4 @@
-function connectVerticesOf2D(neighbours2D, vertices2D, vertices2D_Left, vertices2D_Right, centroids, midSectionNewLabels, wholeImage, validCellsFinal, cellNumNeighbours)
+function connectVerticesOf2D(midSectionImage, neighbours2D, vertices2D, vertices2D_Left, vertices2D_Right, centroids, midSectionNewLabels, wholeImage, validCellsFinal, cellNumNeighbours)
 %CONNECTVERTICESOF2D Summary of this function goes here
 %   Detailed explanation goes here
     
@@ -52,5 +52,7 @@ function connectVerticesOf2D(neighbours2D, vertices2D, vertices2D_Left, vertices
         plot(newVertOrder(:, 1), newVertOrder(:, 2))
         plot(allActualVertices(closestIndices == midCentroid, 1), allActualVertices(closestIndices == midCentroid, 2), 'r+');
     end
+    
+    
 end
 

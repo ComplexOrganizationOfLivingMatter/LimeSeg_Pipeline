@@ -250,8 +250,7 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     imwrite(finalImageWithValidCells+1, colours, strcat(outputDir, '_', 'img_MidSection_ValidCells.tif'));
     imwrite(wholeImage+1, colours, strcat(outputDir, '_', 'img_WholeImage.tif'));
     
-    
-    save(strcat(outputDir, '_', 'verticesInfo.mat'), 'neighbours2D', 'vertices2D', 'vertices2D_Left', 'vertices2D_Right', 'centroids', 'midSectionNewLabels', 'wholeImage', 'validCellsFinal', 'cellNumNeighbours');
+    save(strcat(outputDir, '_', 'verticesInfo.mat'), 'midSectionImage', 'neighbours2D', 'vertices2D', 'vertices2D_Left', 'vertices2D_Right', 'centroids', 'midSectionNewLabels', 'wholeImage', 'validCellsFinal', 'cellNumNeighbours');
     %% Connect vertices to obtain an image from the vertices
     h = figure;
     imshow(deployedImg3x+1, colours);
@@ -259,7 +258,7 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     set(ax,'Units','normalized')
     set(ax,'Position',[0 0 1 1])
     
-    connectVerticesOf2D(neighbours2D, vertices2D, vertices2D_Left, vertices2D_Right, centroids, midSectionNewLabels, wholeImage, validCellsFinal, cellNumNeighbours);
+    connectVerticesOf2D(midSectionImage, neighbours2D, vertices2D, vertices2D_Left, vertices2D_Right, centroids, midSectionNewLabels, wholeImage, validCellsFinal, cellNumNeighbours);
     
     h.InvertHardcopy = 'off';
     saveas(h, strcat(outputDir, '_', '_vertices.tif'));
