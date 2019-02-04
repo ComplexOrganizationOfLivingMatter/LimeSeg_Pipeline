@@ -250,7 +250,6 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     imwrite(finalImageWithValidCells+1, colours, strcat(outputDir, '_', 'img_MidSection_ValidCells.tif'));
     imwrite(wholeImage+1, colours, strcat(outputDir, '_', 'img_WholeImage.tif'));
     
-    save(strcat(outputDir, '_', 'img.mat'), 'finalImageWithValidCells', 'midSectionImage', 'wholeImage', 'validCellsFinal', 'surfaceRatio', 'cylindre2DImage', 'deployedImg', 'deployedImg3x', 'imgFinalVerticesCoordinates', 'imgFinalVerticesCoordinates_Neighbours'); 
     
     save(strcat(outputDir, '_', 'verticesInfo.mat'), 'neighbours2D', 'vertices2D', 'vertices2D_Left', 'vertices2D_Right', 'centroids', 'midSectionNewLabels', 'wholeImage', 'validCellsFinal', 'cellNumNeighbours');
     %% Connect vertices to obtain an image from the vertices
@@ -281,6 +280,8 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     else
         surfaceRatio = areaOfValidCells / apicalArea;
     end
+    
+    save(strcat(outputDir, '_', 'img.mat'), 'finalImageWithValidCells', 'midSectionImage', 'wholeImage', 'validCellsFinal', 'surfaceRatio', 'cylindre2DImage', 'deployedImg', 'deployedImg3x', 'imgFinalVerticesCoordinates', 'imgFinalVerticesCoordinates_Neighbours'); 
     
 end
 
