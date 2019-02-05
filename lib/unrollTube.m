@@ -5,20 +5,61 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     
     %% Unroll
     pixelSizeThreshold = 2;
+    insideGland = imdilate(img3d_original>0, strel('sphere', 1));
     
-    [neighbours] = calculateNeighbours3D(img3d_original); %Correct neighbours
+%     %Option 1: too much neighbours
+%     edgePixels = find(insideGland & img3d_original==0);
+%     img2Dilate = zeros(size(img3d_original));
+%     sphereDilated = strel('sphere', 2);
+%     neighbours3d = cell(max(img3d_original(:)), 1);
+%     for numPixel = edgePixels'
+%         img2Dilate(numPixel) = 1;
+%         neighbours = unique(img3d_original(imdilate(img2Dilate, sphereDilated)>0));
+%         if length(neighbours) > 2
+%             neighbours(neighbours==0) = [];
+%             for numNeighbour = neighbours'
+%                 neighbours3d{numNeighbour} = unique([neighbours', neighbours3d{numNeighbour}]);
+%             end
+%         end
+%         img2Dilate(numPixel) = 0;
+%     end
+
+    %Option 2: use the diameter 
+    %Create point clouds
+%     for numCell = 1:max(img3d_original(:))
+%         
+%     end
+    [x, y, z] = ind2sub(size(img3d_original), find(img3d_original>0));
+    cellsPointCloud = pointCloud([x, y, z], 'Intensity', img3d_original(img3d_original>0));
+    neighbours = cell(max(img3d_original(:)), 1);
+    for numCell = 1:max(img3d_original(:))
+        actualCellPerim = bwperim(img3d_original==numCell);
+        actualPointCloud = select(cellsPointCloud, find(cellsPointCloud.Intensity ~= numCell));
+        for numPointPerim = find(actualCellPerim)'
+            [x, y, z] = ind2sub(size(img3d_original), numPointPerim);
+            [indices] = findNearestNeighbors(actualPointCloud, [x, y, z], 10, 'MaxLeafChecks', 200, 'Sort', true);
+            cellNeighbours = actualPointCloud.Intensity(indices);
+            cellNeighbours(cellNeighbours == numCell) = [];
+            if isempty(cellNeighbours) == 0
+                neighbours{numCell} = unique([cellNeighbours(1), neighbours{numCell}]);
+            end
+        end
+    end
+    
+    %Option 3: Original version
+    %[neighbours] = calculateNeighbours3D(img3d_original); %Correct neighbours
     img3d_original = permute(img3d_original, [1 3 2]);
 %     axesLength = regionprops3(img3d>0,'PrincipalAxisLength');
 %     [~,maxLeng] = max(cat(1,axesLength.PrincipalAxisLength));
 %     [~,orderLengAxis] = sort(cat(1,axesLength.PrincipalAxisLength(maxLeng(1),:)));
 %     img3d=permute(img3d,orderLengAxis);
 
-    insideGland = imdilate(img3d_original>0, strel('sphere', 1));
-    [verticesInfo] = getVertices3D(img3d_original, neighbours.neighbourhood, insideGland == 0);
+    
+    [verticesInfo] = getVertices3D(img3d_original, neighbours, insideGland == 0);
     vertices3D = vertcat(verticesInfo.verticesPerCell{:});
     vertices3D_Neighbours = verticesInfo.verticesConnectCells;
     vertices3D_Neighbours(cellfun(@isempty, verticesInfo.verticesPerCell), :) = [];
-    cellNumNeighbours = cellfun(@length, neighbours.neighbourhood);
+    cellNumNeighbours = cellfun(@length, neighbours);
     
     resizeImg = 1/4.06;
     imgSize = round(size(img3d_original)/resizeImg);
@@ -253,11 +294,11 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     save(strcat(outputDir, '_', 'verticesInfo.mat'), 'midSectionImage', 'neighbours2D', 'vertices2D', 'vertices2D_Left', 'vertices2D_Right', 'centroids', 'midSectionNewLabels', 'wholeImage', 'validCellsFinal', 'cellNumNeighbours');
     %% Connect vertices to obtain an image from the vertices
     h = figure;
-    imshow(deployedImg3x+1, colours);
+    imshow(midSectionImage+1, colours);
     ax = get(h, 'Children');
     set(ax,'Units','normalized')
     set(ax,'Position',[0 0 1 1])
-    
+    hold on;
     connectVerticesOf2D(midSectionImage, neighbours2D, vertices2D, vertices2D_Left, vertices2D_Right, centroids, midSectionNewLabels, wholeImage, validCellsFinal, cellNumNeighbours);
     
     h.InvertHardcopy = 'off';
