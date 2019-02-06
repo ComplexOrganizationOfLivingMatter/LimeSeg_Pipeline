@@ -69,8 +69,7 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     resizeImg = 1/4.06;
     imgSize = round(size(img3d_original)/resizeImg);
     img3d = imresize3(img3d_original, imgSize, 'nearest');
-
-%     vertices3D = round(vertices3D / resizeImg);
+    vertices3D = round(vertices3D / resizeImg);
     
     imgFinalCoordinates=cell(size(img3d,3),1);
     imgFinalCoordinates3x=cell(size(img3d,3),1);
