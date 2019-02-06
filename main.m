@@ -2,7 +2,6 @@
 addpath(genpath('src'))
 addpath(genpath('lib'))
 addpath(genpath('gui'))
-addpath(genpath(fullfile('..','Epithelia3D', 'InSilicoModels', 'TubularModel', 'src')));
 
 close all
 

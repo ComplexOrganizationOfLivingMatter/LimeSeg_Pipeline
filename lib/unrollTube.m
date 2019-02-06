@@ -5,9 +5,9 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     
     %% Unroll
     pixelSizeThreshold = 2;
-    insideGland = imdilate(img3d_original>0, strel('sphere', 1));
     
 %     %Option 1: too much neighbours
+%     insideGland = imdilate(img3d_original>0, strel('sphere', 1));
 %     edgePixels = find(insideGland & img3d_original==0);
 %     img2Dilate = zeros(size(img3d_original));
 %     sphereDilated = strel('sphere', 2);
@@ -23,40 +23,42 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
 %         end
 %         img2Dilate(numPixel) = 0;
 %     end
+%     neighbours = neighbours3d;
 
-    %Option 2: use the diameter 
-    %Create point clouds
+%     %Option 2: use the closest distance to a pixel
+% %     insideGland = imclose(img3d_original>0, strel('sphere', 3));
+% %     img3d_OnlyLateralWalls = img3d_original<=0 & insideGland;
+% %     img3d_OnlyLateralWalls = img3d_original .* imdilate(img3d_OnlyLateralWalls, strel('sphere', 1));
+%     [x, y, z] = ind2sub(size(img3d_original), find(img3d_original>0));
+%     cellsPointCloud = pointCloud([x, y, z], 'Intensity', img3d_original(img3d_original>0));
+%     neighbours = cell(max(img3d_original(:)), 1);
 %     for numCell = 1:max(img3d_original(:))
-%         
+%         actualCellPerim = img3d_original==numCell;
+%         actualPointCloud = select(cellsPointCloud, find(cellsPointCloud.Intensity ~= numCell));
+%         for numPointPerim = find(actualCellPerim)'
+%             [x, y, z] = ind2sub(size(img3d_original), numPointPerim);
+%             [indices, ~] = findNearestNeighbors(actualPointCloud, [x, y, z], 5, 'MaxLeafChecks', 200, 'Sort', true);
+%             cellNeighbours = actualPointCloud.Intensity(indices);
+%             cellNeighbours(cellNeighbours == numCell) = [];
+%             if isempty(cellNeighbours) == 0
+%                 neighbours{numCell} = unique([cellNeighbours', neighbours{numCell}]);
+%             end
+%         end
 %     end
-    [x, y, z] = ind2sub(size(img3d_original), find(img3d_original>0));
-    cellsPointCloud = pointCloud([x, y, z], 'Intensity', img3d_original(img3d_original>0));
-    neighbours = cell(max(img3d_original(:)), 1);
-    for numCell = 1:max(img3d_original(:))
-        actualCellPerim = bwperim(img3d_original==numCell);
-        actualPointCloud = select(cellsPointCloud, find(cellsPointCloud.Intensity ~= numCell));
-        for numPointPerim = find(actualCellPerim)'
-            [x, y, z] = ind2sub(size(img3d_original), numPointPerim);
-            [indices] = findNearestNeighbors(actualPointCloud, [x, y, z], 10, 'MaxLeafChecks', 200, 'Sort', true);
-            cellNeighbours = actualPointCloud.Intensity(indices);
-            cellNeighbours(cellNeighbours == numCell) = [];
-            if isempty(cellNeighbours) == 0
-                neighbours{numCell} = unique([cellNeighbours(1), neighbours{numCell}]);
-            end
-        end
-    end
     
     %Option 3: Original version
-    %[neighbours] = calculateNeighbours3D(img3d_original); %Correct neighbours
-    img3d_original = permute(img3d_original, [1 3 2]);
-%     axesLength = regionprops3(img3d>0,'PrincipalAxisLength');
-%     [~,maxLeng] = max(cat(1,axesLength.PrincipalAxisLength));
-%     [~,orderLengAxis] = sort(cat(1,axesLength.PrincipalAxisLength(maxLeng(1),:)));
-%     img3d=permute(img3d,orderLengAxis);
-
-    
-    [verticesInfo] = getVertices3D(img3d_original, neighbours, insideGland == 0);
+    [neighbours] = calculateNeighbours3D(img3d_original); %Correct neighbours
+    neighbours = neighbours.neighbourhood;
+    [verticesInfo] = getVertices3D(img3d_original, neighbours);
     vertices3D = vertcat(verticesInfo.verticesPerCell{:});
+    
+%     [colours] = exportAsImageSequence_WithVertices(img3d, outputDir, colours, -1, vertices3D);
+%     figure; paint3D(img3d_original, [], colours);
+%     for numVertex = 1:size(vertices3D, 1)
+%         hold on; plot3(vertices3D(numVertex, 1), vertices3D(numVertex, 2), vertices3D(numVertex, 3), 'rx')
+%     end
+    
+    img3d_original = permute(img3d_original, [1 3 2]);
     vertices3D_Neighbours = verticesInfo.verticesConnectCells;
     vertices3D_Neighbours(cellfun(@isempty, verticesInfo.verticesPerCell), :) = [];
     cellNumNeighbours = cellfun(@length, neighbours);
@@ -64,7 +66,8 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     resizeImg = 1/4.06;
     imgSize = round(size(img3d_original)/resizeImg);
     img3d = imresize3(img3d_original, imgSize, 'nearest');
-    vertices3D = round(vertices3D / resizeImg);
+
+%     vertices3D = round(vertices3D / resizeImg);
     
     imgFinalCoordinates=cell(size(img3d,3),1);
     imgFinalCoordinates3x=cell(size(img3d,3),1);

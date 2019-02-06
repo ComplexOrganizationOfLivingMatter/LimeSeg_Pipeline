@@ -2,9 +2,9 @@ function [ verticesInfo] = getVertices3D( L_img, neighbours, invalidRegion)
 % With a labelled image as input, the objective is get all vertex for each
 % cell
 
-ratio=3;
-[xgrid, ygrid, zgrid] = meshgrid(-ratio:ratio); 
-ball = (sqrt(xgrid.^2 + ygrid.^2 + zgrid.^2) <= ratio); 
+ratio=2;
+
+ball = strel('sphere', ratio);
 
 neighboursVertices = buildTripletsOfNeighs( neighbours );%intersect dilatation of each cell of triplet
 vertices = cell(size(neighboursVertices, 1), 1);
