@@ -46,9 +46,13 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
 %         end
 %     end
     
-    %Option 3: Original version
-    [neighbours] = calculateNeighbours3D(img3d_original); %Correct neighbours
-    neighbours = neighbours.neighbourhood;
+%     %Option 3: Original version
+%     [neighbours] = calculateNeighbours3D(img3d_original); %Correct neighbours
+%     neighbours = neighbours.neighbourhood;
+
+    %Option 4: making projections
+    neighbours = getNeighboursFromFourProjectedPlanesFrom3Dgland(img3d_original, colours);
+    img3d_original = permute(img3d_original, [1 3 2]);
     [verticesInfo] = getVertices3D(img3d_original, neighbours);
     vertices3D = vertcat(verticesInfo.verticesPerCell{:});
     
@@ -58,7 +62,6 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
 %         hold on; plot3(vertices3D(numVertex, 1), vertices3D(numVertex, 2), vertices3D(numVertex, 3), 'rx')
 %     end
     
-    img3d_original = permute(img3d_original, [1 3 2]);
     vertices3D_Neighbours = verticesInfo.verticesConnectCells;
     vertices3D_Neighbours(cellfun(@isempty, verticesInfo.verticesPerCell), :) = [];
     cellNumNeighbours = cellfun(@length, neighbours);
