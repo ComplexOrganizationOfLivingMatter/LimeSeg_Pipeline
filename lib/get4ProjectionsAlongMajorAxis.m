@@ -1,4 +1,4 @@
-function get4ProjectionsAlongMajorAxis(img3d,colours)
+function [maskUpClean,maskDownClean,maskLeftClean,maskRightClean] = get4ProjectionsAlongMajorAxis(img3d,colours)
     
     [xLength,yLength,zLength] = size(img3d);
 
@@ -16,7 +16,6 @@ function get4ProjectionsAlongMajorAxis(img3d,colours)
     img3dDown = img3d;
     img3dLeft = img3d;
     img3dRight = img3d;
-    perimMask3d = bwperim(maskFill3d);
     
     for nY = 1 : size(maskFill3d,2)
         [x,~,z] = ind2sub(size(maskFill3d(:,nY,:)),find(maskFill3d(:,nY,:)));
@@ -56,6 +55,30 @@ function get4ProjectionsAlongMajorAxis(img3d,colours)
         maskRight(maskRight==0) = sliceX(maskRight==0);
     end
     
-        
+    
+
+    %%clean projections   
+    maskUpClean = cleanProjection(maskUp);
+    maskDownClean = cleanProjection(maskDown);
+    maskLeftClean = cleanProjection(maskLeft);
+    maskRightClean = cleanProjection(maskRight);
+    
+    
+%     colours = [0 0 0;colours];
+
+%     figure,imshow(maskUp,colours)
+%     figure,imshow(maskUpClean,colours)
+%     
+%     figure,imshow(maskDown,colours)
+%     figure,imshow(maskDownClean,colours)
+%     
+%     figure,imshow(maskLeft,colours)
+%     figure,imshow(maskLeftClean,colours)
+%     
+%     figure,imshow(maskRight,colours)
+%     figure,imshow(maskRightClean,colours)
+    
+    
+    
 end
 
