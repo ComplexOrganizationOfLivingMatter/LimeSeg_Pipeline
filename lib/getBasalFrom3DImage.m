@@ -21,6 +21,6 @@ function [basalLayer] = getBasalFrom3DImage(labelledImage, lumenImage, tipValue)
     if isempty(lumenImage) == 0
         basalLayer(imdilate(lumenImage, strel('sphere', 3))) = 0;
     end
-    basalLayer = labelledImage .* basalLayer;
+    basalLayer = completeImageOfCells(labelledImage .* basalLayer, basalLayer == 0);
 end
 
