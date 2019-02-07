@@ -40,17 +40,20 @@ function connectVerticesOf2D(midSectionImage, neighbours2D, vertices2D, vertices
         sum(actualVertices)
         cellNumNeighbours(numCell)
         
-%         if sum(actualVertices) ~= cellNumNeighbours(numCell)
-%             for numRegion = 1:size(centroids3x, 1)
-%                 figure; imshow(actualImg)
-%                 hold on;
-%                 actualVerticesRegion = allActualVertices(closestIndices == numRegion, :);
-%                 for numVertex = 1:size(actualVerticesRegion, 1)
-%                     plot(actualVerticesRegion(numVertex, 1), actualVerticesRegion(numVertex, 2), 'x')
-%                 end
-%             end
-%         end
+        if sum(actualVertices) ~= cellNumNeighbours(numCell)
+            for numRegion = 1:size(centroids3x, 1)
+                figure; imshow(actualImg)
+                hold on;
+                actualVerticesRegion = allActualVertices(closestIndices == numRegion, :);
+                for numVertex = 1:size(actualVerticesRegion, 1)
+                    plot(actualVerticesRegion(numVertex, 1), actualVerticesRegion(numVertex, 2), 'x')
+                end
+            end
+        end
         selectedNeighboursOfVertices = actualNeighbours2D(closestIndices == midCentroid, :);
+        if sum(closestIndices == midCentroid) < 2
+            continue;
+        end
         if size(unique(selectedNeighboursOfVertices, 'rows'), 1) ~= size(allActualVertices(closestIndices == midCentroid, :), 1)
             %Wrong vertices
             

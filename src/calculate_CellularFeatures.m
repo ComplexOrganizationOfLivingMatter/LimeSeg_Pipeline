@@ -2,7 +2,7 @@ function [CellularFeaturesWithNoValidCells, meanSurfaceRatio] = calculate_Cellul
 %CALCULATE_CELLULARFEATURES Summary of this function goes here
 %   Detailed explanation goes here
 %%  Calculate number of neighbours of each cell
-number_neighbours=table(cellfun(@length,(apical3dInfo.neighbourhood)),cellfun(@length,(basal3dInfo.neighbourhood)));
+number_neighbours=table(cellfun(@length,(apical3dInfo)),cellfun(@length,(basal3dInfo)));
 total_neighbours3D=calculateNeighbours3D(labelledImage);
 total_neighbours3DRecount=cellfun(@(x) length(x), total_neighbours3D.neighbourhood, 'UniformOutput',false);
 apicobasal_neighbours=cellfun(@(x,y)(unique(vertcat(x,y))), apical3dInfo.neighbourhood, basal3dInfo.neighbourhood, 'UniformOutput',false);

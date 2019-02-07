@@ -27,7 +27,7 @@ function [polygon_distribution, neighbours_data] = pipeline(outputDir)
         [labelledImage, outsideGland] = processCells(fullfile(outputDir, 'Cells', filesep), resizeImg, imgSize, tipValue);
 
         [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
-        %labelledImage = completeImageOfCells(labelledImage, imclose(labelledImage, strel('sphere', 1)) == 0);
+        labelledImage = completeImageOfCells(labelledImage, imclose(labelledImage, strel('sphere', 1)) == 0);
             
         %% Put both lumen and labelled image at a 90 degrees
 
@@ -93,9 +93,9 @@ function [polygon_distribution, neighbours_data] = pipeline(outputDir)
     save(fullfile(outputDir, 'Results', '3d_layers_info.mat'), 'labelledImage', 'basalLayer', 'apicalLayer', 'apical3dInfo', 'basal3dInfo', 'colours', 'lumenImage','glandOrientation', '-v7.3')
 
     %% Calculate poligon distribution
-    [polygon_distribution_Apical] = calculate_polygon_distribution(cellfun(@length, apical3dInfo.neighbourhood), validCells);
-    [polygon_distribution_Basal] = calculate_polygon_distribution(cellfun(@length, basal3dInfo.neighbourhood), validCells);
-    neighbours_data = table(apical3dInfo.neighbourhood, basal3dInfo.neighbourhood);
+    [polygon_distribution_Apical] = calculate_polygon_distribution(cellfun(@length, apical3dInfo), validCells);
+    [polygon_distribution_Basal] = calculate_polygon_distribution(cellfun(@length, basal3dInfo), validCells);
+    neighbours_data = table(apical3dInfo, basal3dInfo);
     polygon_distribution = table(polygon_distribution_Apical, polygon_distribution_Basal);
     neighbours_data.Properties.VariableNames = {'Apical','Basal'};
     polygon_distribution.Properties.VariableNames = {'Apical','Basal'};

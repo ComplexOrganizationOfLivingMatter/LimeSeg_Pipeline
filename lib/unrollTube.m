@@ -52,6 +52,8 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
 
     %Option 4: making projections
     neighbours = getNeighboursFromFourProjectedPlanesFrom3Dgland(img3d_original, colours);
+    neighbours = checkPairPointCloudDistanceCurateNeighbours(imgLayer3D, neighbours);
+    
     img3d_original = permute(img3d_original, [1 3 2]);
     [verticesInfo] = getVertices3D(img3d_original, neighbours);
     vertices3D = vertcat(verticesInfo.verticesPerCell{:});
