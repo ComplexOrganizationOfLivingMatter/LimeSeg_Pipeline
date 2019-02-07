@@ -6,8 +6,8 @@ function [answer, apical3dInfo, notFoundCellsApical, basal3dInfo, notFoundCellsB
     allCells(allCells == 0) = [];
     
     %[apical3dInfo] = calculateNeighbours3D(apicalLayer, 4);
-    apical3dInfo = getNeighboursFromFourProjectedPlanesFrom3Dgland(img3d_original, colours);
-    apical3dInfo = checkPairPointCloudDistanceCurateNeighbours(imgLayer3D, apical3dInfo);
+    apical3dInfo = getNeighboursFromFourProjectedPlanesFrom3Dgland(apicalLayer, colours);
+    apical3dInfo = checkPairPointCloudDistanceCurateNeighbours(apicalLayer, apical3dInfo);
     if length(allCells) ~= length(apical3dInfo)
         addingCells = length(allCells) - length(apical3dInfo);
         apical3dInfo(end+addingCells) = {[]};
@@ -16,8 +16,8 @@ function [answer, apical3dInfo, notFoundCellsApical, basal3dInfo, notFoundCellsB
 
     %Display missing cells in basal
     %[basal3dInfo] = calculateNeighbours3D(basalLayer, 4);
-    basal3dInfo = getNeighboursFromFourProjectedPlanesFrom3Dgland(img3d_original, colours);
-    basal3dInfo = checkPairPointCloudDistanceCurateNeighbours(imgLayer3D, basal3dInfo);
+    basal3dInfo = getNeighboursFromFourProjectedPlanesFrom3Dgland(basalLayer, colours);
+    basal3dInfo = checkPairPointCloudDistanceCurateNeighbours(basalLayer, basal3dInfo);
     if length(allCells) ~= length(basal3dInfo)
         addingCells = length(allCells) - length(basal3dInfo);
         basal3dInfo(end+addingCells) = {[]};
