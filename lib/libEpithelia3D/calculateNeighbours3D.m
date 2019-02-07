@@ -1,7 +1,7 @@
 function [image3dInfo] = calculateNeighbours3D(L_img)
 
     %% Generate neighbours
-    se = strel('sphere',1);
+    se = strel('sphere',4);
     cells=1:max(max(max(L_img)));
     imgPerim = uint16(bwperim(L_img)) .* uint16(L_img);
     
