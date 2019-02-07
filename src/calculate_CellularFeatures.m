@@ -3,8 +3,9 @@ function [CellularFeaturesWithNoValidCells, meanSurfaceRatio] = calculate_Cellul
 %   Detailed explanation goes here
 %%  Calculate number of neighbours of each cell
 number_neighbours=table(cellfun(@length,(apical3dInfo)),cellfun(@length,(basal3dInfo)));
-total_neighbours3D=calculateNeighbours3D(labelledImage, 4);
-total_neighbours3DRecount=cellfun(@(x) length(x), total_neighbours3D.neighbourhood', 'UniformOutput',false);
+total_neighbours3D = calculateNeighbours3D(labelledImage, 2);
+total_neighbours3D = checkPairPointCloudDistanceCurateNeighbours(labelledImage, total_neighbours3D.neighbourhood', 1);
+total_neighbours3DRecount=cellfun(@(x) length(x), total_neighbours3D, 'UniformOutput',false);
 apicobasal_neighbours=cellfun(@(x,y)(unique(vertcat(x,y))), apical3dInfo, basal3dInfo, 'UniformOutput',false);
 apicobasal_neighboursRecount=cellfun(@(x) length(x),apicobasal_neighbours,'UniformOutput',false);
 
@@ -24,25 +25,25 @@ scutoids_cells=cellfun(@(x,y) double(~isequal(x,y)), neighbours_data.Apical,neig
 %%  Export to a excel file
 ID_cells=(1:length(basal3dInfo)).';
 
- if isequal(total_neighbours3D.neighbourhood',apicobasal_neighbours)==0
-        
-        pos=cellfun(@isequal, total_neighbours3D.neighbourhood',apicobasal_neighbours);
-       
-        ids=ID_cells(pos==0);
-        ids(ismember(ids,noValidCells))=[];
-        
-        
-        IDsStrings=string(num2str(ids));
-        IDsStrings=strjoin(IDsStrings,', ');
-        
-        msg1="Cells with IDs ";
-        msg2=strcat(msg1,IDsStrings);
-     
-        msg3="  could be wrong due to Total_neighbours is different from Apicobasal_neighours";
-        msg=strcat(msg2,msg3);
+if isequal(total_neighbours3D,apicobasal_neighbours)==0
     
-        warning(msg);
- end
+    pos=cellfun(@isequal, total_neighbours3D,apicobasal_neighbours);
+    
+    ids=ID_cells(pos==0);
+    ids(ismember(ids,noValidCells))=[];
+    
+    
+    IDsStrings=string(num2str(ids));
+    IDsStrings=strjoin(IDsStrings,', ');
+    
+    msg1="Cells with IDs ";
+    msg2=strcat(msg1,IDsStrings);
+    
+    msg3="  could be wrong due to Total_neighbours is different from Apicobasal_neighours";
+    msg=strcat(msg2,msg3);
+    
+    warning(msg);
+end
 
 CellularFeatures=table(ID_cells,number_neighbours.Var1',number_neighbours.Var2',total_neighbours3DRecount',apicobasal_neighboursRecount',scutoids_cells',apical_area_cells,basal_area_cells, surfaceRatio, volume_cells);
 CellularFeatures.Properties.VariableNames = {'ID_Cell','Apical_sides','Basal_sides','Total_neighbours','Apicobasal_neighbours','Scutoids','Apical_area','Basal_area', 'Surface_Ratio','Volume'};
@@ -54,7 +55,7 @@ if isempty(outputDir) == 0
     writetable(CellularFeatures,fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Range','B2');
 
     %% Poligon distribution 
-    polygon_distribution_3D=calculate_polygon_distribution(cellfun(@length, total_neighbours3D.neighbourhood), validCells);
+    polygon_distribution_3D=calculate_polygon_distribution(cellfun(@length, apicobasal_neighbours), validCells);
     writetable(table('','VariableNames',{'Apical'}),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B2')
     writetable(table(polygon_distribution.Apical),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B3', 'WriteVariableNames',false);
     writetable(table('','VariableNames',{'Basal'}),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B6')

@@ -2,10 +2,9 @@ function [apicalLayer] = getApicalFrom3DImage(lumenImage, labelledImage)
 %GETAPICALFRO3DIMAGE Summary of this function goes here
 %   Detailed explanation goes here
     se = strel('sphere', 1);
+    lumenImage = imclose(lumenImage, strel('sphere', 2));
     dilatedLumen = imdilate(lumenImage, se);
-    apicalLayer = dilatedLumen .* labelledImage;
-    
-    apicalLayer = completeImageOfCells(apicalLayer, (imdilate(imclose(lumenImage, strel('sphere', 2)), strel('sphere', 1)) - lumenImage) == 0);
+    apicalLayer = labelledImage .* (dilatedLumen - lumenImage);
 %     [x,y,z] = ind2sub(size(apicalLayer),find(apicalLayer>0));
 %     figure;
 %     pcshow([x,y,z]);

@@ -1,9 +1,13 @@
-function neighCuration = checkPairPointCloudDistanceCurateNeighbours(imgLayer3D,neighs)
+function neighCuration = checkPairPointCloudDistanceCurateNeighbours(imgLayer3D,neighs, performPerimOfCells)
 
     neighCuration = neighs;
     setPtClouds = cell(1,length(neighs));
     for nCells = 1 : length(neighs)
-        [allX1,allY1,allZ1] = ind2sub(size(imgLayer3D),find(imgLayer3D==nCells));
+        if exist('performPerimOfCells', 'var')
+            [allX1,allY1,allZ1] = ind2sub(size(imgLayer3D),find(bwperim(imgLayer3D==nCells)));
+        else
+            [allX1,allY1,allZ1] = ind2sub(size(imgLayer3D),find(imgLayer3D==nCells));
+        end
         setPtClouds{nCells} = pointCloud([allX1,allY1,allZ1]);
     end
     

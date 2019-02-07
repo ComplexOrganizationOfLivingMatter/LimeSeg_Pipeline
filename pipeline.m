@@ -27,7 +27,7 @@ function [polygon_distribution, neighbours_data] = pipeline(outputDir)
         [labelledImage, outsideGland] = processCells(fullfile(outputDir, 'Cells', filesep), resizeImg, imgSize, tipValue);
 
         [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
-        labelledImage = completeImageOfCells(labelledImage, imclose(labelledImage, strel('sphere', 1)) == 0);
+        labelledImage = completeImageOfCells(labelledImage, imclose(labelledImage, strel('sphere', 3)) == 0);
             
         %% Put both lumen and labelled image at a 90 degrees
 
@@ -75,7 +75,7 @@ function [polygon_distribution, neighbours_data] = pipeline(outputDir)
             labelledImage = getappdata(0, 'labelledImageTemp');
             close all
             [labelledImage] = fillEmptySpacesByWatershed3D(labelledImage, outsideGland | lumenImage, 1);
-            labelledImage = completeImageOfCells(labelledImage, imclose(labelledImage, strel('sphere', 1)) == 0);
+            labelledImage = completeImageOfCells(labelledImage, imclose(labelledImage, strel('sphere', 3)) == 0);
             exportAsImageSequence(labelledImage, fullfile(outputDir, 'Cells', 'labelledSequence', filesep), colours, tipValue);
 
             %% Calculate neighbours and plot missing cells
