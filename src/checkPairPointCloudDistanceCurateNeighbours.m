@@ -24,7 +24,7 @@ function neighCuration = checkPairPointCloudDistanceCurateNeighbours(imgLayer3D,
                 end
             end
             
-            if minDist > 4
+            if minDist > 3
                neighCellsRefact(neighCellsRefact == neighCells(nNeigh)) = [];
             end
             
