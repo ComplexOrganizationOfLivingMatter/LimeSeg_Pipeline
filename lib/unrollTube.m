@@ -82,10 +82,10 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     
     resizeImg = 1/4.06; %TODO: REFACTOR REGARDING THE MUTANT
     imgSize = round(size(img3d_original)/resizeImg);
-    img3d = imresize3(img3d_original, imgSize, 'nearest');
+    img3d = double(imresize3(img3d_original, imgSize, 'nearest'));
     validRegion_filled = imfill(double(imclose(img3d>0, strel('sphere', 20))), 26);
     validRegion = validRegion_filled & imerode(validRegion_filled, strel('sphere', 1))==0;
-    img3d = fill0sWithCells(img3d.*validRegion, validRegion==0);
+    img3d = fill0sWithCells(img3d .* double(validRegion), validRegion==0);
     vertices3D = round(vertices3D / resizeImg);
     
     imgFinalCoordinates=cell(size(img3d,3),1);
@@ -96,10 +96,10 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     imgFinalVerticesCoordinates = cell(size(img3d,3),1);
     imgFinalVerticesCoordinates_Neighbours = cell(size(img3d,3),1);
     previousRowsSize = 0;
-    insideGland = imdilate(img3d>0, strel('sphere', 1));
-    img3d(insideGland == 0) = -1;
+    %insideGland = imdilate(img3d>0, strel('sphere', 1));
+    %img3d(insideGland == 0) = -1;
     for coordZ = 1 : size(img3d,3)
-        if sum(sum(img3d(:, :, coordZ) >= 0)) < pixelSizeThreshold || sum(sum(img3d(:, :, coordZ)+1)) < pixelSizeThreshold
+        if sum(sum(img3d(:, :, coordZ) > 0)) < pixelSizeThreshold || sum(sum(img3d(:, :, coordZ))) < pixelSizeThreshold
             continue
         end
         %figure; imshow(img3d(:, :, coordZ)+2, colorcube)
@@ -108,27 +108,27 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
         
         %perimImage = bwperim(img3d(:, :, coordZ)>=0, 4);
         %finalPerimImage = imclose(perimImage, strel('disk', 1)) - perimImage;
-        finalPerimImage = bwmorph(img3d(:, :, coordZ)>=0,'thin', Inf);
+        finalPerimImage = bwmorph(img3d(:, :, coordZ)>0,'thin', Inf);
         finalPerimImage = imclose(finalPerimImage, strel('disk', 2));
         finalPerimImage = bwmorph(finalPerimImage>0, 'thin', Inf);
-        figure; imshow(finalPerimImage)
-        [x, y] = find(finalPerimImage==0);
-        outsidePerim = sub2ind(size(img3d), x, y, repmat(coordZ, size(x)));
-        img3d(outsidePerim) = -1;
-        [x, y] = find(finalPerimImage & img3d(:, :, coordZ)<0);
-        insidePerim = sub2ind(size(img3d), x, y, repmat(coordZ, size(x)));
-        img3d(insidePerim) = 0;
+        %figure; imshow(finalPerimImage)
+%         [x, y] = find(finalPerimImage==0);
+%         outsidePerim = sub2ind(size(img3d), x, y, repmat(coordZ, size(x)));
+%         img3d(outsidePerim) = 0;
+%         [x, y] = find(finalPerimImage & img3d(:, :, coordZ)<0);
+%         insidePerim = sub2ind(size(img3d), x, y, repmat(coordZ, size(x)));
+%         img3d(insidePerim) = 0;
         
         %figure; imshow(zPerimMask)
 %         figure; imshow(img3d(:, :, coordZ)+2, colorcube)
         
         %% Obtaining the center of the cylinder
-        [x, y] = find(img3d(:, :, coordZ) >= 0);
+        [x, y] = find(img3d(:, :, coordZ) > 0);
         centroidCoordZ = mean([x, y], 1); % Centroid of each real Y of the cylinder
         centroidX = centroidCoordZ(1);
         centroidY = centroidCoordZ(2);
         
-        [x, y] = find(img3d(:, :, coordZ) >= 0);
+        [x, y] = find(img3d(:, :, coordZ) > 0);
         
         %[xPerim, yPerim]=find(finalPerim3D(:, :, coordZ));
         
