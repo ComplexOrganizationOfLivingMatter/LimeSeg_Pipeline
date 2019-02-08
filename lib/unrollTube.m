@@ -291,14 +291,15 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     validCellsFinal  = setdiff(1:max(midSectionImage(:)), noValidCells);
     finalImageWithValidCells = ismember(midSectionImage, validCellsFinal).*midSectionImage;
 %     figure;imshow(finalImageWithValidCells,colours)
-    
-    save(strcat(outputDir, '_', 'verticesInfo.mat'), 'midSectionImage', 'neighbours2D', 'vertices2D', 'vertices2D_Left', 'vertices2D_Right', 'centroids', 'midSectionNewLabels', 'wholeImage', 'validCellsFinal', 'cellNumNeighbours', 'cylindre2DImage');
 
     h = figure ('units','normalized','outerposition',[0 0 1 1], 'visible', 'off');
     imshow(midSectionImage+1, colours);
     midSectionNewLabels = bwlabel(midSectionImage, 4);
     centroids = regionprops(midSectionNewLabels, 'Centroid');
     centroids = round(vertcat(centroids.Centroid));
+    
+    save(strcat(outputDir, '_', 'verticesInfo.mat'), 'midSectionImage', 'neighbours2D', 'vertices2D', 'vertices2D_Left', 'vertices2D_Right', 'centroids', 'midSectionNewLabels', 'wholeImage', 'validCellsFinal', 'cellNumNeighbours', 'cylindre2DImage');
+    
     ax = get(h, 'Children');
     set(ax,'Units','normalized')
     set(ax,'Position',[0 0 1 1])
