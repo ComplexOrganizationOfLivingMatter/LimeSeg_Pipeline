@@ -91,7 +91,7 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
         img3d = fill0sWithCells(img3d .* double(validRegion), validRegion==0);
         vertices3D = round(vertices3D / resizeImg);
 
-        save(strcat(outputDir, '_', 'final3DImg.mat'), 'img3d', 'vertices3D_Neighbours', 'vertices3D', 'cellNumNeighbours');
+        save(strcat(outputDir, '_', 'final3DImg.mat'), 'img3d', 'vertices3D_Neighbours', 'vertices3D', 'cellNumNeighbours', 'neighbours');
     end
     
     imgFinalCoordinates=cell(size(img3d,3),1);
@@ -117,7 +117,7 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
         
         finalPerimImage = imfill(double(img3d(:, :, coordZ)>0));
         finalPerimImage = bwperim(finalPerimImage);
-        imshow(finalPerimImage)
+        %imshow(finalPerimImage)
 %         [x, y] = find(finalPerimImage==0);
 %         outsidePerim = sub2ind(size(img3d), x, y, repmat(coordZ, size(x)));
 %         img3d(outsidePerim) = 0;
@@ -333,6 +333,9 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     set(ax,'Units','normalized')
     set(ax,'Position',[0 0 1 1])
     hold on;
+    newNeighbours2D = calculateNeighbours(midSectionImage);
+    newNeighbours2D_Checked = checkPairPointCloudDistanceCurateNeighbours(img3d, newNeighbours2D);
+    newVertices2D = getVertices(midSectionImage, newNeighbours2D_Checked);
     connectVerticesOf2D(midSectionImage, neighbours2D, vertices2D, vertices2D_Left, vertices2D_Right, centroids, midSectionNewLabels, wholeImage, validCellsFinal, cellNumNeighbours);
     
     h.InvertHardcopy = 'off';
