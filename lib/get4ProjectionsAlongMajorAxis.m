@@ -1,24 +1,20 @@
 function [maskUpClean,maskDownClean,maskLeftClean,maskRightClean] = get4ProjectionsAlongMajorAxis(img3d,colours)
     
     [xLength,yLength,zLength] = size(img3d);
-
-    closedImg3D = imdilate(img3d>0,strel('sphere',5));
-    maskFill3d = imerode(bwmorph3(closedImg3D,'fill'),strel('sphere',5));
     
     setCentroids = zeros(zLength,3);
 
     %force Y axis as major axis
     if xLength > yLength
        img3d = permute(img3d,[2,1,3]); 
-       maskFill3d = permute(maskFill3d,[2,1,3]); 
     end
     img3dUp = img3d;
     img3dDown = img3d;
     img3dLeft = img3d;
     img3dRight = img3d;
     
-    for nY = 1 : size(maskFill3d,2)
-        [x,~,z] = ind2sub(size(maskFill3d(:,nY,:)),find(maskFill3d(:,nY,:)));
+    for nY = 1 : size(img3d,2)
+        [x,~,z] = ind2sub(size(img3d(:,nY,:)),find(img3d(:,nY,:)));
         setCentroids(nY,:) = [round(mean(x)),nY,round(mean(z))];
         
         img3dUp (:,nY,1:setCentroids(nY,3)) = 0;

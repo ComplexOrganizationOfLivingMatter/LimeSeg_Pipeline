@@ -51,10 +51,22 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
 %     neighbours = neighbours.neighbourhood;
 
     %Option 4: making projections
-    neighbours = getNeighboursFromFourProjectedPlanesFrom3Dgland(img3d_original, colours);
-    neighbours = checkPairPointCloudDistanceCurateNeighbours(imgLayer3D, neighbours);
+    img3d_original = rotateImg3(img3d_original);
     
-    img3d_original = permute(img3d_original, [1 3 2]);
+    [allX,allY,allZ]=ind2sub(size(img3d_original),find(img3d_original>0));
+    img3d_originalCropped = img3d_original(min(allX):max(allX),min(allY):max(allY),min(allZ):max(allZ));
+    
+    % Check which side is the longest
+    neighbours = getNeighboursFromFourProjectedPlanesFrom3Dgland(img3d_original, colours);
+    neighbours = checkPairPointCloudDistanceCurateNeighbours(img3d_original, neighbours);
+    
+    
+    sizeImg3d = size(img3d_originalCropped);
+    [~, indices] = sort(sizeImg3d);
+    img3d_original = permute(img3d_originalCropped, indices);
+    img3d_original = fill0sWithCells(img3d_original, imclose(img3d_original>0, strel('sphere', 2)) == 0);
+    tipValue = 20;
+    img3d_original = addTipsImg3D(tipValue, img3d_original);
     [verticesInfo] = getVertices3D(img3d_original, neighbours);
     vertices3D = vertcat(verticesInfo.verticesPerCell{:});
     
@@ -68,9 +80,12 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     vertices3D_Neighbours(cellfun(@isempty, verticesInfo.verticesPerCell), :) = [];
     cellNumNeighbours = cellfun(@length, neighbours);
     
-    resizeImg = 1/4.06;
+    resizeImg = 1/4.06; %TODO: REFACTOR REGARDING THE MUTANT
     imgSize = round(size(img3d_original)/resizeImg);
     img3d = imresize3(img3d_original, imgSize, 'nearest');
+    validRegion_filled = imfill(double(imclose(img3d>0, strel('sphere', 20))), 26);
+    validRegion = validRegion_filled & imerode(validRegion_filled, strel('sphere', 1))==0;
+    img3d = fill0sWithCells(img3d.*validRegion, validRegion==0);
     vertices3D = round(vertices3D / resizeImg);
     
     imgFinalCoordinates=cell(size(img3d,3),1);
@@ -96,6 +111,7 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
         finalPerimImage = bwmorph(img3d(:, :, coordZ)>=0,'thin', Inf);
         finalPerimImage = imclose(finalPerimImage, strel('disk', 2));
         finalPerimImage = bwmorph(finalPerimImage>0, 'thin', Inf);
+        figure; imshow(finalPerimImage)
         [x, y] = find(finalPerimImage==0);
         outsidePerim = sub2ind(size(img3d), x, y, repmat(coordZ, size(x)));
         img3d(outsidePerim) = -1;
@@ -276,6 +292,8 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     finalImageWithValidCells = ismember(midSectionImage, validCellsFinal).*midSectionImage;
 %     figure;imshow(finalImageWithValidCells,colours)
     
+    save(strcat(outputDir, '_', 'verticesInfo.mat'), 'midSectionImage', 'neighbours2D', 'vertices2D', 'vertices2D_Left', 'vertices2D_Right', 'centroids', 'midSectionNewLabels', 'wholeImage', 'validCellsFinal', 'cellNumNeighbours', 'cylindre2DImage');
+
     h = figure ('units','normalized','outerposition',[0 0 1 1], 'visible', 'off');
     imshow(midSectionImage+1, colours);
     midSectionNewLabels = bwlabel(midSectionImage, 4);
@@ -298,10 +316,10 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     imwrite(finalImageWithValidCells+1, colours, strcat(outputDir, '_', 'img_MidSection_ValidCells.tif'));
     imwrite(wholeImage+1, colours, strcat(outputDir, '_', 'img_WholeImage.tif'));
     
-    save(strcat(outputDir, '_', 'verticesInfo.mat'), 'midSectionImage', 'neighbours2D', 'vertices2D', 'vertices2D_Left', 'vertices2D_Right', 'centroids', 'midSectionNewLabels', 'wholeImage', 'validCellsFinal', 'cellNumNeighbours');
+    
     %% Connect vertices to obtain an image from the vertices
     h = figure;
-    imshow(midSectionImage+1, colours);
+    imshow(cylindre2DImage+1, colours);
     ax = get(h, 'Children');
     set(ax,'Units','normalized')
     set(ax,'Position',[0 0 1 1])
