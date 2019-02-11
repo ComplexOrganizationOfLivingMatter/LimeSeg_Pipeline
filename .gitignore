@@ -7,3 +7,5 @@ docs/
 *.asv
 *.ini
 *.mat
+*.png
+*.fig
