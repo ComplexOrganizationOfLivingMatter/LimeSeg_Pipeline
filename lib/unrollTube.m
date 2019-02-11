@@ -98,7 +98,6 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     imgFinalCoordinates3x=cell(size(img3d,3),1);
     %exportAsImageSequence(img3d, outputDir, colours, -1);
     %exportAsImageSequence(perimImage3D, outputDir, colours, -1);
-    borderCells=cell(size(img3d,3),1);
     imgFinalVerticesCoordinates = cell(size(img3d,3),1);
     imgFinalVerticesCoordinates_Neighbours = cell(size(img3d,3),1);
     previousRowsSize = 0;
@@ -208,13 +207,9 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
         previousRowsSize = length(orderedLabels);
         imgFinalCoordinates3x{coordZ} = repmat(orderedLabels, 1, 3);
         imgFinalCoordinates{coordZ} = orderedLabels;
-        borderCells{coordZ} = orderedLabels(1);
     end
     
     %exportAsImageSequence(perimImage3D, outputDir, colours, -1);
-    
-    borderCells = unique([borderCells{:}]);
-    borderCells(borderCells == 0) = [];
 
     %% Reconstruct deployed img
     
@@ -307,7 +302,6 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     save(strcat(outputDir, '_', 'verticesInfo.mat'), 'midSectionImage', 'neighbours2D', 'vertices2D', 'vertices2D_Left', 'vertices2D_Right', 'centroids', 'midSectionNewLabels', 'wholeImage', 'validCellsFinal', 'cellNumNeighbours', 'cylindre2DImage');
     
     ax = get(h, 'Children');
-    ax = ax(10);
     set(ax,'Units','normalized')
     set(ax,'Position',[0 0 1 1])
     for numCentroid = 1:size(centroids, 1)
@@ -329,21 +323,29 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     h = figure;
     imshow(cylindre2DImage+1, colours);
     ax = get(h, 'Children');
-    ax = ax(10);
     set(ax,'Units','normalized')
     set(ax,'Position',[0 0 1 1])
     hold on;
     newNeighbours2D = calculateNeighbours(midSectionImage);
     newNeighbours2D_Checked = checkPairPointCloudDistanceCurateNeighbours(img3d, newNeighbours2D);
+    
     newVertices2D = getVertices(midSectionImage, newNeighbours2D_Checked);
-    connectVerticesOf2D(midSectionImage, neighbours2D, vertices2D, vertices2D_Left, vertices2D_Right, centroids, midSectionNewLabels, wholeImage, validCellsFinal, cellNumNeighbours);
+    newVerticesNeighs2D = vertcat(newVertices2D.verticesConnectCells);
+    newVerticesNeighs2D_empty = cellfun(@isempty, newVertices2D.verticesPerCell);
+    newVerticesNeighs2D(newVerticesNeighs2D_empty, :) = [];
+    newVertices2D = vertcat(newVertices2D.verticesPerCell{:});
+    
+    toGetBorderCells = cylindre2DImage+1;
+    background = imopen(cylindre2DImage==0, strel('sphere', 1));
+    toGetBorderCells(~background & cylindre2DImage == 0) = 0;
+    backgroundNeighs = calculateNeighbours(toGetBorderCells);
+    borderCells = backgroundNeighs{1} - 1;
+    connectVerticesOf2D(midSectionImage, newVerticesNeighs2D, newVertices2D, centroids, midSectionNewLabels, wholeImage, validCellsFinal, cellNumNeighbours, borderCells);
     
     h.InvertHardcopy = 'off';
     saveas(h, strcat(outputDir, '_', '_vertices.tif'));
     
     %% Calculating surface ratio
-    validCellsProp = regionprops(midSectionImage, 'EulerNumber');
-    borderCells = find([validCellsProp.EulerNumber] > 1);
     midRange = 1:round(size(finalImageWithValidCells, 2)/2);
     imageNewLabels = bwlabel(finalImageWithValidCells, 4);
     imageNewLabelsMid = imageNewLabels(:, midRange);

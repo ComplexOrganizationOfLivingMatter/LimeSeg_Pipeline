@@ -49,7 +49,8 @@ function [samiraTableVoronoi, cellsVoronoi] = tableWithSamiraFormat(cellWithVert
     
     %Plot
     nameSplitted = strsplit(nameOfSimulation, '_');
-    dir2save = strcat(strjoin(pathSplitted(1:end-2), '\'),'\verticesSamira\');
+    %dir2save = strcat(strjoin(pathSplitted(1:end-2), '\'),'\verticesSamira\');
+    dir2save = '.';
     mkdir(dir2save)
     plotVerticesPerSurfaceRatio(samiraTableVoronoi((end-numCell+1):end,:),missingVerticesCoord,dir2save,nameSplitted,'Natural',nSurfR)
 end

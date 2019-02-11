@@ -37,12 +37,12 @@ for numTriplet = 1 : size(neighboursVertices,1)
 
     %It is better use '&' than '.*' in this function
     indices = find(BW1_dilate & BW2_dilate & BW3_dilate & initBorderImg);
-    [xPx, yPx, zPx] = ind2sub(size(BW1_dilate), indices);
+    [xPx, yPx] = ind2sub(size(BW1_dilate), indices);
     
     if length(xPx)>1
-        vertices{numTriplet} = round(mean([xPx, yPx, zPx]));
+        vertices{numTriplet} = round(mean([xPx, yPx]));
     else
-        vertices{numTriplet} = [xPx, yPx , zPx];
+        vertices{numTriplet} = [xPx, yPx];
     end
 end
 
