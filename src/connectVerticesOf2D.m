@@ -1,27 +1,29 @@
-function connectVerticesOf2D(midSectionImage, neighbours2D, vertices2D, centroids, midSectionNewLabels, wholeImage, validCellsFinal, cellNumNeighbours, borderCells)
+function connectVerticesOf2D(cylindre2DImage, neighbours2D, vertices2D, centroids, midSectionNewLabels, wholeImage, validCellsFinal, cellNumNeighbours, borderCells)
 %CONNECTVERTICESOF2D Summary of this function goes here
 %   Detailed explanation goes here
-
-    for numCell = 1:max(midSectionImage(:))
+    
+    midSectionImage_closed = imclose(cylindre2DImage>0, strel('disk', 2));
+    sizeRoll = sum(midSectionImage_closed, 2);
+    for numCell = 1:max(cylindre2DImage(:))
         actualVertices = any(ismember(neighbours2D, numCell), 2);
-        actualCellVertices = vertices2D(actualVertices, 2:-1:1);
+        actualCellVertices = vertices2D(actualVertices, :);
         if ismember(numCell, borderCells)
             % Obtaining the vertices of both sides if it is a border cell
-            changeOfSide = actualCellVertices(:, 1)-(size(midSectionImage, 2)/2);
-            newVertices = [actualCellVertices(:, 1) - changeOfSide*2, actualCellVertices(:, 2)];
-            figure; imshow(midSectionImage)
-            hold on;
-            actualVerticesRegion = newVertices;
-            for numVertex = 1:size(actualVerticesRegion, 1)
-                plot(actualVerticesRegion(numVertex, 1), actualVerticesRegion(numVertex, 2), 'x')
-            end
+            changeOfSide = actualCellVertices(:, 2)-(size(cylindre2DImage, 2)/2);
+            newVertices = [actualCellVertices(:, 1), actualCellVertices(:, 2) - (sign(changeOfSide) .* sizeRoll(actualCellVertices(:, 1)))];
+%             figure; imshow(cylindre2DImage)
+%             hold on;
+%             actualVerticesRegion = actualCellVertices;
+%             for numVertex = 1:size(actualVerticesRegion, 1)
+%                 plot(actualVerticesRegion(numVertex, 2), actualVerticesRegion(numVertex, 1), 'rx')
+%             end
             
             actualCellVertices = [actualCellVertices; newVertices];
         end
         cellVertices{numCell} = actualCellVertices;
     end
     
-    noValidCells = ones(max(midSectionImage(:)), 1);
+    noValidCells = ones(max(cylindre2DImage(:)), 1);
     noValidCells(validCellsFinal) = 0;
     
     cellVerticesNoValid = cellVertices;
@@ -30,8 +32,8 @@ function connectVerticesOf2D(midSectionImage, neighbours2D, vertices2D, centroid
     cellVerticesValid = cellVertices;
     cellVerticesValid(noValidCells==1) = {[]};
     
-    ySize = size(midSectionImage, 2);
-    cellInfoWithVertices = groupingVerticesPerCellSurface(midSectionImage(:, (ySize/3):(2*ySize/3)), cellVerticesValid, cellVerticesNoValid, [], 1, borderCells);
+    ySize = size(cylindre2DImage, 2);
+    cellInfoWithVertices = groupingVerticesPerCellSurface(cylindre2DImage(:, (ySize/3):(2*ySize/3)), cellVerticesValid, cellVerticesNoValid, [], 1, borderCells);
     cellInfoWithVertices(cellfun(@isempty, cellInfoWithVertices(:, 6)), :) = [];
     cellInfoWithVertices(cellfun(@(x) ismember(x, noValidCells), cellInfoWithVertices(:, 3)), :) = [];
     

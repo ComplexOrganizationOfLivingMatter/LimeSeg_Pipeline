@@ -2,14 +2,14 @@ function [ verticesInfo] = getVertices( L_img, neighbours, invalidRegion)
 % With a labelled image as input, the objective is get all vertex for each
 % cell
 
-ratio=3;
+ratio=2;
 
 ball = strel('disk', ratio);
 
 neighboursVertices = buildTripletsOfNeighs( neighbours );%intersect dilatation of each cell of triplet
 vertices = cell(size(neighboursVertices, 1), 1);
 
-initBorderImg = L_img==0;
+initBorderImg = L_img>0;
 
 if exist('invalidRegion', 'var') >0
     initBorderImg(invalidRegion) = 0; 

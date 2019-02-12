@@ -3,8 +3,7 @@ function [finalImage] = fillEmptySpacesByWatershed2D(labelMask, invalidRegion, c
 %   Detailed explanation goes here
     
     %% Create perim of cells
-    labelMaskCleaned = bwareaopen(labelMask, 10);
-    labelMaskCleaned = labelMask .* labelMaskCleaned;
+    labelMaskCleaned = labelMask;
     labelMaskEroded = zeros(size(labelMask));
     for numCell = 1:max(labelMask(:))
         % You always need to dilate the cell to unify possible separated

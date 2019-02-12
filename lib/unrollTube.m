@@ -271,6 +271,7 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
 
     %% Getting correct border cells, valid cells and no valid cells
      cylindre2DImage = fillEmptySpacesByWatershed2D(deployedImg, imclose(deployedImg>0, strel('disk', 20)) == 0 , colours);
+     cylindre2DImage = deployedImg;
      [wholeImage] = fillEmptySpacesByWatershed2D(deployedImg3x, imclose(deployedImg3x>0, strel('disk', 20)) == 0 , colours);
     %[wholeImage,~,~] = getFinalImageAndNoValidCells(deployedImg3x,colours, borderCells);
     %[~, ~,noValidCells] = getFinalImageAndNoValidCells(deployedImg3x(:, round(ySize/3):round(ySize*2/3)),colours);
@@ -326,10 +327,10 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     set(ax,'Units','normalized')
     set(ax,'Position',[0 0 1 1])
     hold on;
-    newNeighbours2D = calculateNeighbours(cylindre2DImage);
+    newNeighbours2D = calculateNeighbours(deployedImg);
     newNeighbours2D_Checked = checkPairPointCloudDistanceCurateNeighbours(img3d, newNeighbours2D);
     
-    newVertices2D = getVertices(cylindre2DImage, newNeighbours2D_Checked);
+    newVertices2D = getVertices(deployedImg, newNeighbours2D_Checked);
     newVerticesNeighs2D = vertcat(newVertices2D.verticesConnectCells);
     newVerticesNeighs2D_empty = cellfun(@isempty, newVertices2D.verticesPerCell);
     newVerticesNeighs2D(newVerticesNeighs2D_empty, :) = [];
@@ -340,7 +341,8 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     toGetBorderCells(~background & cylindre2DImage == 0) = 0;
     backgroundNeighs = calculateNeighbours(toGetBorderCells);
     borderCells = backgroundNeighs{1} - 1;
-    connectVerticesOf2D(midSectionImage, newVerticesNeighs2D, newVertices2D, centroids, midSectionNewLabels, wholeImage, validCellsFinal, cellNumNeighbours, borderCells);
+    borderCells = intersect(validCellsFinal, borderCells);
+    connectVerticesOf2D(cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, midSectionNewLabels, wholeImage, validCellsFinal, cellNumNeighbours, borderCells);
     
     h.InvertHardcopy = 'off';
     saveas(h, strcat(outputDir, '_', '_vertices.tif'));
