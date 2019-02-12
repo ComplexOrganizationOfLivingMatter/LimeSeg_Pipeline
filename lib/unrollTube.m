@@ -128,12 +128,12 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
 %         figure; imshow(img3d(:, :, coordZ)+2, colorcube)
         
         %% Obtaining the center of the cylinder
-        [x, y] = find(img3d(:, :, coordZ) > 0);
+        [x, y] = find(finalPerimImage > 0);
         centroidCoordZ = mean([x, y], 1); % Centroid of each real Y of the cylinder
         centroidX = centroidCoordZ(1);
         centroidY = centroidCoordZ(2);
         
-        [x, y] = find(img3d(:, :, coordZ) > 0);
+        [x, y] = find(finalPerimImage > 0);
         
         %[xPerim, yPerim]=find(finalPerim3D(:, :, coordZ));
         
@@ -147,7 +147,7 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
         %             y = repmat(y, 3, 1);
         
         %% labelled mask
-        maskLabel=img3d(:,:,coordZ);
+        maskLabel=finalPerimImage.*img3d(:, :, coordZ);
         actualVertices = vertices3D(vertices3D(:, 3) == coordZ, 1:2);
         %angles label coord regarding centroid
         angleLabelCoord = atan2(y - centroidY, x - centroidX);
