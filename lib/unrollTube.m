@@ -326,10 +326,10 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     set(ax,'Units','normalized')
     set(ax,'Position',[0 0 1 1])
     hold on;
-    newNeighbours2D = calculateNeighbours(midSectionImage);
+    newNeighbours2D = calculateNeighbours(cylindre2DImage);
     newNeighbours2D_Checked = checkPairPointCloudDistanceCurateNeighbours(img3d, newNeighbours2D);
     
-    newVertices2D = getVertices(midSectionImage, newNeighbours2D_Checked);
+    newVertices2D = getVertices(cylindre2DImage, newNeighbours2D_Checked);
     newVerticesNeighs2D = vertcat(newVertices2D.verticesConnectCells);
     newVerticesNeighs2D_empty = cellfun(@isempty, newVertices2D.verticesPerCell);
     newVerticesNeighs2D(newVerticesNeighs2D_empty, :) = [];
