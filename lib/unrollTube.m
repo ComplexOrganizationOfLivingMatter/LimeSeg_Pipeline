@@ -68,7 +68,7 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
         [~, indices] = sort(sizeImg3d);
         img3d_original = permute(img3d_originalCropped, indices);
         img3d_original = fill0sWithCells(img3d_original, imclose(img3d_original>0, strel('sphere', 2)) == 0);
-        tipValue = 20;
+        tipValue = 21;
         img3d_original = addTipsImg3D(tipValue, img3d_original);
         [verticesInfo] = getVertices3D(img3d_original, neighbours);
         vertices3D = vertcat(verticesInfo.verticesPerCell{:});
