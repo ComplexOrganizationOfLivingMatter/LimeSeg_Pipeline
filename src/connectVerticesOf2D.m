@@ -1,4 +1,4 @@
-function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertices2D, centroids, midSectionNewLabels, wholeImage, validCellsFinal, cellNumNeighbours, borderCells, surfaceRatio, outputDir, nameOfSimulation)
+function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertices2D, centroids, validCellsFinal, borderCells, surfaceRatio, outputDir, nameOfSimulation)
 %CONNECTVERTICESOF2D Summary of this function goes here
 %   Detailed explanation goes here
     

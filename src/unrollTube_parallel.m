@@ -1,4 +1,4 @@
-function [neighbours_UnrollTube, polygon_distribution_UnrollTube, polygon_distribution_UnrollTubeApical, polygon_distribution_UnrollTubeBasal] = unrollTube_parallel(selpath)
+function unrollTube_parallel(selpath)
 %UNROLLTUBE_PARALLEL Summary of this function goes here
 %   Detailed explanation goes here
     
@@ -7,7 +7,7 @@ function [neighbours_UnrollTube, polygon_distribution_UnrollTube, polygon_distri
 
     apicalAreaValidCells = 100;
     disp('Apical');
-    apicalSamiraTable = unrollTube(apicalLayer, fullfile(selpath, 'apical'), noValidCells, colours);
+    [apicalSamiraTable, apicalAreaValidCells] = unrollTube(apicalLayer, fullfile(selpath, 'apical'), noValidCells, colours);
     
     disp('Basal');
     basalSamiraTable = unrollTube(basalLayer, fullfile(selpath, 'basal'), noValidCells, colours, apicalAreaValidCells);
