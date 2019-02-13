@@ -1,4 +1,4 @@
-function connectVerticesOf2D(cylindre2DImage, neighbours2D, vertices2D, centroids, midSectionNewLabels, wholeImage, validCellsFinal, cellNumNeighbours, borderCells)
+function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertices2D, centroids, midSectionNewLabels, wholeImage, validCellsFinal, cellNumNeighbours, borderCells, surfaceRatio, outputDir, nameOfSimulation)
 %CONNECTVERTICESOF2D Summary of this function goes here
 %   Detailed explanation goes here
     
@@ -37,6 +37,6 @@ function connectVerticesOf2D(cylindre2DImage, neighbours2D, vertices2D, centroid
     cellInfoWithVertices(cellfun(@isempty, cellInfoWithVertices(:, 6)), :) = [];
     cellInfoWithVertices(cellfun(@(x) ismember(x, noValidCells), cellInfoWithVertices(:, 3)), :) = [];
     
-    [samiraTable, cellsVoronoi] = tableWithSamiraFormat(cellInfoWithVertices, centroids, [], 1, '.', 'Voronoi_'); 
+    [samiraTable, cellsVoronoi] = tableWithSamiraFormat(cellInfoWithVertices, centroids, [], surfaceRatio, outputDir, nameOfSimulation);
 end
 

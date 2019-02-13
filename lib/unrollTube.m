@@ -319,6 +319,20 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     imwrite(finalImageWithValidCells+1, colours, strcat(outputDir, '_', 'img_MidSection_ValidCells.tif'));
     imwrite(wholeImage+1, colours, strcat(outputDir, '_', 'img_WholeImage.tif'));
     
+    %% Calculating surface ratio
+    midRange = 1:round(size(finalImageWithValidCells, 2)/2);
+    imageNewLabels = bwlabel(finalImageWithValidCells, 4);
+    imageNewLabelsMid = imageNewLabels(:, midRange);
+    borderCellsDuplicated = unique(imageNewLabelsMid(ismember(finalImageWithValidCells(:, midRange), borderCells)));
+    finalImageWithValidCells(ismember(imageNewLabels, borderCellsDuplicated)) = 0;
+    %figure; imshow(finalImageWithValidCells+1, colours);
+    areaOfValidCells = sum(finalImageWithValidCells(:)>0);
+    
+    if exist('apicalArea', 'var') == 0
+        surfaceRatio = 1;
+    else
+        surfaceRatio = areaOfValidCells / apicalArea;
+    end
     
     %% Connect vertices to obtain an image from the vertices
     h = figure;
@@ -342,25 +356,18 @@ function [areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells
     backgroundNeighs = calculateNeighbours(toGetBorderCells);
     borderCells = backgroundNeighs{1} - 1;
     borderCells = intersect(validCellsFinal, borderCells);
-    connectVerticesOf2D(cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, midSectionNewLabels, wholeImage, validCellsFinal, cellNumNeighbours, borderCells);
+    if exist('apicalArea', 'var') == 0
+        nameOfSimulation = 'Apical';
+    else
+        nameOfSimulation = 'Basal';
+    end
+    
+    connectVerticesOf2D(cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, midSectionNewLabels, wholeImage, validCellsFinal, cellNumNeighbours, borderCells, surfaceRatio, outputDir, nameOfSimulation);
     
     h.InvertHardcopy = 'off';
     saveas(h, strcat(outputDir, '_', '_vertices.tif'));
     
-    %% Calculating surface ratio
-    midRange = 1:round(size(finalImageWithValidCells, 2)/2);
-    imageNewLabels = bwlabel(finalImageWithValidCells, 4);
-    imageNewLabelsMid = imageNewLabels(:, midRange);
-    borderCellsDuplicated = unique(imageNewLabelsMid(ismember(finalImageWithValidCells(:, midRange), borderCells)));
-    finalImageWithValidCells(ismember(imageNewLabels, borderCellsDuplicated)) = 0;
-    %figure; imshow(finalImageWithValidCells+1, colours);
-    areaOfValidCells = sum(finalImageWithValidCells(:)>0);
-    
-    if exist('apicalArea', 'var') == 0
-        surfaceRatio = 1;
-    else
-        surfaceRatio = areaOfValidCells / apicalArea;
-    end
+
     
     save(strcat(outputDir, '_', 'img.mat'), 'finalImageWithValidCells', 'midSectionImage', 'wholeImage', 'validCellsFinal', 'surfaceRatio', 'cylindre2DImage', 'deployedImg', 'deployedImg3x', 'imgFinalVerticesCoordinates', 'imgFinalVerticesCoordinates_Neighbours'); 
     
