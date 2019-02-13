@@ -4,7 +4,7 @@ function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertic
     
     midSectionImage_closed = imclose(cylindre2DImage>0, strel('disk', 2));
     sizeRoll = sum(midSectionImage_closed, 2);
-    for numCell = 1:max(cylindre2DImage(:))
+    for numCell = validCellsFinal
         actualVertices = any(ismember(neighbours2D, numCell), 2);
         actualCellVertices = vertices2D(actualVertices, :);
         if ismember(numCell, borderCells)

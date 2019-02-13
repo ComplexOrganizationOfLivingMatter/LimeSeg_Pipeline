@@ -6,8 +6,8 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
     %% Unroll
     pixelSizeThreshold = 10;
     
-    if exist(strcat(outputDir, '_', 'final3DImg.mat'), 'file')
-        load(strcat(outputDir, '_', 'final3DImg.mat'));
+    if exist(fullfile(outputDir, 'final3DImg.mat'), 'file')
+        load(fullfile(outputDir, 'final3DImg.mat'));
     else
 %         %Option 1: too much neighbours
 %         insideGland = imdilate(img3d_original>0, strel('sphere', 1));
@@ -91,10 +91,10 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
         img3d = fill0sWithCells(img3d .* double(validRegion), validRegion==0);
         vertices3D = round(vertices3D / resizeImg);
 
-        save(strcat(outputDir, '_', 'final3DImg.mat'), 'img3d', 'vertices3D_Neighbours', 'vertices3D', 'cellNumNeighbours', 'neighbours');
+        save(fullfile(outputDir, 'final3DImg.mat'), 'img3d', 'vertices3D_Neighbours', 'vertices3D', 'cellNumNeighbours', 'neighbours');
     end
     
-    if exist(strcat(outputDir, '_', 'verticesInfo.mat'), 'file') == 0
+    if exist(fullfile(outputDir, 'verticesInfo.mat'), 'file') == 0
     
         imgFinalCoordinates=cell(size(img3d,3),1);
         imgFinalCoordinates3x=cell(size(img3d,3),1);
@@ -199,9 +199,10 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
             end
         end
         h.InvertHardcopy = 'off';
-        saveas(h, strcat(outputDir, '_', 'img_MidSection.tif'));
-        imwrite(finalImageWithValidCells+1, colours, strcat(outputDir, '_', 'img_MidSection_ValidCells.tif'));
-        imwrite(wholeImage+1, colours, strcat(outputDir, '_', 'img_WholeImage.tif'));
+        saveas(h, fullfile(outputDir, 'img_MidSection.tif'));
+        imwrite(finalImageWithValidCells+1, colours, fullfile(outputDir, 'img_MidSection_ValidCells.tif'));
+        imwrite(wholeImage+1, colours, fullfile(outputDir, 'img_WholeImage.tif'));
+        imwrite(deployedImg+1, colours, fullfile(outputDir, 'img_original.tif'));
 
         %% Calculating surface ratio
         areaOfValidCells = sum(deployedImg(:)>0);
@@ -234,11 +235,11 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
             nameOfSimulation = 'Basal';
         end
         
-        save(strcat(outputDir, '_', 'verticesInfo.mat'), 'cylindre2DImage', 'newVerticesNeighs2D', 'newVertices2D', 'centroids', 'validCellsFinal', 'borderCells', 'surfaceRatio', 'outputDir', 'nameOfSimulation');
+        save(fullfile(outputDir,  'verticesInfo.mat'), 'cylindre2DImage', 'newVerticesNeighs2D', 'newVertices2D', 'centroids', 'validCellsFinal', 'borderCells', 'surfaceRatio', 'outputDir', 'nameOfSimulation', 'areaOfValidCells');
         
-        save(strcat(outputDir, '_', 'allInfo.mat'), 'deployedImg', 'deployedImg3x', 'wholeImage');
+        save(fullfile(outputDir, 'allInfo.mat'), 'deployedImg', 'deployedImg3x', 'wholeImage');
     else
-        load(strcat(outputDir, '_', 'verticesInfo.mat'));
+        load(fullfile(outputDir, 'verticesInfo.mat'));
     end
 
     samiraTable = connectVerticesOf2D(cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validCellsFinal, borderCells, surfaceRatio, outputDir, nameOfSimulation);
