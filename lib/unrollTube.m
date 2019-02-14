@@ -90,8 +90,8 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
         validRegion = validRegion_filled & imerode(validRegion_filled, strel('sphere', 1))==0;
         img3d = fill0sWithCells(img3d .* double(validRegion), validRegion==0);
         vertices3D = round(vertices3D / resizeImg);
-
-        save(fullfile(outputDir, 'final3DImg.mat'), 'img3d', 'vertices3D_Neighbours', 'vertices3D', 'cellNumNeighbours', 'neighbours');
+        mkdir(outputDir);
+        save(fullfile(outputDir, 'final3DImg.mat'), 'img3d', 'vertices3D_Neighbours', 'vertices3D', 'cellNumNeighbours', 'neighbours', '-v7.3');
     end
     
     if exist(fullfile(outputDir, 'verticesInfo.mat'), 'file') == 0
