@@ -35,7 +35,7 @@ function plotVerticesPerSurfaceRatio(cellsVertices,missingVerticesCoord,dir2save
     end
 
     
-    print([dir2save, '\plot_', nameSimulation , '_SurfaceRatio_', num2str(nSurfR), '_', date, '.png'], '-dpng', '-r300');
+    print([dir2save, '\plot_', nameSimulation , '_SurfaceRatio_', num2str(nSurfR), '.png'], '-dpng', '-r300');
     
     close all
 end

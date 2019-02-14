@@ -235,9 +235,16 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
             nameOfSimulation = 'Basal';
         end
         
+        occurrencesOfCells = tabulate(newVerticesNeighs2D(:));
+        side_cells = occurrencesOfCells(:, 2);
+        [polygon_distribution] = calculate_polygon_distribution(side_cells, validCellsFinal);
+        polygon_distribution_T = cell2table(polygon_distribution(2:end, :));
+        polygon_distribution_T.Properties.VariableNames = polygon_distribution(1, :);
+        writetable(polygon_distribution_T, fullfile(outputDir, 'polygon_distribution.xls'))
+        
         save(fullfile(outputDir,  'verticesInfo.mat'), 'cylindre2DImage', 'newVerticesNeighs2D', 'newVertices2D', 'centroids', 'validCellsFinal', 'borderCells', 'surfaceRatio', 'outputDir', 'nameOfSimulation', 'areaOfValidCells');
         
-        save(fullfile(outputDir, 'allInfo.mat'), 'deployedImg', 'deployedImg3x', 'wholeImage');
+        save(fullfile(outputDir, 'allInfo.mat'), 'deployedImg', 'deployedImg3x', 'wholeImage', 'polygon_distribution');
     else
         load(fullfile(outputDir, 'verticesInfo.mat'));
     end
