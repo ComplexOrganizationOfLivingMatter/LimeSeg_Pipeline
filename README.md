@@ -17,13 +17,11 @@ Extracted from:
 
 0. Open the images in FIJI and keep the channel whose cell outlines are better and whose quality is the best (usually it is the red channel because it doesn't contain the nuclei of the cells). If the nuclei appear, it could be a problem.
 
-1. The images suffer from photobleaching and, also, due to depth, the intensity of the fluorescence, decay with time. To solve this, you can use "Image" -> "Adjust" -> "Bleach correction". Select "Exponential fit". 'OK'.
+1. Now you have to improve the brightness and contrast, you can do this by clicking in "Image" -> "Adjust" -> "Brightness/Contrast". You can either click on 'Auto' or change manually the parameters until you obtain a good result in which the cell lines are clear, but not too saturated. Then, press on 'Apply' and apply it to all the stack.
 
-2. Now you have to improve the brightness and contrast, you can do this by clicking in "Image" -> "Adjust" -> "Brightness/Contrast". You can either click on 'Auto' or change manually the parameters until you obtain a good result in which the cell lines are clear, but not too saturated. Then, press on 'Apply' and apply it to all the stack.
+2. Once you have adjusted the image brightness, you have to save the image with a different channel colour: white or green with the background as black.You can do this by: "Image"->"Color"-> "Channel tool"-> "More"->"Green" or "White" (Whether it is white or green, it is up to you, select the best to you).
 
-3. Once you have adjusted the image brightness, you have to save the image with a different channel colour: white or green with the background as black.You can do this by: "Image"->"Color"-> "Channel tool"-> "More"->"Green" or "White" (Whether it is white or green, it is up to you, select the best to you).
-
-4. Save the final images as an image sequence (file->save as-> image sequence). And as a tiff.
+3. Save the final images as an image sequence (file->save as-> image sequence). And as a tiff.
 
 
 ## Step 1: Basic cell's pipeline
