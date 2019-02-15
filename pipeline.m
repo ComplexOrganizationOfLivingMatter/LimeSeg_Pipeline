@@ -27,7 +27,7 @@ function [polygon_distribution, neighbours_data] = pipeline(outputDir)
         [labelledImage, outsideGland] = processCells(fullfile(outputDir, 'Cells', filesep), resizeImg, imgSize, tipValue);
 
         [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
-        labelledImage = completeImageOfCells(labelledImage, imclose(labelledImage, strel('sphere', 3)) == 0);
+        labelledImage = fill0sWithCells(labelledImage, imclose(labelledImage, strel('sphere', 3)) == 0);
             
         %% Put both lumen and labelled image at a 90 degrees
 
