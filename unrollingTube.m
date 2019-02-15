@@ -13,11 +13,5 @@ for numFile = 1:length(files)
         selpath = files(numFile).folder;
         
         unrollTube_parallel(selpath);
-        
-        load(fullfile(selpath, 'apical', 'verticesInfo.mat'), 'newVerticesNeighs2D', 'validCellsFinal');
-        occurrencesOfCells = tabulate(newVerticesNeighs2D(:));
-        side_cells = occurrencesOfCells(:, 2);
-        [polygon_distribution_UnrollTube] = calculate_polygon_distribution(side_cells, validCellsFinal);
-        
     end
 end

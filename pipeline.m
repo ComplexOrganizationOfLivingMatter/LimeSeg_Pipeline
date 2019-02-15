@@ -75,7 +75,11 @@ function [polygon_distribution, neighbours_data] = pipeline(outputDir)
             labelledImage = getappdata(0, 'labelledImageTemp');
             close all
             [labelledImage] = fillEmptySpacesByWatershed3D(labelledImage, outsideGland | lumenImage, 1);
-            labelledImage = fill0sWithCells(labelledImage, imclose(labelledImage, strel('sphere', 3)) == 0);
+            outsideGland_NotLumen = ~outsideGland | imdilate(lumenImage, strel('sphere', 2));
+            
+            labelledImage = fill0sWithCells(labelledImage, outsideGland | lumenImage);
+            labelledImage = fill0sWithCells(labelledImage, outsideGland_NotLumen == 0);
+            labelledImage(lumenImage) = 0;
             exportAsImageSequence(labelledImage, fullfile(outputDir, 'Cells', 'labelledSequence', filesep), colours, tipValue);
 
             %% Calculate neighbours and plot missing cells
