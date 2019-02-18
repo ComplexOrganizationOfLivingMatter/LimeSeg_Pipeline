@@ -3,7 +3,7 @@ function rotatedImg3d = rotateImg3(img3d)
     closedImg3D = imdilate(img3d>0,strel('sphere',5));
     orientationImg3D = imerode(bwmorph3(closedImg3D,'fill'),strel('sphere',3));
 
-    %rotation A
+    %rotation A %% You may keep this untouched
     orientationObj = regionprops3(orientationImg3D, 'Orientation');
     img3d_rot1 = imrotate(img3d, - orientationObj.Orientation(1));
     orientationImg3D = imrotate(img3d, - orientationObj.Orientation(1));
