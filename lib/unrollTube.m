@@ -180,8 +180,8 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
         finalImageWithValidCells = ismember(midSectionImage, validCellsFinal).*midSectionImage;
     %     figure;imshow(finalImageWithValidCells,colours)
 
-        h = figure ('units','normalized','outerposition',[0 0 1 1], 'visible', 'off');
-        imshow(midSectionImage+1, colours);
+        h = figure ('units','normalized','outerposition',[0 0 1 1], 'visible', 'off');        imshow(midSectionImage+1, colours);
+        hold on;
         midSectionNewLabels = bwlabel(midSectionImage, 4);
         centroids = regionprops(midSectionNewLabels, 'Centroid');
         centroids = round(vertcat(centroids.Centroid));
@@ -249,6 +249,11 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
         load(fullfile(outputDir, 'verticesInfo.mat'));
     end
 
-    samiraTable = connectVerticesOf2D(cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validCellsFinal, borderCells, surfaceRatio, outputDir, nameOfSimulation);
+    if exist(fullfile(outputDir, 'samiraTable.mat'), 'file') == 0
+        samiraTable = connectVerticesOf2D(cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validCellsFinal, borderCells, surfaceRatio, outputDir, nameOfSimulation);
+        save(fullfile(outputDir, 'samiraTable.mat'), 'samiraTable');
+    else
+        load(fullfile(outputDir, 'samiraTable.mat'));
+    end
 end
 
