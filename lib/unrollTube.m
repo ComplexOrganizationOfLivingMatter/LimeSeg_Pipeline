@@ -169,6 +169,12 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
             hold off;
 
             imgFinalCoordinates3x{coordZ} = repmat(orderedLabels, 1, 3);
+            
+            %If we find that a cell does not continue in the other side and
+            %finish on one side, we put the same pixel on the other side.
+            if orderedLabels(1) ~= orderedLabels(end)
+                orderedLabels(end+1) = orderedLabels(1);
+            end
             imgFinalCoordinates{coordZ} = orderedLabels;
         end
 
