@@ -106,11 +106,16 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
 
             %% Remove pixels surrounding the boundary
             filledImage = imfill(double(img3d(:, :, coordZ)>0));
-            thereIsAHole = max(max(bwlabel(double(img3d(:, :, coordZ)>0))));
-            finalPerimImage = bwperim(filledImage);
+            numberOfObjects = max(max(bwlabel(double(img3d(:, :, coordZ)>0))));
+            if numberOfObjects > 1
+                finalPerimImage = bwperim(bwareaopen(filledImage, pixelSizeThreshold * 2));
+                numberOfObjects = max(max(bwlabel(bwareaopen(double(img3d(:, :, coordZ)>0), pixelSizeThreshold * 2))));
+            else
+                finalPerimImage = bwperim(filledImage);
+            end
             
             %Check if there is a hole
-            if thereIsAHole < 2
+            if numberOfObjects < 2
                 convexPerimImage = regionprops(imclose(finalPerimImage, strel('disk', 5)), 'convexHull');
                 convexPerimImage = convexPerimImage.ConvexHull;
                 
@@ -126,6 +131,8 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
                 %fill0sWithCells(img3d(:, :, coordZ) ,validRegion);
             end
 
+            %imshow(finalPerimImage)
+            
             %% Obtaining the center of the cylinder
             [x, y] = find(finalPerimImage > 0);
             centroidCoordZ = mean([x, y], 1); % Centroid of each real Y of the cylinder
@@ -135,7 +142,7 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
             [x, y] = find(finalPerimImage > 0);
 
             %% labelled mask
-            if thereIsAHole < 2
+            if numberOfObjects < 2
                 img3dPerimFilled = fill0sWithCells(img3d(:, :, coordZ), finalPerimImage==0);
                 maskLabel=finalPerimImage.*img3dPerimFilled;
             else
