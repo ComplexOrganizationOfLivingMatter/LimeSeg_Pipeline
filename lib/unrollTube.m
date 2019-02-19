@@ -105,10 +105,26 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
             %figure; imshow(img3d(:, :, coordZ)+2, colorcube)
 
             %% Remove pixels surrounding the boundary
-            finalPerimImage = imfill(double(img3d(:, :, coordZ)>0));
-            finalPerimImage = bwperim(finalPerimImage);
-            %imshow(finalPerimImage)
-
+            filledImage = imfill(double(img3d(:, :, coordZ)>0));
+            thereIsAHole = max(max(bwlabel(double(img3d(:, :, coordZ)>0))));
+            finalPerimImage = bwperim(filledImage);
+            
+            %Check if there is a hole
+            if thereIsAHole < 2
+                convexPerimImage = regionprops(imclose(finalPerimImage, strel('disk', 5)), 'convexHull');
+                convexPerimImage = convexPerimImage.ConvexHull;
+                
+                validRegion = zeros(size(finalPerimImage));
+                [xq, yq] = find(validRegion==0);
+                in = inpolygon(xq,yq, round(convexPerimImage(:, 2)), round(convexPerimImage(:, 1)));
+                
+                indicesInsideCell = sub2ind(size(finalPerimImage), xq, yq);
+                
+                validRegion(indicesInsideCell(in)) = 1;
+                
+                finalPerimImage = bwperim(validRegion);
+                %fill0sWithCells(img3d(:, :, coordZ) ,validRegion);
+            end
 
             %% Obtaining the center of the cylinder
             [x, y] = find(finalPerimImage > 0);
@@ -119,7 +135,12 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
             [x, y] = find(finalPerimImage > 0);
 
             %% labelled mask
-            maskLabel=finalPerimImage.*img3d(:, :, coordZ);
+            if thereIsAHole < 2
+                img3dPerimFilled = fill0sWithCells(img3d(:, :, coordZ), finalPerimImage==0);
+                maskLabel=finalPerimImage.*img3dPerimFilled;
+            else
+                maskLabel=finalPerimImage.*img3d(:, :, coordZ);
+            end
             %angles label coord regarding centroid
             angleLabelCoord = atan2(y - centroidY, x - centroidX);
             [angleLabelCoordSort, orderedIndices] = sort(angleLabelCoord);
