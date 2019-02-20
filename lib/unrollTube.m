@@ -107,16 +107,12 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
 
             %% Remove pixels surrounding the boundary
             filledImage = imfill(double(img3d(:, :, coordZ)>0));
-            numberOfObjects = max(max(bwlabel(double(img3d(:, :, coordZ)>0))));
-            if numberOfObjects > 1
-                finalPerimImage = bwperim(bwareaopen(filledImage, pixelSizeThreshold * 2));
-                numberOfObjects = max(max(bwlabel(bwareaopen(double(img3d(:, :, coordZ)>0), pixelSizeThreshold * 2))));
-            else
-                finalPerimImage = bwperim(filledImage);
-            end
+            filledImage = bwareafilt(filledImage>0, 1);
+            finalPerimImage = bwperim(filledImage);
+            solidityOfObjects = regionprops(filledImage, 'Solidity');
             
             %Check if there is a hole
-            if numberOfObjects < 2
+            if solidityOfObjects.Solidity < 0.5
                 convexPerimImage = regionprops(imclose(finalPerimImage, strel('disk', 5)), 'convexHull');
                 convexPerimImage = convexPerimImage.ConvexHull;
                 
@@ -143,7 +139,7 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
             [x, y] = find(finalPerimImage > 0);
 
             %% labelled mask
-            if numberOfObjects < 2
+            if solidityOfObjects.Solidity < 0.8
                 img3dPerimFilled = fill0sWithCells(img3d(:, :, coordZ), finalPerimImage==0);
                 maskLabel=finalPerimImage.*img3dPerimFilled;
             else
