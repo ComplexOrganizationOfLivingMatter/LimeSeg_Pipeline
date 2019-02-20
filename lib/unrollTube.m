@@ -60,8 +60,9 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
         img3d_originalCropped = img3d_original(min(allX):max(allX),min(allY):max(allY),min(allZ):max(allZ));
 
         % Check which side is the longest
-        neighbours = getNeighboursFromFourProjectedPlanesFrom3Dgland(img3d_original, colours);
-        neighbours = checkPairPointCloudDistanceCurateNeighbours(img3d_original, neighbours);
+        img3d_closed = fill0sWithCells(img3d_original, imclose(img3d_original>0, strel('sphere', 3)) == 0);
+        neighbours = getNeighboursFromFourProjectedPlanesFrom3Dgland(img3d_closed, colours);
+        neighbours = checkPairPointCloudDistanceCurateNeighbours(img3d_closed, neighbours);
 
 
         sizeImg3d = size(img3d_originalCropped);
