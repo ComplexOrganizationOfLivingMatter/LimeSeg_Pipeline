@@ -111,20 +111,24 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
             finalPerimImage = bwperim(filledImage);
             solidityOfObjects = regionprops(filledImage, 'Solidity');
             
+            solidityThreshold = 0.4;
             %Check if there is a hole
-            if solidityOfObjects.Solidity < 0.5
-                convexPerimImage = regionprops(imclose(finalPerimImage, strel('disk', 5)), 'convexHull');
-                convexPerimImage = convexPerimImage.ConvexHull;
+            if solidityOfObjects.Solidity < solidityThreshold
+%                 convexPerimImage = regionprops(imclose(finalPerimImage, strel('disk', 5)), 'convexHull');
+%                 convexPerimImage = convexPerimImage.ConvexHull;
+%                 
+%                 validRegion = zeros(size(finalPerimImage));
+%                 [xq, yq] = find(validRegion==0);
+%                 in = inpolygon(xq,yq, round(convexPerimImage(:, 2)), round(convexPerimImage(:, 1)));
+%                 
+%                 indicesInsideCell = sub2ind(size(finalPerimImage), xq, yq);
+%                 
+%                 validRegion(indicesInsideCell(in)) = 1;
+%                 
+%                 finalPerimImage = bwperim(validRegion);
+
                 
-                validRegion = zeros(size(finalPerimImage));
-                [xq, yq] = find(validRegion==0);
-                in = inpolygon(xq,yq, round(convexPerimImage(:, 2)), round(convexPerimImage(:, 1)));
-                
-                indicesInsideCell = sub2ind(size(finalPerimImage), xq, yq);
-                
-                validRegion(indicesInsideCell(in)) = 1;
-                
-                finalPerimImage = bwperim(validRegion);
+                finalPerimImage = bwskel(filledImage);
                 %fill0sWithCells(img3d(:, :, coordZ) ,validRegion);
             end
 
@@ -139,8 +143,8 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
             [x, y] = find(finalPerimImage > 0);
 
             %% labelled mask
-            if solidityOfObjects.Solidity < 0.8
-                img3dPerimFilled = fill0sWithCells(img3d(:, :, coordZ), finalPerimImage==0);
+            if solidityOfObjects.Solidity < solidityThreshold
+                img3dPerimFilled = fill0sWithCells(img3d(:, :, coordZ), filledImage==0);
                 maskLabel=finalPerimImage.*img3dPerimFilled;
             else
                 maskLabel=finalPerimImage.*img3d(:, :, coordZ);
@@ -281,7 +285,7 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
     end
 
     if exist(fullfile(outputDir, 'samiraTable.mat'), 'file') == 0
-        samiraTable = connectVerticesOf2D(cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validCellsFinal, borderCells, surfaceRatio, outputDir, nameOfSimulation);
+        samiraTable = connectVerticesOf2D(cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, 1:max(validCellsFinal), borderCells, surfaceRatio, outputDir, nameOfSimulation);
         save(fullfile(outputDir, 'samiraTable.mat'), 'samiraTable');
     else
         load(fullfile(outputDir, 'samiraTable.mat'));
