@@ -142,7 +142,7 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
                 radi = max(bb(3), bb(4)) / 2; %// Find the best radius
                 perimeterNew = ((X - cenx).^2 + (Y - ceny).^2) <= radi^2; %// Draw our circle and place in a temp. image
                 perimeterNew = bwperim(perimeterNew); %// Add this circle on top of our output image
-                figure; imshow(perimeterNew)
+                %figure; imshow(perimeterNew)
             end
 
             %imshow(finalPerimImage)
@@ -176,14 +176,14 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
             %% Completing the missing parts of the circle perim
             if solidityOfObjects.Solidity < solidityThreshold
                 distanceToNextPoint = angleLabelCoordSort([2:end 1]) - angleLabelCoordSort;
-                holeInPerim = distanceToNextPoint(1:end-1) > minDistance*3;
-                positionsToFill = find(holeInPerim);
-
-                newAngles = angleLabelCoord_NewPerimeter_Sorted(angleLabelCoordSort(positionsToFill) < angleLabelCoord_NewPerimeter_Sorted & angleLabelCoordSort(positionsToFill+1) > angleLabelCoord_NewPerimeter_Sorted);
-
-                angleLabelCoordSort = [angleLabelCoordSort(1:positionsToFill); newAngles; angleLabelCoordSort(positionsToFill+1:end)];
-
-                orderedIndices = [orderedIndices(1:positionsToFill); zeros(size(newAngles)); orderedIndices(positionsToFill+1:end)];
+                if max(distanceToNextPoint(1:end-1)) > minDistance*3
+                    [~, positionsToFill] = max(distanceToNextPoint(1:end-1));
+                    newAngles = angleLabelCoord_NewPerimeter_Sorted(angleLabelCoordSort(positionsToFill) < angleLabelCoord_NewPerimeter_Sorted & angleLabelCoordSort(positionsToFill+1) > angleLabelCoord_NewPerimeter_Sorted);
+                    
+                    angleLabelCoordSort = [angleLabelCoordSort(1:positionsToFill); newAngles; angleLabelCoordSort(positionsToFill+1:end)];
+                    
+                    orderedIndices = [orderedIndices(1:positionsToFill); zeros(size(newAngles)); orderedIndices(positionsToFill+1:end)];
+                end
             end
             
             %% Assing label to pixels of perimeters
