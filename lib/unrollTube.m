@@ -130,6 +130,19 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
                 
                 finalPerimImage = bwskel(filledImage);
                 %fill0sWithCells(img3d(:, :, coordZ) ,validRegion);
+                
+                [X,Y] = meshgrid(1:size(filledImage,2), 1:size(filledImage,1));
+                
+                s = regionprops(filledImage, 'BoundingBox');
+                
+                bb = floor(s.BoundingBox); %// Could be floating point, so floor it
+                cenx = bb(1) + (bb(3) / 2.0); %// Get the centre of the bounding box
+                ceny = bb(2) + (bb(4) / 2.0);
+                
+                radi = max(bb(3), bb(4)) / 2; %// Find the best radius
+                perimeterNew = ((X - cenx).^2 + (Y - ceny).^2) <= radi^2; %// Draw our circle and place in a temp. image
+                perimeterNew = bwperim(perimeterNew); %// Add this circle on top of our output image
+                figure; imshow(perimeterNew)
             end
 
             %imshow(finalPerimImage)
@@ -144,6 +157,13 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
 
             %% labelled mask
             if solidityOfObjects.Solidity < solidityThreshold
+                centroidX = ceny;
+                centroidY = cenx;
+                
+                [x_PerimeterNew, y_PerimeterNew] = find(perimeterNew > 0);
+                angleLabelCoord_NewPerimeter = atan2(y_PerimeterNew - centroidY, x_PerimeterNew - centroidX);
+                angleLabelCoord_NewPerimeter_Sorted = sort(angleLabelCoord_NewPerimeter);
+                minDistance = abs(angleLabelCoord_NewPerimeter_Sorted(1) - angleLabelCoord_NewPerimeter_Sorted(2));
                 img3dPerimFilled = fill0sWithCells(img3d(:, :, coordZ), filledImage==0);
                 maskLabel=finalPerimImage.*img3dPerimFilled;
             else
@@ -152,20 +172,31 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
             %angles label coord regarding centroid
             angleLabelCoord = atan2(y - centroidY, x - centroidX);
             [angleLabelCoordSort, orderedIndices] = sort(angleLabelCoord);
+            
+            %% Completing the missing parts of the circle perim
+            if solidityOfObjects.Solidity < solidityThreshold
+                distanceToNextPoint = angleLabelCoordSort([2:end 1]) - angleLabelCoordSort;
+                holeInPerim = distanceToNextPoint(1:end-1) > minDistance*3;
+                positionsToFill = find(holeInPerim);
 
+                newAngles = angleLabelCoord_NewPerimeter_Sorted(angleLabelCoordSort(positionsToFill) < angleLabelCoord_NewPerimeter_Sorted & angleLabelCoordSort(positionsToFill+1) > angleLabelCoord_NewPerimeter_Sorted);
+
+                angleLabelCoordSort = [angleLabelCoordSort(1:positionsToFill); newAngles; angleLabelCoordSort(positionsToFill+1:end)];
+
+                orderedIndices = [orderedIndices(1:positionsToFill); zeros(size(newAngles)); orderedIndices(positionsToFill+1:end)];
+            end
+            
             %% Assing label to pixels of perimeters
             %If a perimeter coordinate have no label pixels in a range of pi/45 radians, it label is 0
             orderedLabels = zeros(1,length(angleLabelCoordSort));
             for nCoord = 1:length(angleLabelCoordSort)
-                indicesClosest = sub2ind(size(maskLabel), x(orderedIndices(nCoord)), y(orderedIndices(nCoord)));
-                closestLabels = maskLabel(indicesClosest);
-
-                if ~isempty(closestLabels)
-                    pixelLabel = closestLabels(1);
+                if orderedIndices(nCoord) ~= 0
+                    indicesClosest = sub2ind(size(maskLabel), x(orderedIndices(nCoord)), y(orderedIndices(nCoord)));
+                    pixelLabel = maskLabel(indicesClosest);
+                    orderedLabels(nCoord) = pixelLabel;
                 else
-                    pixelLabel = 0;
+                    orderedLabels(nCoord) = 0;
                 end
-                orderedLabels(nCoord) = pixelLabel;
             end
             hold off;
 
@@ -285,7 +316,7 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
     end
 
     if exist(fullfile(outputDir, 'samiraTable.mat'), 'file') == 0
-        samiraTable = connectVerticesOf2D(cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, 1:max(validCellsFinal), borderCells, surfaceRatio, outputDir, nameOfSimulation);
+        samiraTable = connectVerticesOf2D(cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validCellsFinal, borderCells, surfaceRatio, outputDir, nameOfSimulation);
         save(fullfile(outputDir, 'samiraTable.mat'), 'samiraTable');
     else
         load(fullfile(outputDir, 'samiraTable.mat'));
