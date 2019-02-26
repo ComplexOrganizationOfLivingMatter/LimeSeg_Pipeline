@@ -1,14 +1,20 @@
-function [imageOfSurfaceRatios, neighbours] = divideObjectInSurfaceRatios(obj_img, startingSurface, endSurface, validCells, noValidCells, colours, selpath)
+function [imageOfSurfaceRatios, neighbours] = divideObjectInSurfaceRatios(obj_img, startingSurface, endSurface, validCells, noValidCells, colours, selpath, basalRealNeighs, apicalRealNeighs)
 %DIVIDEOBJECTINSURFACERATIOS Summary of this function goes here
 %   Detailed explanation goes here
     
-    apical3dInfo = calculateNeighbours3D(endSurface);
-    basal3dInfo = calculateNeighbours3D(startingSurface);
-    neighbours_data = table(apical3dInfo.neighbourhood, basal3dInfo.neighbourhood);
+    apical3dInfo = calculateNeighbours3D(endSurface, 2);
+    neighboursApical = checkPairPointCloudDistanceCurateNeighbours(endSurface, apical3dInfo.neighbourhood);
+    numNeighsApical = cellfun(@length, neighboursApical);
+    sum(numNeighsApical(validCells) ~= apicalRealNeighs(validCells)')
+    
+    basal3dInfo = calculateNeighbours3D(startingSurface, 2);
+    neighboursBasal = checkPairPointCloudDistanceCurateNeighbours(startingSurface, basal3dInfo.neighbourhood);
+    numNeighsBasal = cellfun(@length, neighboursBasal);
+    sum(numNeighsBasal(validCells) ~= basalRealNeighs(validCells)')
+    
+    neighbours_data = table(neighboursApical, neighboursBasal);
     neighbours_data.Properties.VariableNames = {'Apical','Basal'};
-    [~, apicoBasal_SurfaceRatio] = calculate_CellularFeatures(neighbours_data, apical3dInfo, basal3dInfo, endSurface, startingSurface, obj_img, noValidCells, validCells, [], []);
-    
-    
+    [~, apicoBasal_SurfaceRatio] = calculate_CellularFeatures(neighbours_data, neighboursApical, neighboursBasal, endSurface, startingSurface, obj_img, noValidCells, validCells, [], []);
     
     %% Split in 10 pieces
     totalPartitions = 10;
@@ -92,42 +98,16 @@ function [imageOfSurfaceRatios, neighbours] = divideObjectInSurfaceRatios(obj_im
         else
             imageOfSurfaceRatios{numPartition, 3} = endSurface;
         end
-        basal3dInfo = calculateNeighbours3D(imageOfSurfaceRatios{numPartition, 3});
-        neighbours_data = table(apical3dInfo.neighbourhood, basal3dInfo.neighbourhood);
+        basal3dInfo = calculateNeighbours3D(imageOfSurfaceRatios{numPartition, 3}, 2);
+        neighboursBasal = checkPairPointCloudDistanceCurateNeighbours(imageOfSurfaceRatios{numPartition, 3}, basal3dInfo.neighbourhood);
+        neighbours_data = table(neighboursApical, neighboursBasal);
         neighbours_data.Properties.VariableNames = {'Apical','Basal'};
-        [imageOfSurfaceRatios{numPartition, 4}, meanSurfaceRatio(numPartition)] = calculate_CellularFeatures(neighbours_data, apical3dInfo, basal3dInfo, endSurface, imageOfSurfaceRatios{numPartition, 3}, imageOfSurfaceRatios{numPartition, 1}, noValidCells, validCells, [], []);
-        neighbours{numPartition} = basal3dInfo.neighbourhood;
+        [imageOfSurfaceRatios{numPartition, 4}, meanSurfaceRatio(numPartition)] = calculate_CellularFeatures(neighbours_data, neighboursApical, neighboursBasal, endSurface, imageOfSurfaceRatios{numPartition, 3}, imageOfSurfaceRatios{numPartition, 1}, noValidCells, validCells, [], []);
+        neighbours{numPartition} = neighboursBasal;
         %figure; paint3D( imageOfSurfaceRatios{numPartition, 1}, [], colours);
         h = figure('Visible', 'off'); paint3D( ismember(imageOfSurfaceRatios{numPartition, 3}, validCells) .* imageOfSurfaceRatios{numPartition, 3}, [], colours);
-        print(h, fullfile(selpath, ['gland_SR' num2str(meanSurfaceRatio(numPartition)), '.tif']),'-dtiff','-r300')
+        mkdir(fullfile(selpath, 'dividedGland'));
+        print(h, fullfile(selpath, 'dividedGland' , ['gland_SR' num2str(meanSurfaceRatio(numPartition)), '.tif']),'-dtiff','-r300')
     end
     close all
-
-    
-%% eroding starting surface until it overlaps with any pixel of the end surface
-%     while any(any(any(endSurface>0 & (ismember(obj_img, validCells) .*actualSurface)>0))) == 0
-%         allSurfaceRatioImages{numSurface, 1} = obj_img .* actualSurface;
-%         allSurfaceRatioImages{numSurface, 2} = calculateNeighbours3D(allSurfaceRatioImages{numSurface, 1});
-%         
-%         basal3dInfo = calculateNeighbours3D(allSurfaceRatioImages{numSurface, 1});
-%         neighbours_data = table(apical3dInfo.neighbourhood, basal3dInfo.neighbourhood);
-%         neighbours_data.Properties.VariableNames = {'Apical','Basal'};
-%         allSurfaceRatioImages{numSurface, 3} = calculate_CellularFeatures(neighbours_data, apical3dInfo, basal3dInfo, endSurface, allSurfaceRatioImages{numSurface, 1}, obj_img .* (outsideObject == 0), noValidCells, '.');
-%         
-%         outsideObject(actualSurface) = 1;
-%         
-%         dilatedActualSurface = imdilate(imclose(actualSurface>0, strel('sphere', 1)), stepDilation);
-%         
-%         dilatedActualSurface(outsideObject) = 0;
-%         numSurface = numSurface + 1;
-%         actualSurface = bwmorph3(dilatedActualSurface, 'clean');
-%         %figure; paint3D( obj_img .* actualSurface, [], colours);
-%     end
-%     figure; paint3D( obj_img .* actualSurface, [], colours);
-%     hold on;
-%     [indices] = find(endSurface>0 & (ismember(obj_img, validCells) .*actualSurface)>0);
-%     [x, y, z] = ind2sub(size(endSurface), indices);
-%     for numIndex = 1:length(x)
-%        plot3(x(numIndex), y(numIndex), z(numIndex), '*r'); 
-%     end
 end
