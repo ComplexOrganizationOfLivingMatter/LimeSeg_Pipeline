@@ -96,9 +96,9 @@ function [imageOfSurfaceRatios, neighbours] = divideObjectInSurfaceRatios(obj_im
         if numPartition > 1
             initialBasalImage = getBasalFrom3DImage(imageOfSurfaceRatios{numPartition, 1}, [], 4);
             
-            tipAdded = 6;
+            tipAdded = 26;
             initialBasalImage_Tips = double(addTipsImg3D(tipAdded, initialBasalImage));
-            initialBasalImage_closed = imclose(double(initialBasalImage>0), strel('sphere', 25));
+            initialBasalImage_closed = imclose(double(initialBasalImage_Tips>0), strel('sphere', tipAdded-1));
             initialBasalImage_filled = imfill(initialBasalImage_closed);
             
 %             initialBasalImage_filled = permute(initialBasalImage_filled, [1 3 2]);
@@ -109,12 +109,11 @@ function [imageOfSurfaceRatios, neighbours] = divideObjectInSurfaceRatios(obj_im
 %             test = permute(innerRegion, [1 3 2]);
 %             figure; imshow(test(:, :, 100))
 
-            initialBasalImage = initialBasalImage_Tips(tipAdded+1:(size(initialBasalImage_Tips, 1) - tipAdded), tipAdded+1:(size(initialBasalImage_Tips, 2) - tipAdded), tipAdded+1:(size(initialBasalImage_Tips, 3) - tipAdded));
-
-            finalBasalImage = fill0sWithCells(double(initialBasalImage), innerRegion == 0);
+            
+            finalBasalImage = fill0sWithCells(double(initialBasalImage_Tips), innerRegion == 0);
             %figure; paint3D(finalBasalImage, [], colours);
             
-            [imageOfSurfaceRatios{numPartition, 3}] = finalBasalImage;
+            [imageOfSurfaceRatios{numPartition, 3}] = finalBasalImage(tipAdded+1:(size(finalBasalImage, 1) - tipAdded), tipAdded+1:(size(finalBasalImage, 2) - tipAdded), tipAdded+1:(size(finalBasalImage, 3) - tipAdded));
         else
             imageOfSurfaceRatios{numPartition, 3} = endSurface;
         end
