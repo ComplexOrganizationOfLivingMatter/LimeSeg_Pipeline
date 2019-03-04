@@ -9,8 +9,7 @@ parfor numFile = 1:length(files)
     if contains(lower(files(numFile).folder), 'discarded') == 0
         
         selpath = files(numFile).folder;
-        
-        [infoPerSurfaceRatio, neighbours] = divideObjectInSurfaceRatios();
+        divideObjectInSurfaceRatios(selpath);
     end
 end
 
