@@ -19,13 +19,18 @@ function [basalLayer] = getBasalFrom3DImage(labelledImage, lumenImage, tipValue)
     
     basalLayer(:, :, end) = finalObject(:, :, end);
     basalLayer(:, :, 1) = finalObject(:, :, 1);
-    basalLayer(:, min(y), :) = 0;
-    basalLayer(:, max(y), :) = 0;
+    basalLayer(:, 1:min(y), :) = 0;
+    basalLayer(:, max(y):end, :) = 0;
     
 %     figure;
 %     pcshow([x,y,z]);
     if isempty(lumenImage) == 0
-        basalLayer(imdilate(lumenImage, strel('sphere', 3))) = 0;
+        glandParts = bwlabeln(basalLayer>0);
+        glandParts_Unique = unique(glandParts);
+        
+        if length(glandParts_Unique)>2
+            basalLayer(imdilate(lumenImage, strel('sphere', 3))) = 0;
+        end
     end
     %basalLayer = completeImageOfCells(labelledImage .* basalLayer, basalLayer == 0);
     basalLayer = labelledImage .* basalLayer;
