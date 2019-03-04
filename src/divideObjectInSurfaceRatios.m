@@ -1,7 +1,25 @@
-function [imageOfSurfaceRatios, neighbours] = divideObjectInSurfaceRatios(obj_img, startingSurface, endSurface, validCells, noValidCells, colours, selpath, basalRealNeighs, apicalRealNeighs)
+function divideObjectInSurfaceRatios(selpath)
 %DIVIDEOBJECTINSURFACERATIOS Summary of this function goes here
 %   Detailed explanation goes here
     
+
+    %% Loading variables
+    load(fullfile(selpath, '3d_layers_info.mat'));
+    load(fullfile(selpath, 'valid_cells.mat'));
+    
+    load(fullfile(selpath, 'apical', 'verticesInfo.mat'), 'newVerticesNeighs2D');
+    apicalNeighs = newVerticesNeighs2D;
+    apicalRealNeighs = arrayfun(@(x) sum(any(ismember(apicalNeighs, x), 2)), 1:max(validCells));
+
+    load(fullfile(selpath, 'basal', 'verticesInfo.mat'), 'newVerticesNeighs2D');
+    basalNeighs = newVerticesNeighs2D;
+    basalRealNeighs = arrayfun(@(x) sum(any(ismember(basalNeighs, x), 2)), 1:max(validCells));
+    
+    obj_img = labelledImage;
+    startingSurface = basalLayer; 
+    endSurface = apicalLayer;
+    
+    %% Divide object in surface ratios
     apical3dInfo = calculateNeighbours3D(endSurface, 2);
     neighboursApical = checkPairPointCloudDistanceCurateNeighbours(endSurface, apical3dInfo.neighbourhood);
     numNeighsApical = cellfun(@length, neighboursApical);
@@ -94,11 +112,12 @@ function [imageOfSurfaceRatios, neighbours] = divideObjectInSurfaceRatios(obj_im
     
     for numPartition = 1:(totalPartitions+1)
         if numPartition > 1
-            initialBasalImage = getBasalFrom3DImage(imageOfSurfaceRatios{numPartition, 1}, [], 4);
-            
             tipAdded = 26;
-            initialBasalImage_Tips = double(addTipsImg3D(tipAdded, initialBasalImage));
-            initialBasalImage_closed = imclose(double(initialBasalImage_Tips>0), strel('sphere', tipAdded-1));
+            initialImage_Tips = double(addTipsImg3D(tipAdded, imageOfSurfaceRatios{numPartition, 1}));
+
+            initialBasalImage = getBasalFrom3DImage(initialImage_Tips, addTipsImg3D(tipAdded, lumenImage)>0, 4);
+            
+            initialBasalImage_closed = imclose(double(initialBasalImage>0), strel('sphere', tipAdded-1));
             initialBasalImage_filled = imfill(initialBasalImage_closed);
             
 %             initialBasalImage_filled = permute(initialBasalImage_filled, [1 3 2]);
@@ -133,4 +152,7 @@ function [imageOfSurfaceRatios, neighbours] = divideObjectInSurfaceRatios(obj_im
         print(h, fullfile(selpath, 'dividedGland' , ['gland_SR' num2str(meanSurfaceRatio(numPartition)), '.tif']),'-dtiff','-r300')
     end
     close all
+    
+    infoPerSurfaceRatio = imageOfSurfaceRatios;
+    save(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'), 'infoPerSurfaceRatio', 'neighbours');
 end
