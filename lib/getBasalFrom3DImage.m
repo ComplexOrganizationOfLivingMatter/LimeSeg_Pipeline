@@ -13,9 +13,15 @@ function [basalLayer] = getBasalFrom3DImage(labelledImage, lumenImage, tipValue)
     se = strel('sphere', 1);
     finalObjectEroded = imerode(finalObject, se);
     basalLayer = finalObject - finalObjectEroded;
+    
+    
+    [x,y,z] = ind2sub(size(basalLayer),find(basalLayer>0));
+    
     basalLayer(:, :, end) = finalObject(:, :, end);
     basalLayer(:, :, 1) = finalObject(:, :, 1);
-%     [x,y,z] = ind2sub(size(basalLayer),find(basalLayer>0));
+    basalLayer(:, min(y), :) = 0;
+    basalLayer(:, max(y), :) = 0;
+    
 %     figure;
 %     pcshow([x,y,z]);
     if isempty(lumenImage) == 0
