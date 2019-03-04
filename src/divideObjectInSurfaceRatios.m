@@ -128,8 +128,7 @@ function divideObjectInSurfaceRatios(selpath)
 %             test = permute(innerRegion, [1 3 2]);
 %             figure; imshow(test(:, :, 100))
 
-            
-            finalBasalImage = fill0sWithCells(double(initialBasalImage_Tips), innerRegion == 0);
+            finalBasalImage = fill0sWithCells(double(initialBasalImage), innerRegion == 0);
             %figure; paint3D(finalBasalImage, [], colours);
             
             [imageOfSurfaceRatios{numPartition, 3}] = finalBasalImage(tipAdded+1:(size(finalBasalImage, 1) - tipAdded), tipAdded+1:(size(finalBasalImage, 2) - tipAdded), tipAdded+1:(size(finalBasalImage, 3) - tipAdded));
