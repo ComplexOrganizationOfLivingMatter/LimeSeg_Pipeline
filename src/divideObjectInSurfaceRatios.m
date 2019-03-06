@@ -1,7 +1,7 @@
 function divideObjectInSurfaceRatios(selpath)
 %DIVIDEOBJECTINSURFACERATIOS Summary of this function goes here
 %   Detailed explanation goes here
-    
+    selpath
 
     %% Loading variables
     load(fullfile(selpath, '3d_layers_info.mat'));
@@ -112,26 +112,8 @@ function divideObjectInSurfaceRatios(selpath)
     
     for numPartition = 1:(totalPartitions+1)
         if numPartition > 1
-            tipAdded = 26;
-            initialImage_Tips = double(addTipsImg3D(tipAdded, imageOfSurfaceRatios{numPartition, 1}));
-
-            initialBasalImage = getBasalFrom3DImage(initialImage_Tips, addTipsImg3D(tipAdded, lumenImage)>0, 4);
-            
-            initialBasalImage_closed = imclose(double(initialBasalImage>0), strel('sphere', tipAdded-1));
-            initialBasalImage_filled = imfill(initialBasalImage_closed);
-            
-%             initialBasalImage_filled = permute(initialBasalImage_filled, [1 3 2]);
-%             figure; imshow(initialBasalImage_filled(:, :, 100))
-%             initialBasalImage_Tips = permute(initialBasalImage_Tips, [1 3 2]);
-            
-            innerRegion = initialBasalImage_filled - imerode(initialBasalImage_filled, strel('sphere', 1));
-%             test = permute(innerRegion, [1 3 2]);
-%             figure; imshow(test(:, :, 100))
-
-            finalBasalImage = fill0sWithCells(double(initialBasalImage), innerRegion == 0);
-            %figure; paint3D(finalBasalImage, [], colours);
-            
-            [imageOfSurfaceRatios{numPartition, 3}] = finalBasalImage(tipAdded+1:(size(finalBasalImage, 1) - tipAdded), tipAdded+1:(size(finalBasalImage, 2) - tipAdded), tipAdded+1:(size(finalBasalImage, 3) - tipAdded));
+            initialImage = imageOfSurfaceRatios{numPartition, 1};
+            [imageOfSurfaceRatios{numPartition, 3}] = getBasalFrom3DImage(initialImage, lumenImage>0, 4);
         else
             imageOfSurfaceRatios{numPartition, 3} = endSurface;
         end
@@ -146,9 +128,11 @@ function divideObjectInSurfaceRatios(selpath)
         [imageOfSurfaceRatios{numPartition, 5}, ~] = calculate_CellularFeatures(neighbours_data, neighboursBasal_init', neighboursBasal', startingSurface, imageOfSurfaceRatios{numPartition, 3}, imageOfSurfaceRatios{numPartition, 1}, noValidCells, validCells, [], []);
         neighbours{numPartition} = neighboursBasal;
         %figure; paint3D( imageOfSurfaceRatios{numPartition, 1}, [], colours);
-        h = figure('Visible', 'off'); paint3D( ismember(imageOfSurfaceRatios{numPartition, 3}, validCells) .* imageOfSurfaceRatios{numPartition, 3}, [], colours);
+        h = figure('Visible', 'off');
+        paint3D( ismember(imageOfSurfaceRatios{numPartition, 3}, validCells) .* imageOfSurfaceRatios{numPartition, 3}, [], colours, 2);
         mkdir(fullfile(selpath, 'dividedGland'));
-        print(h, fullfile(selpath, 'dividedGland' , ['gland_SR' num2str(meanSurfaceRatio(numPartition)), '.tif']),'-dtiff','-r300')
+        savefig(h, fullfile(selpath, 'dividedGland' , ['gland_SR' num2str(meanSurfaceRatio(numPartition)), '.fig']))
+        print(h, fullfile(selpath, 'dividedGland' , ['gland_SR' num2str(meanSurfaceRatio(numPartition)), '.jpeg']),'-djpeg','-r300')
     end
     close all
     
