@@ -113,7 +113,21 @@ function divideObjectInSurfaceRatios(selpath)
     for numPartition = 1:(totalPartitions+1)
         if numPartition > 1
             initialImage = imageOfSurfaceRatios{numPartition, 1};
-            [imageOfSurfaceRatios{numPartition, 3}] = getBasalFrom3DImage(initialImage, lumenImage>0, 4);
+            intialBasalImage = getBasalFrom3DImage(initialImage, lumenImage>0, 4);
+            
+            basalImage_closed = imclose(initialImage>0, strel('disk', 5));
+            basalImage_filled = imfill(basalImage_closed, 'holes');
+            
+            se = strel('sphere', 1);
+            finalObjectEroded = imerode(basalImage_filled, se);
+            basalLayer = basalImage_filled - finalObjectEroded;
+            [~, y, ~] = ind2sub(size(basalLayer),find(basalLayer>0));
+            
+            basalLayer(:, :, end) = initialImage(:, :, end);
+            basalLayer(:, :, 1) = initialImage(:, :, 1);
+            basalLayer(:, 1:(min(y)+1), :) = 0;
+            basalLayer(:, (max(y)-1):end, :) = 0;
+            [imageOfSurfaceRatios{numPartition, 3}] = fill0sWithCells(initialImage.*basalLayer, basalLayer == 0);
         else
             imageOfSurfaceRatios{numPartition, 3} = endSurface;
         end
