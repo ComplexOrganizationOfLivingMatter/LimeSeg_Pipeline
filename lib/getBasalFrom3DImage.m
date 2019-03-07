@@ -15,12 +15,17 @@ function [basalLayer] = getBasalFrom3DImage(labelledImage, lumenImage, tipValue)
     basalLayer = finalObject - finalObjectEroded;
     
     
-    [x,y,z] = ind2sub(size(basalLayer),find(basalLayer>0));
+    [~,y,~] = ind2sub(size(basalLayer),find(basalLayer>0));
     
     basalLayer(:, :, end) = finalObject(:, :, end);
     basalLayer(:, :, 1) = finalObject(:, :, 1);
-    basalLayer(:, 1:min(y), :) = 0;
-    basalLayer(:, max(y):end, :) = 0;
+    downSide = labelledImage(:, min(y), :);
+    upSide = labelledImage(:, max(y), :);
+    if sum(downSide(:)>0) > sum(upSide(:)>0)
+        basalLayer(:, 1:min(y), :) = 0;
+    else
+        basalLayer(:, max(y):end, :) = 0;
+    end
     
 %     figure;
 %     pcshow([x,y,z]);
