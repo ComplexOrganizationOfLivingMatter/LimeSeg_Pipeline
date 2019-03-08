@@ -15,13 +15,14 @@ files = files(nonDiscardedFiles);
 resultsFileName = 'glandDividedInSurfaceRatios.mat';
 %resultsFileName = 'glandDividedInSurfaceRatios_PredefinedSR.mat';
 
-%namesSR = arrayfun(@(x) ['sr' strrep(num2str(x),'.','_')],1:numberOfSurfaceRatios,'UniformOutput', false);
-namesSR = {'sr1' 'sr2'};
+numberOfSurfaceRatios = 11;
+namesSR = arrayfun(@(x) ['sr' strrep(num2str(x),'.','_')],1:numberOfSurfaceRatios,'UniformOutput', false);
+%namesSR = {'sr1' 'sr2'};
 for numFile = 1:length(files)
     load(fullfile(files(numFile).folder, files(numFile).name));
     load(fullfile(files(numFile).folder, 'valid_cells.mat'));
-    if exist(fullfile(files(numFile).folder, resultsFileName), 'file')
-        load(fullfile(files(numFile).folder, resultsFileName))
+    if exist(fullfile(files(numFile).folder, 'dividedGland', resultsFileName), 'file')
+        load(fullfile(files(numFile).folder, 'dividedGland', resultsFileName))
     else
         resizeImg = 0.25;
         imgSize = round(size(apicalLayer)/resizeImg);
@@ -45,7 +46,7 @@ for numFile = 1:length(files)
             NeighsScutoidsPerSF(GlandsSF,:)=[mean(cell2mat(ActualGland.Total_neighbours)),std(cell2mat(ActualGland.Total_neighbours)),mean(ActualGland.Scutoids),std(ActualGland.Scutoids),mean(ActualGland.Surface_Ratio)];
         end
         meanNeighsScutoidsPerSF_ValidCells=array2table(NeighsScutoidsPerSF,'VariableNames',{'mean_neigh3D','std_neigh3D','mean_PercScutoids','std_PercScutoids','Surface_Ratio'});
-        save(fullfile(files(numFile).folder, resultsFileName), 'infoPerSurfaceRatio', 'neighbours','meanNeighsScutoidsPerSF_ValidCells');
+        save(fullfile(files(numFile).folder, 'dividedGland', resultsFileName), 'infoPerSurfaceRatio', 'neighbours','meanNeighsScutoidsPerSF_ValidCells');
     end
     neighsSurface = cell(numberOfSurfaceRatios,1);
     neighsAccumSurfaces = cell(numberOfSurfaceRatios,1);
@@ -94,14 +95,12 @@ for numFile = 1:length(files)
     
     infoEuler3D{numFile, 1} = vertcat(meanNumNeighPerSurfaceRealization, stdNumNeighPerSurfaceRealization, surfaceRatioOfGland, numCells)';
     infoEuler3D{numFile, 2} = meanNeighsScutoidsPerSF_ValidCells;
-    numNeighPerSurface{numFile, 1} = array2table(numNeighPerSurfaceRealization(validCells, [1 end]),'VariableNames',namesSR);
-    numNeighAccumPerSurfaces{numFile, 1} = array2table(numNeighAccumPerSurfacesRealization(validCells, [1 end]),'VariableNames',namesSR);
-    numNeighOfNeighPerSurface{numFile, 1} = array2table(numNeighOfNeighPerSurfacesRealization(validCells, [1 end]),'VariableNames',namesSR);
-    numNeighOfNeighAccumPerSurface{numFile, 1} = array2table(numNeighOfNeighAccumPerSurfacesRealization(validCells, [1 end]),'VariableNames',namesSR);
-    areaCellsPerSurface{numFile, 1} = array2table(areaCellsPerSurfaceRealization(validCells,[1 end]),'VariableNames',namesSR);
-    volumePerSurface{numFile, 1} = array2table(volumePerSurfaceRealization(validCells,[1 end]),'VariableNames',namesSR);
-    
-    
+    numNeighPerSurface{numFile, 1} = array2table(numNeighPerSurfaceRealization(validCells, :),'VariableNames',namesSR);
+    numNeighAccumPerSurfaces{numFile, 1} = array2table(numNeighAccumPerSurfacesRealization(validCells, :),'VariableNames',namesSR);
+    numNeighOfNeighPerSurface{numFile, 1} = array2table(numNeighOfNeighPerSurfacesRealization(validCells, :),'VariableNames',namesSR);
+    numNeighOfNeighAccumPerSurface{numFile, 1} = array2table(numNeighOfNeighAccumPerSurfacesRealization(validCells, :),'VariableNames',namesSR);
+    areaCellsPerSurface{numFile, 1} = array2table(areaCellsPerSurfaceRealization(validCells,:),'VariableNames',namesSR);
+    volumePerSurface{numFile, 1} = array2table(volumePerSurfaceRealization(validCells,:),'VariableNames',namesSR);
     
     %Scutoids per number of sides
     [meanWinningPerSidePerFile{numFile, 1}, cellsPerSide{numFile}] = calculateMeanWinning3DNeighbours(numNeighAccumPerSurfacesRealization, validCells);
