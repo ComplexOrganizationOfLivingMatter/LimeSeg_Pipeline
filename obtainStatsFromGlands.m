@@ -24,12 +24,7 @@ for numFile = 1:length(files)
     if exist(fullfile(files(numFile).folder, 'dividedGland', resultsFileName), 'file')
         load(fullfile(files(numFile).folder, 'dividedGland', resultsFileName))
     else
-        resizeImg = 0.25;
-        imgSize = round(size(apicalLayer)/resizeImg);
-        apicalLayer = imresize3(apicalLayer, imgSize, 'nearest');
-        basalLayer = imresize3(basalLayer, imgSize, 'nearest');
-        labelledImage = imresize3(labelledImage, imgSize, 'nearest');
-        [infoPerSurfaceRatio, neighbours] = divideObjectInSurfaceRatios(labelledImage, basalLayer, apicalLayer, validCells, noValidCells, colours, files(numFile).folder);
+        divideObjectInSurfaceRatios(files(numFile).folder);
     end
     if exist('infoPerSurfaceRatio', 'var')
         numberOfSurfaceRatios = size(infoPerSurfaceRatio, 1);
