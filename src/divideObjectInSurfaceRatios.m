@@ -124,15 +124,15 @@ function divideObjectInSurfaceRatios(selpath)
                     downSide = initialImage(:, min(y), :);
                     upSide = initialImage(:, max(y), :);
                     if sum(downSide(:)>0) > sum(upSide(:)>0)
-                        basalImage_closed(:, 1:(min(y)+1), :) = 1;
+                        basalImage_closed(:, 1:(min(y)+3), :) = 1;
                     else
-                        basalImage_closed(:, (max(y)-1):end, :) = 1;
+                        basalImage_closed(:, (max(y)-3):end, :) = 1;
                     end
                     basalImage_filled = imfill(basalImage_closed, 'holes');
                     if sum(downSide(:)>0) > sum(upSide(:)>0)
-                        basalImage_filled(:, 1:(min(y)+1), :) = basalImage_closed_initial(:, 1:(min(y)+1), :);
+                        basalImage_filled(:, 1:(min(y)+3), :) = basalImage_closed_initial(:, 1:(min(y)+3), :);
                     else
-                        basalImage_filled(:, (max(y)-1):end, :) = basalImage_closed_initial(:, (max(y)-1):end, :);
+                        basalImage_filled(:, (max(y)-3):end, :) = basalImage_closed_initial(:, (max(y)-3):end, :);
                     end
 
                     se = strel('sphere', 1);
