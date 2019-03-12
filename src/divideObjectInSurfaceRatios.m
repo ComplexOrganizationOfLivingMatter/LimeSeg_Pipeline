@@ -114,9 +114,9 @@ function divideObjectInSurfaceRatios(selpath)
             for numPartition = 1:(totalPartitions+1)
                 if numPartition > 1
                     initialImage = imageOfSurfaceRatios{numPartition, 1};
-                    initialBasalImage = getBasalFrom3DImage(initialImage, lumenImage>0, 4);
+                    %initialBasalImage = getBasalFrom3DImage(initialImage, lumenImage>0, 4);
 
-                    basalImage_closed_initial = imclose(initialImage>0, strel('disk', 5));
+                    basalImage_closed_initial = imclose(initialImage>0, strel('disk', 2));
 
                     basalImage_closed = basalImage_closed_initial;
                     [~, y, ~] = ind2sub(size(initialImage),find(initialImage>0));
