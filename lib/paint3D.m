@@ -1,4 +1,4 @@
-function [] = paint3D(varargin)
+function paint3D(varargin)
 %PAINT3D Summary of this function goes here
 %   Detailed explanation goes here
     if nargin==2 
@@ -43,18 +43,29 @@ function [] = paint3D(varargin)
     for numSeed = showingCells
         % Painting each cell
         [x,y,z] = ind2sub(size(labelledImage),find(labelledImage == numSeed));
-        if prettyGraphics
-            shp = alphaShape(x,y,z, 1);
-            pc = criticalAlpha(shp,'one-region');
-            shp.Alpha = pc+3;
-            plot(shp, 'FaceColor', colours(numSeed, :), 'EdgeColor', 'none', 'AmbientStrength', 0.3, 'FaceAlpha', 1);
-        else
-            pcshow([x,y,z], colours(numSeed, :));
+        if isempty(x) == 0
+            if prettyGraphics == 1
+                shp = alphaShape(x,y,z, 1);
+                pc = criticalAlpha(shp,'one-region');
+                shp.Alpha = pc+3;
+                plot(shp, 'FaceColor', colours(numSeed, :), 'EdgeColor', 'none', 'AmbientStrength', 0.3, 'FaceAlpha', 1);
+            elseif prettyGraphics == 2
+                shp = alphaShape(x,y,z, 1);
+                pc = criticalAlpha(shp,'one-region');
+                if isempty(pc)
+                    shp = alphaShape(x,y,z);
+                else
+                    shp.Alpha = pc+3;
+                end
+                plot(shp, 'FaceColor', colours(numSeed, :), 'EdgeColor', 'none');
+            else
+                pcshow([x,y,z], colours(numSeed, :));
+            end
+            hold on;
         end
-        hold on;
     end
     
-    if prettyGraphics
+    if prettyGraphics == 1
         axis equal
         camlight left;
         camlight right;
