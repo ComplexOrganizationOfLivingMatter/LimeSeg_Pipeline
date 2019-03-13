@@ -88,7 +88,7 @@ addpath(genpath(fullfile('..','Epithelia3D', 'InSilicoModels', 'TubularModel', '
 % dispersionNormAreaBasal = vertcat(normAreaBasal{:});
 % dispersionNormAreaApical = vertcat(normAreaApical{:});
 % 
-% listPolygons = 3:23;
+% % listPolygons = 3:23;
 % 
 % relationNormArea_numSidesBasal = [horzcat(totalSidesCellsBasal{:})',dispersionNormAreaBasal];
 % relationNormArea_numSidesApical = [horzcat(totalSidesCellsApical{:})',dispersionNormAreaApical];
@@ -96,7 +96,7 @@ addpath(genpath(fullfile('..','Epithelia3D', 'InSilicoModels', 'TubularModel', '
 % %relationNsidesApical-basal
 % totalSidesCells = horzcat(totalSidesCells{:})';
 % totalSidesTotalApical = arrayfun(@(x) totalSidesCells(horzcat(totalSidesCellsApical{:})' == x),4:9,'UniformOutput',false);
-% 
+
 % uniqSidesBasal = unique(horzcat(totalSidesCellsBasal{:}));
 % uniqSidesApical = unique(horzcat(totalSidesCellsApical{:}));
 % 
@@ -120,9 +120,9 @@ addpath(genpath(fullfile('..','Epithelia3D', 'InSilicoModels', 'TubularModel', '
 folderSalGland = 'docs\figuresMathPaper\lewis2D_averagePolygon_AreasDistribution_11-Mar-2019.mat';
 load(folderSalGland)
 
-% %%  figure 1C area distribution
-% %% tube apical
-% folderTube = 'D:\Pedro\Epithelia3D\InSilicoModels\TubularModel\data\tubularCVT\Data\512x4096_200seeds\polygonDistribution_diag_9.mat';
+%%  figure 1C area distribution
+%% tube apical
+% folderTube = 'D:\Pedro\Epithelia3D\InSilicoModels\TubularModel\data\tubularCVT\Data\512x4096_200seeds\polygonDistribution_diag_8.mat';
 path2save = 'docs\figuresMathPaper\';
 % load(folderTube)
 % 
@@ -134,26 +134,26 @@ path2save = 'docs\figuresMathPaper\';
 % histogram(dispersionLogNormArea,'BinWidth',0.02,'Normalization','probability','FaceColor',[79/255,209/255,255/255],'EdgeAlpha',0,'FaceAlpha',0); 
 % hold on
 % plot(x_values,y,'LineWidth',3,'Color',[79/255,209/255,255/255])
-% 
-% %% tube basal - 1.85
-folderTube = 'D:\Pedro\Epithelia3D\InSilicoModels\TubularModel\data\tubularVoronoiModel\expansion\512x4096_200seeds\diagram9\polygonDistribution_diag_9sr1.85.mat';
-load(folderTube)
-apicalSidesCellsTube185 = apicalSidesCells;
-totalSidesCellsTube185 = totalSidesCells;
 
-% dispersionLogNormAreaBasal185 = dispersionLogNormArea;
+%% tube basal - 1.8
+folderTube = 'D:\Pedro\Epithelia3D\InSilicoModels\TubularModel\data\tubularVoronoiModel\expansion\512x4096_200seeds\diagram8\polygonDistribution_diag_8sr1.8.mat';
+load(folderTube)
+apicalSidesCellsTube18 = apicalSidesCells;
+totalSidesCellsTube18 = totalSidesCells;
+
+% dispersionLogNormAreaBasal18 = dispersionLogNormArea;
 % 
 % % h = figure('units','normalized','outerposition',[0 0 1 1],'Visible','on');
-% fD = fitdist(dispersionLogNormAreaBasal185,'Stable');
+% fD = fitdist(dispersionLogNormAreaBasal18,'Stable');
 % y = pdf(fD,x_values);
 % y = y/sum(y);
 % hold on
-% histogram(dispersionLogNormAreaBasal185,'BinWidth',0.02,'Normalization','probability','FaceColor',[0,112/255,192/255],'EdgeAlpha',0,'FaceAlpha',0); 
+% histogram(dispersionLogNormAreaBasal18,'BinWidth',0.02,'Normalization','probability','FaceColor',[0,112/255,192/255],'EdgeAlpha',0,'FaceAlpha',0); 
 % hold on
 % plot(x_values,y,'LineWidth',3,'Color',[0,112/255,192/255])
-% 
-% %% tube basal - 4
-folderTube = 'D:\Pedro\Epithelia3D\InSilicoModels\TubularModel\data\tubularVoronoiModel\expansion\512x4096_200seeds\diagram9\polygonDistribution_diag_9sr4.mat';
+
+%% tube basal - 4
+folderTube = 'D:\Pedro\Epithelia3D\InSilicoModels\TubularModel\data\tubularVoronoiModel\expansion\512x4096_200seeds\diagram8\polygonDistribution_diag_8sr4.mat';
 load(folderTube)
 apicalSidesCellsTube4 = apicalSidesCells;
 totalSidesCellsTube4 = totalSidesCells;
@@ -200,46 +200,46 @@ totalSidesCellsTube4 = totalSidesCells;
 % set(gca,'FontSize', 24,'FontName','Helvetica','YGrid','on','TickDir','out','Box','off');
 % print(h,[path2save 'fig1C_' date '_noLegend'],'-dtiff','-r300')
 % 
-% legend({'Voronoi tube 9 - apical','Voronoi tube 9 - apical', 'Voronoi tube 9 - basal - sr 1.85','Voronoi tube 9 - basal - sr 1.85', 'Voronoi tube 9 - basal - sr 4','Voronoi tube 9 - basal - sr 4','S.Glands - basal','S.Glands - basal', 'S.Glands - apical','S.Glands - apical'})
+% legend({'Voronoi tube 8 - apical','Voronoi tube 8 - apical', 'Voronoi tube 8 - basal - sr 1.8','Voronoi tube 8 - basal - sr 1.8', 'Voronoi tube 8 - basal - sr 4','Voronoi tube 8 - basal - sr 4','S.Glands - basal','S.Glands - basal', 'S.Glands - apical','S.Glands - apical'})
 % 
 % print(h,[path2save 'fig1C_' date '_legend'],'-dtiff','-r300')
-%     
+    
 %%  figure 2. Relation apical - basal nSides. Violin
-totalSidesCellsTube185 = horzcat(totalSidesCellsTube185{:});
+totalSidesCellsTube18 = horzcat(totalSidesCellsTube18{:});
 totalSidesCellsTube4 = horzcat(totalSidesCellsTube4{:});
 
-sidesTotalTub185 = arrayfun(@(x) totalSidesCellsTube185(horzcat(apicalSidesCellsTube185{:})' == x),4:9,'UniformOutput',false);
+sidesTotalTub18 = arrayfun(@(x) totalSidesCellsTube18(horzcat(apicalSidesCellsTube18{:})' == x),4:9,'UniformOutput',false);
 sidesTotalTub4 = arrayfun(@(x) totalSidesCellsTube4(horzcat(apicalSidesCellsTube4{:})' == x),4:9,'UniformOutput',false);
 
 
 h = figure('units','normalized','outerposition',[0 0 1 1],'Visible','on');
 hold on
 
-x = [totalSidesTotalApical{1};sidesTotalTub185{1}';sidesTotalTub4{1}';...
-    totalSidesTotalApical{2};sidesTotalTub185{2}';sidesTotalTub4{2}';...
-    totalSidesTotalApical{3};sidesTotalTub185{3}';sidesTotalTub4{3}';...
-    totalSidesTotalApical{4};sidesTotalTub185{4}';sidesTotalTub4{4}';...
-    totalSidesTotalApical{5};sidesTotalTub185{5}';sidesTotalTub4{5}'];
+x = [totalSidesTotalApical{1};sidesTotalTub18{1}';sidesTotalTub4{1}';...
+    totalSidesTotalApical{2};sidesTotalTub18{2}';sidesTotalTub4{2}';...
+    totalSidesTotalApical{3};sidesTotalTub18{3}';sidesTotalTub4{3}';...
+    totalSidesTotalApical{4};sidesTotalTub18{4}';sidesTotalTub4{4}';...
+    totalSidesTotalApical{5};sidesTotalTub18{5}';sidesTotalTub4{5}'];
 
-g = [zeros(length(totalSidesTotalApical{1}), 1); ones(length(sidesTotalTub185{1}), 1);2*ones(length(sidesTotalTub4{1}), 1);...
-    3*ones(length(totalSidesTotalApical{2}), 1); 4*ones(length(sidesTotalTub185{2}), 1);5*ones(length(sidesTotalTub4{2}), 1);...
-    6*ones(length(totalSidesTotalApical{3}), 1); 7*ones(length(sidesTotalTub185{3}), 1);8*ones(length(sidesTotalTub4{3}), 1);...
-    9*ones(length(totalSidesTotalApical{4}), 1); 10*ones(length(sidesTotalTub185{4}), 1);11*ones(length(sidesTotalTub4{4}), 1);...
-    12*ones(length(totalSidesTotalApical{5}), 1); 13*ones(length(sidesTotalTub185{5}), 1);14*ones(length(sidesTotalTub4{5}), 1)];
+g = [zeros(length(totalSidesTotalApical{1}), 1); ones(length(sidesTotalTub18{1}), 1);2*ones(length(sidesTotalTub4{1}), 1);...
+    3*ones(length(totalSidesTotalApical{2}), 1); 4*ones(length(sidesTotalTub18{2}), 1);5*ones(length(sidesTotalTub4{2}), 1);...
+    6*ones(length(totalSidesTotalApical{3}), 1); 7*ones(length(sidesTotalTub18{3}), 1);8*ones(length(sidesTotalTub4{3}), 1);...
+    9*ones(length(totalSidesTotalApical{4}), 1); 10*ones(length(sidesTotalTub18{4}), 1);11*ones(length(sidesTotalTub4{4}), 1);...
+    12*ones(length(totalSidesTotalApical{5}), 1); 13*ones(length(sidesTotalTub18{5}), 1);14*ones(length(sidesTotalTub4{5}), 1)];
 
-% H = notBoxPlot(x,g,'markMedian',true,'jitter', 0.3);
-% 
-% set([H.data],'MarkerSize',4,...
-%     'markerFaceColor','none',...
-%     'markerEdgeColor', 'none')
-% %mean line color
-% set([H.mu],'color','k')
-% for ii=1:length(H)
-%     set(H(ii).sdPtch,'FaceColor','none',...
-%                    'EdgeColor','k')
-%     set(H(ii).semPtch,'FaceColor','none',...
-%                    'EdgeColor','k')
-% end
+H = notBoxPlot(x,g,'markMedian',true,'jitter', 0.3);
+
+set([H.data],'MarkerSize',4,...
+    'markerFaceColor','none',...
+    'markerEdgeColor', 'none')
+%mean line color
+set([H.mu],'color','k')
+for ii=1:length(H)
+    set(H(ii).sdPtch,'FaceColor','none',...
+                   'EdgeColor','k')
+    set(H(ii).semPtch,'FaceColor','none',...
+                   'EdgeColor','k')
+end
 
 for nSideAp = 1:15 %(4:8)
     switch nSideAp
@@ -247,7 +247,7 @@ for nSideAp = 1:15 %(4:8)
             freqSides = totalSidesTotalApical{ceil(nSideAp/3)};
             c = [0.2,0.8,0];
         case {2,5,8,11,14}
-            freqSides = sidesTotalTub185{ceil(nSideAp/3)};
+            freqSides = sidesTotalTub18{ceil(nSideAp/3)};
             c = [0,112/255,192/255];
         otherwise
             freqSides = sidesTotalTub4{ceil(nSideAp/3)};
@@ -260,7 +260,7 @@ for nSideAp = 1:15 %(4:8)
     
     for nUniqSides = 1:length(numbers)
         hold on
-%         scatter(nSideAp-1, numbers(nUniqSides),2300*countP(nUniqSides), 'filled','MarkerFaceColor',c, 'MarkerEdgeColor', 'k','MarkerFaceAlpha',0.5)
+        scatter(nSideAp-1, numbers(nUniqSides),2300*countP(nUniqSides), 'filled','MarkerFaceColor',c, 'MarkerEdgeColor', 'k','MarkerFaceAlpha',0.5)
         text(nSideAp-1,numbers(nUniqSides),num2str(countN(nUniqSides)),'HorizontalAlignment','center')
     end
 end
@@ -272,4 +272,4 @@ title('relation apical sides - total cells sides')
 xlabel('number of sides - apical')
 ylabel('number of sides - total')
 set(gca,'FontSize', 24,'FontName','Helvetica','YGrid','on','TickDir','out','Box','off');
-print(h,[path2save 'fig_sidesRelationApicalTotalSides_' date 'onlyText'],'-dtiff','-r300')
+print(h,[path2save 'fig_sidesRelationApicalTotalSides_' date],'-dtiff','-r300')
