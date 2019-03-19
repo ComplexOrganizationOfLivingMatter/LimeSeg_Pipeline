@@ -45,12 +45,16 @@ for numFile = 1:length(files)
             infoPerSurfaceRatio{11, 6} = cylindre2DImage;
             [neighboursBasal] = getNeighboursFromVertices(newVerticesNeighs2D);
             
-            neighbours = cell(11, 1);
+            neighboursOfAllSurfaces = cell(11, 1);
             for numSR = 1:11
                 numSR
-                load(fullfile(filesOf2DUnroll(numSR).folder, 'final3DImg.mat'), 'img3d', 'vertices3D_Neighbours');
+                load(fullfile(filesOf2DUnroll(numSR).folder, 'final3DImg.mat'), 'img3d', 'neighbours');
                 load(fullfile(filesOf2DUnroll(numSR).folder, 'verticesInfo.mat'), 'cylindre2DImage', 'newVerticesNeighs2D');
-                [total_neighbours3D] = getNeighboursFromVertices(vertices3D_Neighbours);
+%                 if isempty(newVerticesNeighs2D)
+%                     neighbours = calculateNeighbours3D(img3d, 2);
+%                     neighbours = checkPairPointCloudDistanceCurateNeighbours(img3d, neighbours.neighbourhood', 1);
+%                 end
+                [total_neighbours3D] = getNeighboursFromVertices(newVerticesNeighs2D);
                 midLayer = cylindre2DImage;
                 
                 if numSR == 1
@@ -66,7 +70,7 @@ for numFile = 1:length(files)
                 
                 neighbours_data = table(neighboursApical, neighboursMid);
                 neighbours_data.Properties.VariableNames = {'Apical','Basal'};
-                neighbours{idToSave} = neighboursMid;
+                neighboursOfAllSurfaces{idToSave} = neighboursMid;
                 
                 [infoPerSurfaceRatio{idToSave, 8}, infoPerSurfaceRatio{idToSave, 7}] = calculate_CellularFeatures(neighbours_data, neighboursApical, neighboursMid, apicalLayer, midLayer, img3d, noValidCells, validCells, [], [], total_neighbours3D);
             end
