@@ -22,27 +22,35 @@ for numFile = 1:length(files)
         
         load(fullfile(files(numFile).folder, 'valid_cells'));
         filesOf2DUnroll = dir(fullfile(files(numFile).folder, '**', 'verticesInfo.mat'));
-        if length(filesOf2DUnroll) == 11
+        if length(filesOf2DUnroll) ~= 11
+            load(fullfile(files(numFile).folder, '3d_layers_info'), 'colours');
+            load(fullfile(files(numFile).folder, 'dividedGland', 'glandDividedInSurfaceRatios.mat'));
+            
+            imageOfSurfaceRatios = infoPerSurfaceRatio;
+            parfor numPartition = 2:10
+                unrollTube(imageOfSurfaceRatios{numPartition, 3}, fullfile(files(numFile).folder, 'dividedGland', ['gland_SR_' num2str(imageOfSurfaceRatios{numPartition, 2})]), noValidCells, colours, 1);
+            end
+        end
+        
+        if exist(fullfile(files(numFile).folder, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'file') == 0
             load(fullfile(files(numFile).folder, 'dividedGland' ,'glandDividedInSurfaceRatios.mat'), 'infoPerSurfaceRatio');
             
             load(fullfile(filesOf2DUnroll(1).folder, 'verticesInfo.mat'));
             apicalLayer = cylindre2DImage;
             infoPerSurfaceRatio{1, 6} = cylindre2DImage;
-            neighboursApical = arrayfun(@(x) unique(newVerticesNeighs2D(any(ismember(newVerticesNeighs2D, x), 2), :)), 1:max(newVerticesNeighs2D(:)), 'UniformOutput', false);
-            neighboursApical = cellfun(@(x, y) x(x ~= y), neighboursApical, num2cell(1:length(neighboursApical)), 'UniformOutput', false);
-            neighboursApical = cellfun(@(x) x(:), neighboursApical, 'UniformOutput', false);
+            [neighboursApical] = getNeighboursFromVertices(newVerticesNeighs2D);
             
             load(fullfile(filesOf2DUnroll(2).folder, 'verticesInfo.mat'));
             basalLayer = cylindre2DImage;
             infoPerSurfaceRatio{11, 6} = cylindre2DImage;
-            neighboursBasal = arrayfun(@(x) unique(newVerticesNeighs2D(any(ismember(newVerticesNeighs2D, x), 2), :)), 1:max(newVerticesNeighs2D(:)), 'UniformOutput', false);
-            neighboursBasal = cellfun(@(x, y) x(x ~= y), neighboursBasal, num2cell(1:length(neighboursBasal)), 'UniformOutput', false);
-            neighboursBasal = cellfun(@(x) x(:), neighboursBasal, 'UniformOutput', false);
+            [neighboursBasal] = getNeighboursFromVertices(newVerticesNeighs2D);
             
+            neighbours = cell(11, 1);
             for numSR = 1:11
                 numSR
-                load(fullfile(filesOf2DUnroll(numSR).folder, 'final3DImg.mat'), 'img3d');
+                load(fullfile(filesOf2DUnroll(numSR).folder, 'final3DImg.mat'), 'img3d', 'vertices3D_Neighbours');
                 load(fullfile(filesOf2DUnroll(numSR).folder, 'verticesInfo.mat'), 'cylindre2DImage', 'newVerticesNeighs2D');
+                [total_neighbours3D] = getNeighboursFromVertices(vertices3D_Neighbours);
                 midLayer = cylindre2DImage;
                 
                 if numSR == 1
@@ -54,27 +62,18 @@ for numFile = 1:length(files)
                 end
                 
                 infoPerSurfaceRatio{idToSave, 6} = cylindre2DImage;
-                neighboursMid = arrayfun(@(x) unique(newVerticesNeighs2D(any(ismember(newVerticesNeighs2D, x), 2), :)), 1:max(newVerticesNeighs2D(:)), 'UniformOutput', false);
-                neighboursMid = cellfun(@(x, y) x(x ~= y), neighboursMid, num2cell(1:length(neighboursMid)), 'UniformOutput', false);
-                neighboursMid = cellfun(@(x) x(:), neighboursMid, 'UniformOutput', false);
-            
+                [neighboursMid] = getNeighboursFromVertices(newVerticesNeighs2D);
+                
                 neighbours_data = table(neighboursApical, neighboursMid);
                 neighbours_data.Properties.VariableNames = {'Apical','Basal'};
+                neighbours{idToSave} = neighboursMid;
                 
-                [infoPerSurfaceRatio{idToSave, 8}, infoPerSurfaceRatio{idToSave, 7}] = calculate_CellularFeatures(neighbours_data, neighboursApical, neighboursMid, apicalLayer, midLayer, img3d, noValidCells, validCells, [], []);
+                [infoPerSurfaceRatio{idToSave, 8}, infoPerSurfaceRatio{idToSave, 7}] = calculate_CellularFeatures(neighbours_data, neighboursApical, neighboursMid, apicalLayer, midLayer, img3d, noValidCells, validCells, [], [], total_neighbours3D);
             end
             
             infoPerSurfaceRatio = cell2table(infoPerSurfaceRatio, 'VariableNames', {'Image3DWithVolumen', 'SR3D', 'Layer3D', 'ApicalBasalCellFeatures3D', 'BasalApicalCellFeatures3D', 'UnrolledLayer2D', 'SR2D', 'ApicalBasalCellFeatures2D'});
-%             save(fullfile(files(numFile).folder, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'cellularFeatures_BasalToApical', 'cellularFeatures_ApicalToBasal', 'meanSurfaceRatio');
-            save(fullfile(files(numFile).folder, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'infoPerSurfaceRatio');
-        else
-%             load(fullfile(files(numFile).folder, '3d_layers_info'), 'colours');
-%             load(fullfile(files(numFile).folder, 'dividedGland', 'glandDividedInSurfaceRatios.mat'));
-%             
-%             imageOfSurfaceRatios = infoPerSurfaceRatio;
-%             parfor numPartition = 2:10
-%                 unrollTube(imageOfSurfaceRatios{numPartition, 3}, fullfile(files(numFile).folder, 'dividedGland', ['gland_SR_' num2str(imageOfSurfaceRatios{numPartition, 2})]), noValidCells, colours, 1);
-%             end
+            %             save(fullfile(files(numFile).folder, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'cellularFeatures_BasalToApical', 'cellularFeatures_ApicalToBasal', 'meanSurfaceRatio');
+            save(fullfile(files(numFile).folder, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'infoPerSurfaceRatio', 'neighbours');
         end
     end
 end

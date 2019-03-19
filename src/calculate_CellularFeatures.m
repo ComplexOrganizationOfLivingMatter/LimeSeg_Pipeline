@@ -1,10 +1,12 @@
-function [CellularFeaturesWithNoValidCells, meanSurfaceRatio] = calculate_CellularFeatures(neighbours_data,apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,polygon_distribution,outputDir)
+function [CellularFeaturesWithNoValidCells, meanSurfaceRatio] = calculate_CellularFeatures(neighbours_data,apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,polygon_distribution,outputDir, total_neighbours3D)
 %CALCULATE_CELLULARFEATURES Summary of this function goes here
 %   Detailed explanation goes here
 %%  Calculate number of neighbours of each cell
 number_neighbours=table(cellfun(@length,(apical3dInfo)),cellfun(@length,(basal3dInfo)));
-total_neighbours3D = calculateNeighbours3D(labelledImage, 2);
-total_neighbours3D = checkPairPointCloudDistanceCurateNeighbours(labelledImage, total_neighbours3D.neighbourhood', 1);
+if exist('total_neighbours3D', 'var') == 0
+    total_neighbours3D = calculateNeighbours3D(labelledImage, 2);
+    total_neighbours3D = checkPairPointCloudDistanceCurateNeighbours(labelledImage, total_neighbours3D.neighbourhood', 1);
+end
 total_neighbours3DRecount=cellfun(@(x) length(x), total_neighbours3D, 'UniformOutput',false);
 apicobasal_neighbours=cellfun(@(x,y)(unique(vertcat(x,y))), apical3dInfo, basal3dInfo, 'UniformOutput',false);
 apicobasal_neighboursRecount=cellfun(@(x) length(x),apicobasal_neighbours,'UniformOutput',false);
