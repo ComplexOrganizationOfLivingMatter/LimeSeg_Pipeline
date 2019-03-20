@@ -74,7 +74,7 @@ for numFile = 1:length(files)
     for idSR = 2:numberOfSurfaceRatios
         neighsSurface{idSR} = neighboursOfAllSurfaces{idSR};
         neighsAccumSurfaces{idSR} = cellfun(@(x,y) unique([x;y]),neighsAccumSurfaces{idSR-1},neighsSurface{idSR},'UniformOutput',false);
-        percentageScutoids{idSR} = cellfun(@(x, y) ~isequal(x,y), neighsSurface{1}, neighsAccumSurfaces{idSR});
+        percentageScutoids{idSR} = cellfun(@(x, y) ~isempty(setxor(x,y)), neighsSurface{1}, neighsSurface{idSR});
         
         infoOfCells = infoPerSurfaceRatio{idSR, 8};
         infoOfCells = infoOfCells{:};
