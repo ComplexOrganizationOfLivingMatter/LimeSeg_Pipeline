@@ -6,6 +6,7 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
     %% Unroll
     pixelSizeThreshold = 10;
     
+    previousSizeLabels = -1;
     if exist(fullfile(outputDir, 'final3DImg.mat'), 'file')
         load(fullfile(outputDir, 'final3DImg.mat'));
     else
@@ -107,11 +108,12 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
 
             %% Remove pixels surrounding the boundary
             filledImage = imfill(double(img3d(:, :, coordZ)>0));
+            %imshow(double(img3d(:, :, coordZ)>0))
             filledImage = bwareafilt(filledImage>0, 1);
             finalPerimImage = bwperim(filledImage);
             solidityOfObjects = regionprops(filledImage, 'Solidity');
             
-            solidityThreshold = 0.4;
+            solidityThreshold = 0.6;
             %Check if there is a hole
             if solidityOfObjects.Solidity < solidityThreshold
 %                 convexPerimImage = regionprops(imclose(finalPerimImage, strel('disk', 5)), 'convexHull');
@@ -176,15 +178,22 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
             %% Completing the missing parts of the circle perim
             if solidityOfObjects.Solidity < solidityThreshold
                 distanceToNextPoint = angleLabelCoordSort([2:end 1]) - angleLabelCoordSort;
-                if max(distanceToNextPoint(1:end-1)) > minDistance*3
-                    [~, positionsToFill] = max(distanceToNextPoint(1:end-1));
-                    newAngles = angleLabelCoord_NewPerimeter_Sorted(angleLabelCoordSort(positionsToFill) < angleLabelCoord_NewPerimeter_Sorted & angleLabelCoordSort(positionsToFill+1) > angleLabelCoord_NewPerimeter_Sorted);
-                    
-                    angleLabelCoordSort = [angleLabelCoordSort(1:positionsToFill); newAngles; angleLabelCoordSort(positionsToFill+1:end)];
-                    
-                    orderedIndices = [orderedIndices(1:positionsToFill); zeros(size(newAngles)); orderedIndices(positionsToFill+1:end)];
+                distanceToNextPoint(end) = distanceToNextPoint(end) + 6;
+                if max(distanceToNextPoint) > minDistance*3
+                    [~, positionsToFill] = max(distanceToNextPoint);
+                    if positionsToFill+1 > length(distanceToNextPoint)
+                        newAngles = angleLabelCoord_NewPerimeter_Sorted(angleLabelCoordSort(1) > angleLabelCoord_NewPerimeter_Sorted);
+                        
+                        angleLabelCoordSort = [newAngles; angleLabelCoordSort];
+                        orderedIndices = [zeros(size(newAngles)); orderedIndices];
+                    else
+                        newAngles = angleLabelCoord_NewPerimeter_Sorted(angleLabelCoordSort(positionsToFill) < angleLabelCoord_NewPerimeter_Sorted & angleLabelCoordSort(positionsToFill+1) > angleLabelCoord_NewPerimeter_Sorted);
+                        angleLabelCoordSort = [angleLabelCoordSort(1:positionsToFill); newAngles; angleLabelCoordSort(positionsToFill+1:end)];
+                        orderedIndices = [orderedIndices(1:positionsToFill); zeros(size(newAngles)); orderedIndices(positionsToFill+1:end)];
+                    end
                 end
             end
+            
             
             %% Assing label to pixels of perimeters
             %If a perimeter coordinate have no label pixels in a range of pi/45 radians, it label is 0
@@ -198,6 +207,12 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
                     orderedLabels(nCoord) = 0;
                 end
             end
+            
+%             if abs(previousSizeLabels - length(angleLabelCoordSort)) > 150 && previousSizeLabels ~= -1
+%                 orderedLabels = imresize(orderedLabels, [1 0.1*length(orderedLabels) + 0.9*previousSizeLabels], 'nearest');
+%             end
+%             previousSizeLabels = length(orderedLabels);
+%             
             hold off;
 
             imgFinalCoordinates3x{coordZ} = repmat(orderedLabels, 1, 3);
