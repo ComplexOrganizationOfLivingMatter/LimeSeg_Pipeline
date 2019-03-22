@@ -109,7 +109,7 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
             %% Remove pixels surrounding the boundary
             filledImage = imfill(double(img3d(:, :, coordZ)>0));
             %imshow(double(img3d(:, :, coordZ)>0))
-            filledImage = bwareafilt(filledImage>0, 1);
+            filledImage = bwareafilt(filledImage>0, 1, 4);
             finalPerimImage = bwperim(filledImage);
             solidityOfObjects = regionprops(filledImage, 'Solidity');
             
