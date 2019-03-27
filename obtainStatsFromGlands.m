@@ -162,7 +162,12 @@ outputPol_fromLog = cell(size(infoEuler3D, 1), 1);
 rSquaresPol_fromLog = zeros(size(infoEuler3D, 1),1);
 
 for numPoint = 1:size(infoEuler3D, 1)
-    infoEulerActual = infoEuler3D{numPoint,2};
+    
+    infoEulerActual = infoEuler3D{numPoint,1};
+    if isempty(infoEulerActual)
+        continue;
+    end
+    %infoEulerActual = infoEulerActual([1 6 11], :);
     figure;
     errorbar(infoEulerActual.Surface_Ratio,infoEulerActual.mean_neigh3D,infoEulerActual.std_neigh3D,'-o','MarkerSize',5,...
         'MarkerEdgeColor','black','MarkerFaceColor','blue');
@@ -173,6 +178,10 @@ for numPoint = 1:size(infoEuler3D, 1)
     coefAlog(numPoint) = myfitLog10.a;
     coefBlog(numPoint) = myfitLog10.b;
     
+    [myfitPol_fromLog, goodnessPol_fromLog{numPoint}, outputPol_fromLog{numPoint}] = fit(infoEulerActual.Surface_Ratio, myfitLog10(infoEulerActual.Surface_Ratio), myfittypePoly,'StartPoint',[6,1]); 
+    
+    rSquaresPol_fromLog(numPoint) = goodnessPol_fromLog{numPoint}.rsquare;
+    
     hold on; plot(myfitLog10);
     title('euler neighbours 3D')
     xlabel('surface ratio')
@@ -180,7 +189,7 @@ for numPoint = 1:size(infoEuler3D, 1)
     xlim([1, 8]);
     ylim([0,15]);
     hold off;
-    [myfitPol, goodnessPol{numPoint}, outputPol{numPoint}] = fit(infoEulerActual.Surface_Ratio,infoEulerActual.mean_neigh3D,myfittypePoly,'StartPoint',[6,1]);
+    [myfitPol, goodnessPol{numPoint}, outputPol{numPoint}] = fit(infoEulerActual.Surface_Ratio, infoEulerActual.mean_neigh3D, myfittypePoly,'StartPoint',[6,1]);
     
     rSquaresPol(numPoint) = goodnessPol{numPoint}.rsquare;
     coefAPol(numPoint) = myfitPol.a;
