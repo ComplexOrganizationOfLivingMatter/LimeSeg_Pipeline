@@ -8,7 +8,7 @@ addpath(genpath(fullfile('..','Epithelia3D', 'InSilicoModels', 'TubularModel', '
 
 files = dir('**/Salivary gland/**/Results/3d_layers_info.mat');
 
-nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0, {files.folder});
+nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0 && contains(lower(x), 'wildtype'), {files.folder});
 files = files(nonDiscardedFiles);
 
 %resultsFileName = '3d_layers_info.mat';
@@ -58,12 +58,14 @@ for numFile = 1:length(files)
     neighsSurface = cell(numberOfSurfaceRatios,1);
     neighsAccumSurfaces = cell(numberOfSurfaceRatios,1);
     percentageScutoids = cell(numberOfSurfaceRatios, 1);
+    apicoBasalTransitions = cell(numberOfSurfaceRatios, 1);
     areaCells = cell(numberOfSurfaceRatios,1);
     volumes = cell(numberOfSurfaceRatios,1);
     
     neighsSurface{1} = neighboursOfAllSurfaces{1};
     neighsAccumSurfaces{1} = neighboursOfAllSurfaces{1};
     percentageScutoids{1} = cellfun(@(x, y) ~isequal(x,y), neighsSurface{1}, neighsAccumSurfaces{1});
+    apicoBasalTransitions{1} = cellfun(@(x, y) length(setxor(x,y)), neighsSurface{1}, neighsSurface{1});
     
     infoOfCells = infoPerSurfaceRatio{1, 8};
     infoOfCells = infoOfCells{:};
@@ -75,6 +77,7 @@ for numFile = 1:length(files)
         neighsSurface{idSR} = neighboursOfAllSurfaces{idSR};
         neighsAccumSurfaces{idSR} = cellfun(@(x,y) unique([x;y]),neighsAccumSurfaces{idSR-1},neighsSurface{idSR},'UniformOutput',false);
         percentageScutoids{idSR} = cellfun(@(x, y) ~isempty(setxor(x,y)), neighsSurface{1}, neighsSurface{idSR});
+        apicoBasalTransitions{idSR} = cellfun(@(x, y) length(setxor(x,y)), neighsSurface{1}, neighsSurface{idSR});
         
         infoOfCells = infoPerSurfaceRatio{idSR, 8};
         infoOfCells = infoOfCells{:};
@@ -87,6 +90,7 @@ for numFile = 1:length(files)
     neighsSurface = cat(1,neighsSurface{:})';
     neighsAccumSurfaces = cat(1,neighsAccumSurfaces{:})';
     percentageScutoids = cat(1,percentageScutoids{:})';
+    apicoBasalTransitions = cat(1,apicoBasalTransitions{:})';
     
     numNeighPerSurfaceRealization = cellfun(@(x) length(x),neighsSurface);
     numNeighAccumPerSurfacesRealization = cellfun(@(x) length(x),neighsAccumSurfaces);
@@ -107,6 +111,9 @@ for numFile = 1:length(files)
     mean_PercScutoids = mean(percentageScutoids(validCells, :), 1);
     std_PercScutoids = std(percentageScutoids(validCells, :), 1);
     
+    mean_apicoBasalTransitions = mean(apicoBasalTransitions(validCells, :), 1);
+    std_apicoBasalTransitions = std(apicoBasalTransitions(validCells, :), 1);
+    
     surfaceRatioOfGland_real = vertcat(infoPerSurfaceRatio{:, 7})'; 
     totalPartitions = 10;
     initialPartitions = (1:(totalPartitions-1))/totalPartitions;
@@ -114,7 +121,7 @@ for numFile = 1:length(files)
     surfaceRatioOfGland(2:10) = initialPartitions * (surfaceRatioOfGland_real(end) - 1) + 1;
     
     
-    infoEuler3D{numFile, 1} = array2table(vertcat(meanNumNeighPerSurfaceRealization, stdNumNeighPerSurfaceRealization, mean_PercScutoids, std_PercScutoids, surfaceRatioOfGland)','VariableNames',{'mean_neigh3D','std_neigh3D','mean_PercScutoids','std_PercScutoids','Surface_Ratio'});
+    infoEuler3D{numFile, 1} = array2table(vertcat(meanNumNeighPerSurfaceRealization, stdNumNeighPerSurfaceRealization, mean_PercScutoids, std_PercScutoids, mean_apicoBasalTransitions, std_apicoBasalTransitions, surfaceRatioOfGland)','VariableNames',{'mean_neigh3D','std_neigh3D','mean_PercScutoids','std_PercScutoids', 'mean_apicoBasalTransitions', 'std_apicoBasalTransitions','Surface_Ratio'});
     numNeighPerSurface{numFile, 1} = array2table(numNeighPerSurfaceRealization(validCells, :),'VariableNames',namesSR);
     numNeighAccumPerSurfaces{numFile, 1} = array2table(numNeighAccumPerSurfacesRealization(validCells, :),'VariableNames',namesSR);
     numNeighOfNeighPerSurface{numFile, 1} = array2table(numNeighOfNeighPerSurfacesRealization(validCells, :),'VariableNames',namesSR);
@@ -150,6 +157,9 @@ outputPol = cell(size(infoEuler3D, 1), 1);
 rSquaresPol = zeros(size(infoEuler3D, 1),1);
 coefAPol = zeros(size(infoEuler3D, 1),1);
 coefBPol = zeros(size(infoEuler3D, 1),1);
+goodnessPol_fromLog = cell(size(infoEuler3D, 1), 1);
+outputPol_fromLog = cell(size(infoEuler3D, 1), 1);
+rSquaresPol_fromLog = zeros(size(infoEuler3D, 1),1);
 
 for numPoint = 1:size(infoEuler3D, 1)
     infoEulerActual = infoEuler3D{numPoint,2};
@@ -183,20 +193,21 @@ for numPoint = 1:size(infoEuler3D, 1)
     hold off
 end
 
-meanRsquareLog = mean(rSquareslog);
+meanRsquareLog = mean(rSquareslog)
 stdRsquareLog = std(rSquareslog);
 meanCoefALog = mean(coefAlog);
 stdCoefALog = std(coefAlog);
 meanCoefBLog = mean(coefBlog);
 stdCoefBLog = std(coefBlog);
 
-meanRsquarePol = mean(rSquaresPol);
+meanRsquarePol = mean(rSquaresPol)
 stdRsquarePol = std(rSquaresPol);
 meanCoefAPol = mean(coefAPol);
 stdCoefAPol = std(coefAPol);
 meanCoefBPol = mean(coefBPol);
 stdCoefBPol = std(coefBPol);
 
+meanRsquarePol_fromLog = mean(rSquaresPol_fromLog)
 
 myfittypeLog10=fittype('a +b*log10(x)',...
 'dependent', {'y'}, 'independent',{'x'},...
@@ -206,20 +217,27 @@ a = mean(coefAlog);
 b = mean(coefBlog);
 actualFit = cfit(myfittypeLog10, a, b);
 
+
+a = mean(coefAPol);
+b = mean(coefBPol);
+actualFit = cfit(myfittypePoly, a, b);
+
 figure; 
-allPoints = vertcat(infoEuler3D{:, 2});
+allPoints = vertcat(infoEuler3D{:, 1});
 for numPoint = 1:size(allPoints, 1)
     hold on;
     plot(allPoints.Surface_Ratio(numPoint) , allPoints.mean_neigh3D(numPoint), 'o', 'Color', [151 238 152]/255, 'LineWidth', 2, 'MarkerSize', 5);
 end
-plot(actualFit, [1 16], [6 7]);%, 'Color', [0 0.5 0], 'LineWidth', 2);
+%plot(actualFit, [1 11], [6 7]); %LineWidth 2
+plot(actualFit, [0 1], [0.75 1]);
 ylim([0 15])
 xlim([0 15])
 x = [0 16];
 y = [6 6];
 line(x, y, 'Color', 'red', 'LineStyle', '--')
-title(num2str(mean(rSquaresPol)))
- 
+title(num2str(mean(meanRsquareLog)))
+xlabel('surface ratio')
+ylabel('neighbours total')
 figure;
 
 
@@ -235,6 +253,10 @@ ylim([0,15]);
 
 
 
-%myfitLog10=fit(infoEuler3DCat(:, 3),infoEuler3DCat(:, 1),myfittypeLog10,'StartPoint',1);
-%hold on; plot(myfitLog10);
-getStatsAndRepresentationsEulerLewis3D(numNeighOfNeighPerSurface,numNeighOfNeighAccumPerSurface,numNeighPerSurface,numNeighAccumPerSurfaces,areaCellsPerSurface,volumePerSurface,'Results/SalivaryGlands/',[1 2]);
+[myfitLog10, goodnesslog, outputlog]=fit(infoEuler3DCat.Surface_Ratio, infoEuler3DCat.mean_neigh3D, myfittypeLog10,'StartPoint',[6, 1]);
+hold on; plot(myfitLog10);
+[myfitPol, goodnessPol, outputPol]=fit(infoEuler3DCat.Surface_Ratio, infoEuler3DCat.mean_neigh3D,myfittypePoly,'StartPoint',[6, 1]);
+hold on; plot(myfitPol);
+
+
+getStatsAndRepresentationsEulerLewis3D(numNeighOfNeighPerSurface,numNeighOfNeighAccumPerSurface,numNeighPerSurface,numNeighAccumPerSurfaces,areaCellsPerSurface,volumePerSurface,'Results/SalivaryGlands/', 1:numberOfSurfaceRatios);
