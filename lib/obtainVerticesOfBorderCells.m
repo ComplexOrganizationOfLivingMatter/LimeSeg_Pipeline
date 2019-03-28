@@ -12,24 +12,33 @@ function [verticesNeighs2D, vertices2D] = obtainVerticesOfBorderCells(deployedIm
         newLabelBorderCells(newLabelBorderCells==0) = [];
         
         cellsToCalculateNeighs = ismember(labelledActualCells3x, newLabelBorderCells);
-        regionToCalculateNeighs = imdilate(cellsToCalculateNeighs, strel('disk', 3));
+        regionToCalculateNeighs = double(imdilate(cellsToCalculateNeighs, strel('disk', 1)));
         
-        leftAndRightSide = bwlabel(regionToCalculateNeighs);
+        [~, y] = find(regionToCalculateNeighs);
+        indicesMidImage = find(regionToCalculateNeighs);
+        
+        regionToCalculateNeighs(indicesMidImage(y < (size(deployedImg3x, 2) / 2))) = 1;
+        regionToCalculateNeighs(indicesMidImage(y >= (size(deployedImg3x, 2) / 2))) = 2;
         
         for numSide = 1:2
-            img_sideOfBorderCell = (leftAndRightSide == numSide) .* deployedImg3x;
+            img_sideOfBorderCell = (regionToCalculateNeighs == numSide) .* deployedImg3x;
             neighbours = calculateNeighbours(img_sideOfBorderCell);
             [newVerticesActual] = getVertices(img_sideOfBorderCell, neighbours);
             newVertices{numSide} = [newVertices{numSide}; vertcat(newVerticesActual.verticesPerCell{:})];
             newVerticesNeighs2D{numSide} = [newVerticesNeighs2D{numSide}; newVerticesActual.verticesConnectCells];
         end
     end
-    [newVerticesNeighs2D{1}, IA,IC] = unique(newVerticesNeighs2D{1}, 'rows');
+    
+    [newVerticesNeighs2D{1}, indicesUnique_1] = unique(newVerticesNeighs2D{1}, 'rows');
+    newVertices{1} = newVertices{1}(indicesUnique_1, :);
+    [newVerticesNeighs2D{2}, indicesUnique_2] = unique(newVerticesNeighs2D{2}, 'rows');
+    newVertices{2} = newVertices{2}(indicesUnique_2, :);
+    
     verticesToRemove = any(ismember(verticesNeighs2D, borderCells), 2);
     verticesNeighs2D(verticesToRemove, :) = [];
     vertices2D(verticesToRemove, :) = [];
     
-    vertices2D = [vertices2D; newVertices];
-    verticesNeighs2D = [verticesNeighs2D; newVerticesNeighs2D];
+    vertices2D = [vertices2D; newVertices{1}; newVertices{2}];
+    verticesNeighs2D = [verticesNeighs2D; newVerticesNeighs2D{1}; newVerticesNeighs2D{2}];
 end
 
