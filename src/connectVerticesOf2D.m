@@ -1,26 +1,38 @@
-function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertices2D, centroids, validCellsFinal, borderCells, surfaceRatio, outputDir, nameOfSimulation)
+function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertices2D, centroids, validCellsFinal, borderCells, surfaceRatio, outputDir, nameOfSimulation, deployedImg3x)
 %CONNECTVERTICESOF2D Summary of this function goes here
 %   Detailed explanation goes here
     
+    maxDistance = 4;
+
     midSectionImage_closed = imclose(cylindre2DImage>0, strel('disk', 2));
     sizeRoll = sum(midSectionImage_closed, 2);
     cellVertices = cell(1, max(cylindre2DImage(:)));
-    for numCell = validCellsFinal
+    for numCell = 1:max(cylindre2DImage(:))
         actualVertices = any(ismember(neighbours2D, numCell), 2);
         actualCellVertices = vertices2D(actualVertices, :);
         if ismember(numCell, borderCells)
-            % Obtaining the vertices of both sides if it is a border cell
-            changeOfSide = actualCellVertices(:, 2)-(size(cylindre2DImage, 2)/2);
-            newVertices = [actualCellVertices(:, 1), actualCellVertices(:, 2) - (sign(changeOfSide) .* sizeRoll(actualCellVertices(:, 1)))];
-%             figure; imshow(cylindre2DImage)
-%             hold on;
-%             actualVerticesRegion = actualCellVertices;
-%             for numVertex = 1:size(actualVerticesRegion, 1)
-%                 plot(actualVerticesRegion(numVertex, 2), actualVerticesRegion(numVertex, 1), 'rx')
-%             end
+%             % Obtaining the vertices of both sides if it is a border cell
+%             changeOfSide = actualCellVertices(:, 2)-(size(cylindre2DImage, 2)/2);
+%             newVertices = [actualCellVertices(:, 1), actualCellVertices(:, 2) - (sign(changeOfSide) .* sizeRoll(actualCellVertices(:, 1)))];
+% %             figure; imshow(cylindre2DImage)
+% %             hold on;
+% %             actualVerticesRegion = actualCellVertices;
+% %             for numVertex = 1:size(actualVerticesRegion, 1)
+% %                 plot(actualVerticesRegion(numVertex, 2), actualVerticesRegion(numVertex, 1), 'rx')
+% %             end
+%             
+%             actualCellVertices = [actualCellVertices; newVertices];
+            [actualCellNeighbours, actualCellVertices] = obtainVerticesOfBorderCells(cylindre2DImage, deployedImg3x, numCell);
             
-            actualCellVertices = [actualCellVertices; newVertices];
+            for numCellNeighbour = unique(actualCellNeighbours(:))
+                actualCells = any(ismember(actualCellNeighbours, numCellNeighbour), 2);
+                actualCellVerticesWithSharedNeighbour = actualCellVertices(actualCells, :);
+                verticesOfActualNeighbour = cellVertices{numCellNeighbour};
+                [badVertices, goodVertices] = find(pdist2(actualCellVerticesWithSharedNeighbour, verticesOfActualNeighbour) < maxDistance);
+                actualCellVertices(ismember(actualCellVertices, actualCellVerticesWithSharedNeighbour(badVertices, :), 'rows'), :) = verticesOfActualNeighbour(goodVertices, :);
+            end
         end
+        
         cellVertices{numCell} = actualCellVertices;
     end
     
