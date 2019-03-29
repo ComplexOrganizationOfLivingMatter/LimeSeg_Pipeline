@@ -5,13 +5,6 @@ addpath(genpath('gui'))
 
 files = dir('**/Salivary gland/**/Results/3d_layers_info.mat');
 
-% for numFile = 1:length(files)
-%     if contains(lower(files(numFile).folder), 'discarded') == 0
-%         selpath = files(numFile).folder;
-%         divideObjectInSurfaceRatios(selpath);
-%     end
-% end
-
 resultsFileName = 'glandDividedInSurfaceRatios.mat';
 %resultsFileName = 'glandDividedInSurfaceRatios_PredefinedSR.mat';
 
@@ -23,6 +16,7 @@ for numFile = 1:length(files)
         load(fullfile(files(numFile).folder, 'valid_cells'));
         filesOf2DUnroll = dir(fullfile(files(numFile).folder, '**', 'verticesInfo.mat'));
         if length(filesOf2DUnroll) ~= 11
+            %continue
             load(fullfile(files(numFile).folder, '3d_layers_info'), 'colours');
             load(fullfile(files(numFile).folder, 'dividedGland', 'glandDividedInSurfaceRatios.mat'));
             
@@ -32,6 +26,7 @@ for numFile = 1:length(files)
             end
         end
         
+        filesOf2DUnroll = dir(fullfile(files(numFile).folder, '**', 'verticesInfo.mat'));
         if exist(fullfile(files(numFile).folder, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'file') == 0
             load(fullfile(files(numFile).folder, 'dividedGland' ,'glandDividedInSurfaceRatios.mat'), 'infoPerSurfaceRatio');
             
@@ -77,7 +72,7 @@ for numFile = 1:length(files)
             
             infoPerSurfaceRatio = cell2table(infoPerSurfaceRatio, 'VariableNames', {'Image3DWithVolumen', 'SR3D', 'Layer3D', 'ApicalBasalCellFeatures3D', 'BasalApicalCellFeatures3D', 'UnrolledLayer2D', 'SR2D', 'ApicalBasalCellFeatures2D'});
             %             save(fullfile(files(numFile).folder, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'cellularFeatures_BasalToApical', 'cellularFeatures_ApicalToBasal', 'meanSurfaceRatio');
-        end
             save(fullfile(files(numFile).folder, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'infoPerSurfaceRatio', 'neighboursOfAllSurfaces');
+        end
     end
 end
