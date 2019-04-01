@@ -1,4 +1,4 @@
-function sem=SEM_calc(vect, CI)
+function [perc25,perc75,sem]=SEM_calc(vect, CI)
 % SEM_calc - standard error of the mean, confidence interval
 %
 % function sem = NBP.SEM_calc(vect, CI) 
@@ -54,6 +54,10 @@ elseif nargin==2
 end
 
 for ii=1:size(vect,2)
-    f =  find(~isnan(vect(:,ii)));
+    f =  find(~isnan(vect(:,ii)));     
     sem(ii) = ( std(vect(f,ii))  ./ sqrt(length(f)) ) * stdCI ;
+    
+    perc75 = prctile(vect(f,ii),75);    
+    perc25 = prctile(vect(f,ii),25);    
+
 end

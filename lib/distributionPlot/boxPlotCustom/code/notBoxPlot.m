@@ -346,7 +346,7 @@ function [h,statsOut]=myPlotter(X,Y)
     %This is a nested function that shares the caller's namespace
 
     if isempty(manualCI)
-        SEM=intervalFun(Y); %A function handle to a supplied external function
+        [perc25,perc75,SEM]=intervalFun(Y); %A function handle to a supplied external function
     else
         SEM=manualCI;
     end
@@ -394,13 +394,19 @@ function [h,statsOut]=myPlotter(X,Y)
 
         %Add the SD as a patch if the user asked for this
         if strcmp(style,'patch') 
-            h(k).sdPtch=patchMaker(SD(k),[0.6,0.6,1]);
+            h(k).perc1=patchMaker([perc25,perc75],[0.6,0.6,1]);
+            h(k).sd=patchMaker([mu(k)-SD(k),mu(k)+SD(k)],[0.6,0.6,1]);
+            h(k).sd1=plot([X(k)-jitScale,X(k)+jitScale],[mu(k) - SD(k),mu(k)-SD(k)],'-b',...
+                'linewidth',1);
+            h(k).sd2=plot([X(k)-jitScale,X(k)+jitScale],[mu(k) + SD(k),mu(k)+SD(k)],'-b',...
+                'linewidth',1);
+
         end
 
         %Build patch surfaces for SEM, the means, and optionally the medians
         if strcmp(style,'patch') || strcmp(style,'sdline')
-            h(k).semPtch=patchMaker(SEM(k),[1,0.6,0.6]);
-            h(k).mu=plot([X(k)-jitScale,X(k)+jitScale],[mu(k),mu(k)],'-r',...
+%             h(k).semPtch=patchMaker([perc25,perc75],[1,0.6,0.6]);
+                h(k).mu=plot([X(k)-jitScale,X(k)+jitScale],[mu(k),mu(k)],'-r',...
                 'linewidth',2);
             if markMedian
                 statsOut(k).median = med(k);
@@ -419,46 +425,46 @@ function [h,statsOut]=myPlotter(X,Y)
 
 
     %Plot SD as a line
-    if strcmp(style,'line') || strcmp(style,'sdline')
-        for k=1:length(X)
-            h(k).sd=plot([X(k),X(k)],[mu(k)-SD(k),mu(k)+SD(k)],...
-                      '-','color',[0.2,0.2,1],'linewidth',2);
-            set(h(k).sd,'ZData',[1,1]*-1)
-        end
-    end
+%     if strcmp(style,'line') || strcmp(style,'sdline')
+%         for k=1:length(X)
+%             h(k).sd=plot([X(k),X(k)],[mu(k)-SD(k),mu(k)+SD(k)],...
+%                       '-','color',[0.2,0.2,1],'linewidth',2);
+%             set(h(k).sd,'ZData',[1,1]*-1)
+%         end
+%     end
 
 
-    %Plot mean and SEM as a line, the means, and optionally the medians
-    if strcmp(style,'line')
-        for k=1:length(X)
-
-            h(k).mu=plot(X(k),mu(k),'o','color','r',...
-                'markerfacecolor','r',...
-                'markersize',10);
-
-            h(k).sem=plot([X(k),X(k)],[mu(k)-SEM(k),mu(k)+SEM(k)],'-r',...
-                'linewidth',2);   
-            if markMedian
-                h(k).med=plot(X(k),med(k),'s','color',[0.8,0,0],...
-                'markerfacecolor','none',...
-                'lineWidth',2,...
-                'markersize',12);
-            end
-
-             h(k).xAxisLocation=x(k);
-        end
-    end % if strcmp(style,'line')
-
-    for thisInterval=1:length(h)
-        h(thisInterval).interval=interval;
-    end
+%     %Plot mean and SEM as a line, the means, and optionally the medians
+%     if strcmp(style,'line')
+%         for k=1:length(X)
+% 
+%             h(k).mu=plot(X(k),mu(k),'o','color','r',...
+%                 'markerfacecolor','r',...
+%                 'markersize',10);
+% 
+% %             h(k).sem=plot([X(k),X(k)],[mu(k)-perc25(k),mu(k)+perc75(k)],'-r',...
+% %                 'linewidth',2);   
+%             if markMedian
+%                 h(k).med=plot(X(k),med(k),'s','color',[0.8,0,0],...
+%                 'markerfacecolor','none',...
+%                 'lineWidth',2,...
+%                 'markersize',12);
+%             end
+% 
+%              h(k).xAxisLocation=x(k);
+%         end
+%     end % if strcmp(style,'line')
+% 
+%     for thisInterval=1:length(h)
+%         h(thisInterval).interval=interval;
+%     end
 
 
 
     function ptch=patchMaker(thisInterval,tColor)
         %This nested function builds a patch for the SD or SEM
-        l=mu(k)-thisInterval;
-        u=mu(k)+thisInterval;
+        l=thisInterval(1);
+        u=thisInterval(2);
         ptch=patch([X(k)-jitScale, X(k)+jitScale, X(k)+jitScale, X(k)-jitScale],...
                 [l,l,u,u], 0);
         set(ptch,'edgecolor',tColor*0.8,'facecolor',tColor)
