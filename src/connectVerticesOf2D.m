@@ -3,12 +3,14 @@ function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertic
 %   Detailed explanation goes here
     
     maxDistance = 50;
-
+    [~,W]=size(cylindre2DImage);
+    W = W/3;
+    
     midSectionImage_closed = imclose(cylindre2DImage>0, strel('disk', 2));
     sizeRoll = sum(midSectionImage_closed, 2);
     cellVertices = cell(1, max(cylindre2DImage(:)));
     cellNeighbours = cell(1, max(cylindre2DImage(:)));
-    
+
     for numCell = 1:max(cylindre2DImage(:))
         actualVertices = any(ismember(neighbours2D, numCell), 2);
         actualCellVertices = vertices2D(actualVertices, :);
@@ -45,30 +47,92 @@ function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertic
        
     end
     
+    uniqTriplets = unique(sort(vertcat(cellNeighbours{:}),2),'rows');
+    [neighsAccumRea] = getNeighboursFromVertices(uniqTriplets);
+    uniqQuartets = [];
+    
     for numCell = 1:max(cylindre2DImage(:))
         allNeighsAtCell = cellNeighbours{numCell};
         allVerticesAtCell = cellVertices{numCell};
         neighboursPerSide = {};
         verticesPerSide = {};
         if ismember(numCell, borderCells)
-            neighboursPerSide{1} = allVerticesAtCell(1:size(allVerticesAtCell, 1)/2, :);
-            verticesPerSide{1} = allNeighsAtCell(1:size(allVerticesAtCell, 1)/2, :);
+            verticesPerSide{1} = allVerticesAtCell(1:size(allVerticesAtCell, 1)/2, :);
+            neighboursPerSide{1} = allNeighsAtCell(1:size(allVerticesAtCell, 1)/2, :);
             
-            neighboursPerSide{2} = allVerticesAtCell(size(allVerticesAtCell, 1)/2+1:size(allVerticesAtCell, 1), :);
-            verticesPerSide{2} = allNeighsAtCell(size(allVerticesAtCell, 1)/2+1:size(allVerticesAtCell, 1), :);
+            verticesPerSide{2} = allVerticesAtCell(size(allVerticesAtCell, 1)/2+1:size(allVerticesAtCell, 1), :);
+            neighboursPerSide{2} = allNeighsAtCell(size(allVerticesAtCell, 1)/2+1:size(allVerticesAtCell, 1), :);
         else
-            neighboursPerSide{1} = allVerticesAtCell;
-            verticesPerSide{1} = allNeighsAtCell;
+            verticesPerSide{1} = allVerticesAtCell;
+            neighboursPerSide{1} = allNeighsAtCell;
         end
         
         for numParts = 1:(1 + ismember(numCell, borderCells))
-            coordXY = neighboursPerSide{numParts};
-            uniqueXY = unique(coordXY,'rows');
-            numRepet = arrayfun(@(x,y) sum(ismember(coordXY,[x y],'rows')),uniqueXY(:,1),uniqueXY(:,2));
-            crossesVert = ismember(coordXY,uniqueXY(numRepet>3,:),'rows') & ~isnan(coordXY(:,1));
-            if any(crossesVert)>0
-                disp('');
+            tripletsOfNeighs = neighboursPerSide{numParts};
+            %get k4
+            quartetsOfNeighs = [];
+            for nTriplets = 1 : size(tripletsOfNeighs,1)
+                neighsCellTriplet = arrayfun(@(x)  neighsAccumRea{x},tripletsOfNeighs(nTriplets,:),'UniformOutput',false);
+                intersectionTriplet= intersect(neighsCellTriplet{1},intersect(neighsCellTriplet{2},neighsCellTriplet{3}));
+                if ~isempty(intersectionTriplet)
+                    for nQuartets = 1:length(intersectionTriplet)
+                        quartetsOfNeighs(end+1,:) = [tripletsOfNeighs(nTriplets,:),intersectionTriplet(nQuartets)];
+                    end
+                end
             end
+            uniqQuartets = [uniqQuartets; unique(sort(quartetsOfNeighs,2),'rows')];
+        end
+        
+        cellVertices{numCell} = vertcat(verticesPerSide{:});
+    end
+    
+    uniqQuartets = unique(sort(uniqQuartets,2),'rows');
+    for numQuartet = 1:size(uniqQuartets, 1)
+        aQuartet = uniqQuartets(numQuartet, :);
+        
+        neighboursPerSide{1} = [];
+        neighboursPerSide{2} = [];
+        verticesPerSide{1} = [];
+        verticesPerSide{2} = [];
+        
+        verticesToChange{1} = [];
+        verticesToChange{2} = [];
+        
+        %% Get vertices of quartet
+        sizesOfCells = zeros(4, 2);
+        numCell = 1;
+        for numCellsToChange = aQuartet
+            allNeighsAtCell = cellNeighbours{numCellsToChange};
+            allVerticesAtCell = cellVertices{numCellsToChange};
+            indRightBorder = (allVerticesAtCell(:,2) - W) > W/2;
+            
+            verticesPerSide{1} = [verticesPerSide{1}; allVerticesAtCell(indRightBorder, :)];
+            verticesPerSide{2} = [verticesPerSide{2}; allVerticesAtCell(~indRightBorder, :)];
+            
+            neighboursPerSide{1} = [neighboursPerSide{1}; allNeighsAtCell(indRightBorder, :)];
+            neighboursPerSide{2} = [neighboursPerSide{2}; allNeighsAtCell(~indRightBorder, :)];
+            
+            sizesOfCells(numCell, 1) = sum(indRightBorder);
+            sizesOfCells(numCell, 2) = sum(indRightBorder==0);
+            
+            numCell = numCell + 1;
+        end
+        
+        %% Get new vertices
+        verticesPerSide_old = verticesPerSide;
+        for numParts = 1:(1+ (isempty(verticesPerSide{2}) == 0))
+            tripletsOfNeighs = neighboursPerSide{numParts};
+            verticesToChange = all(ismember(tripletsOfNeighs, aQuartet), 2);
+            newValueCentroid = round(mean(verticesPerSide{numParts}(verticesToChange, :)));
+            verticesPerSide{numParts}(verticesToChange, :) = repmat(newValueCentroid, sum(verticesToChange), 1);
+        end
+        
+        %% Replace old vertices
+        for numCellsToChange = aQuartet
+            allNeighsAtCell = cellNeighbours{numCellsToChange};
+            allVerticesAtCell = cellVertices{numCellsToChange};
+            indRightBorder = (allVerticesAtCell(:,2) - W) > W/2;
+            verticesPerSide_old
         end
     end
     
