@@ -95,12 +95,11 @@ function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertic
         verticesPerSide{1} = [];
         verticesPerSide{2} = [];
         
-        verticesToChange{1} = [];
-        verticesToChange{2} = [];
+        verticesToChange = {};
+        newValueCentroid = [];
         
         %% Get vertices of quartet
         sizesOfCells = zeros(4, 2);
-        numCell = 1;
         for numCellsToChange = aQuartet
             allNeighsAtCell = cellNeighbours{numCellsToChange};
             allVerticesAtCell = cellVertices{numCellsToChange};
@@ -112,27 +111,26 @@ function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertic
             neighboursPerSide{1} = [neighboursPerSide{1}; allNeighsAtCell(indRightBorder, :)];
             neighboursPerSide{2} = [neighboursPerSide{2}; allNeighsAtCell(~indRightBorder, :)];
             
-            sizesOfCells(numCell, 1) = sum(indRightBorder);
-            sizesOfCells(numCell, 2) = sum(indRightBorder==0);
-            
-            numCell = numCell + 1;
         end
         
         %% Get new vertices
-        verticesPerSide_old = verticesPerSide;
         for numParts = 1:(1+ (isempty(verticesPerSide{2}) == 0))
             tripletsOfNeighs = neighboursPerSide{numParts};
-            verticesToChange = all(ismember(tripletsOfNeighs, aQuartet), 2);
-            newValueCentroid = round(mean(verticesPerSide{numParts}(verticesToChange, :)));
-            verticesPerSide{numParts}(verticesToChange, :) = repmat(newValueCentroid, sum(verticesToChange), 1);
+            verticesOfNeighs = verticesPerSide{numParts};
+            verticesToChange{end+1} = verticesOfNeighs(all(ismember(tripletsOfNeighs, aQuartet), 2), :);
+            newValueCentroid(end+1, :) = round(mean(verticesPerSide{numParts}(all(ismember(tripletsOfNeighs, aQuartet), 2), :)));
         end
         
         %% Replace old vertices
         for numCellsToChange = aQuartet
-            allNeighsAtCell = cellNeighbours{numCellsToChange};
             allVerticesAtCell = cellVertices{numCellsToChange};
-            indRightBorder = (allVerticesAtCell(:,2) - W) > W/2;
-            verticesPerSide_old
+            
+            for numVertexToChange = 1:length(verticesToChange)
+                actualLogicalVerticesToChange = all(ismember(allVerticesAtCell, verticesToChange{numVertexToChange}), 2);
+                allVerticesAtCell(actualLogicalVerticesToChange, :) = repmat(newValueCentroid(numVertexToChange, :), sum(actualLogicalVerticesToChange), 1);
+            end
+            
+            cellVertices{numCellsToChange} = allVerticesAtCell;
         end
     end
     
