@@ -76,7 +76,7 @@ function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertic
             for nTriplets = 1 : size(tripletsOfNeighs,1)
                 neighsCellTriplet = arrayfun(@(x)  neighsAccumRea{x},tripletsOfNeighs(nTriplets,:),'UniformOutput',false);
                 intersectionTriplet= intersect(neighsCellTriplet{1},intersect(neighsCellTriplet{2},neighsCellTriplet{3}));
-                if ~isempty(intersectionTriplet) && sum(ismember(unique([tripletsOfNeighs(nTriplets,:) intersectionTriplet']), validCellsFinal))>2
+                if ~isempty(intersectionTriplet)
                     for nQuartets = 1:length(intersectionTriplet)
                         quartetsOfNeighs(end+1,:) = [tripletsOfNeighs(nTriplets,:),intersectionTriplet(nQuartets)];
                     end
