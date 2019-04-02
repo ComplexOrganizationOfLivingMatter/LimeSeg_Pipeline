@@ -86,6 +86,7 @@ function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertic
         cellVertices{numCell} = vertcat(verticesPerSide{:});
     end
     
+    %% Replace quartets with a fourfold vertex
     uniqQuartets = unique(sort(uniqQuartets,2),'rows');
     for numQuartet = 1:size(uniqQuartets, 1)
         aQuartet = uniqQuartets(numQuartet, :);
@@ -98,33 +99,21 @@ function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertic
         verticesToChange = {};
         newValueCentroid = [];
         
-        %% Get vertices of quartet
-        sizesOfCells = zeros(4, 2);
         for numCellsToChange = aQuartet
+            %% Get vertices of quartet
             allNeighsAtCell = cellNeighbours{numCellsToChange};
             allVerticesAtCell = cellVertices{numCellsToChange};
             indRightBorder = (allVerticesAtCell(:,2) - W) > W/2;
             
-            verticesPerSide{1} = [verticesPerSide{1}; allVerticesAtCell(indRightBorder, :)];
-            verticesPerSide{2} = [verticesPerSide{2}; allVerticesAtCell(~indRightBorder, :)];
+            %% Get new vertices
+            for numParts = 0:1
+                tripletsOfNeighs = allNeighsAtCell(indRightBorder == numParts, :);
+                verticesOfNeighs = allVerticesAtCell(indRightBorder == numParts, :);
+                verticesToChange{end+1} = verticesOfNeighs(all(ismember(tripletsOfNeighs, aQuartet), 2), :);
+                newValueCentroid(end+1, :) = round(mean(verticesOfNeighs(all(ismember(tripletsOfNeighs, aQuartet), 2), :)));
+            end
             
-            neighboursPerSide{1} = [neighboursPerSide{1}; allNeighsAtCell(indRightBorder, :)];
-            neighboursPerSide{2} = [neighboursPerSide{2}; allNeighsAtCell(~indRightBorder, :)];
-            
-        end
-        
-        %% Get new vertices
-        for numParts = 1:(1+ (isempty(verticesPerSide{2}) == 0))
-            tripletsOfNeighs = neighboursPerSide{numParts};
-            verticesOfNeighs = verticesPerSide{numParts};
-            verticesToChange{end+1} = verticesOfNeighs(all(ismember(tripletsOfNeighs, aQuartet), 2), :);
-            newValueCentroid(end+1, :) = round(mean(verticesPerSide{numParts}(all(ismember(tripletsOfNeighs, aQuartet), 2), :)));
-        end
-        
-        %% Replace old vertices
-        for numCellsToChange = aQuartet
-            allVerticesAtCell = cellVertices{numCellsToChange};
-            
+            %% Replace old vertices
             for numVertexToChange = 1:length(verticesToChange)
                 actualLogicalVerticesToChange = all(ismember(allVerticesAtCell, verticesToChange{numVertexToChange}), 2);
                 allVerticesAtCell(actualLogicalVerticesToChange, :) = repmat(newValueCentroid(numVertexToChange, :), sum(actualLogicalVerticesToChange), 1);
