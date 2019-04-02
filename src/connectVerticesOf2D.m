@@ -57,11 +57,13 @@ function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertic
         neighboursPerSide = {};
         verticesPerSide = {};
         if ismember(numCell, borderCells)
-            verticesPerSide{1} = allVerticesAtCell(1:size(allVerticesAtCell, 1)/2, :);
-            neighboursPerSide{1} = allNeighsAtCell(1:size(allVerticesAtCell, 1)/2, :);
+            indRightBorder = (allVerticesAtCell(:,2) - W) > W/2;
             
-            verticesPerSide{2} = allVerticesAtCell(size(allVerticesAtCell, 1)/2+1:size(allVerticesAtCell, 1), :);
-            neighboursPerSide{2} = allNeighsAtCell(size(allVerticesAtCell, 1)/2+1:size(allVerticesAtCell, 1), :);
+            verticesPerSide{1} = allVerticesAtCell(indRightBorder, :);
+            neighboursPerSide{1} = allNeighsAtCell(indRightBorder, :);
+            
+            verticesPerSide{2} = allVerticesAtCell(~indRightBorder, :);
+            neighboursPerSide{2} = allNeighsAtCell(~indRightBorder, :);
         else
             verticesPerSide{1} = allVerticesAtCell;
             neighboursPerSide{1} = allNeighsAtCell;
@@ -74,7 +76,7 @@ function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertic
             for nTriplets = 1 : size(tripletsOfNeighs,1)
                 neighsCellTriplet = arrayfun(@(x)  neighsAccumRea{x},tripletsOfNeighs(nTriplets,:),'UniformOutput',false);
                 intersectionTriplet= intersect(neighsCellTriplet{1},intersect(neighsCellTriplet{2},neighsCellTriplet{3}));
-                if ~isempty(intersectionTriplet)
+                if ~isempty(intersectionTriplet) && sum(ismember(unique([tripletsOfNeighs(nTriplets,:) intersectionTriplet']), validCellsFinal))>2
                     for nQuartets = 1:length(intersectionTriplet)
                         quartetsOfNeighs(end+1,:) = [tripletsOfNeighs(nTriplets,:),intersectionTriplet(nQuartets)];
                     end
@@ -82,8 +84,6 @@ function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertic
             end
             uniqQuartets = [uniqQuartets; unique(sort(quartetsOfNeighs,2),'rows')];
         end
-        
-        cellVertices{numCell} = vertcat(verticesPerSide{:});
     end
     
     uniqQuartets = unique(sort(uniqQuartets,2),'rows');
@@ -99,26 +99,37 @@ function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertic
         newValueCentroid = [];
         
         %% Get vertices of quartet
-        sizesOfCells = zeros(4, 2);
         for numCellsToChange = aQuartet
             allNeighsAtCell = cellNeighbours{numCellsToChange};
             allVerticesAtCell = cellVertices{numCellsToChange};
             indRightBorder = (allVerticesAtCell(:,2) - W) > W/2;
             
-            verticesPerSide{1} = [verticesPerSide{1}; allVerticesAtCell(indRightBorder, :)];
-            verticesPerSide{2} = [verticesPerSide{2}; allVerticesAtCell(~indRightBorder, :)];
+            verticesPerSide{1} = [verticesPerSide{1}; allVerticesAtCell(indRightBorder & all(ismember(allNeighsAtCell, aQuartet), 2), :)];
+            verticesPerSide{2} = [verticesPerSide{2}; allVerticesAtCell(~indRightBorder & all(ismember(allNeighsAtCell, aQuartet), 2), :)];
             
-            neighboursPerSide{1} = [neighboursPerSide{1}; allNeighsAtCell(indRightBorder, :)];
-            neighboursPerSide{2} = [neighboursPerSide{2}; allNeighsAtCell(~indRightBorder, :)];
-            
+            neighboursPerSide{1} = [neighboursPerSide{1}; allNeighsAtCell(indRightBorder & all(ismember(allNeighsAtCell, aQuartet), 2), :)];
+            neighboursPerSide{2} = [neighboursPerSide{2}; allNeighsAtCell(~indRightBorder & all(ismember(allNeighsAtCell, aQuartet), 2), :)];
         end
         
         %% Get new vertices
         for numParts = 1:(1+ (isempty(verticesPerSide{2}) == 0))
-            tripletsOfNeighs = neighboursPerSide{numParts};
             verticesOfNeighs = verticesPerSide{numParts};
-            verticesToChange{end+1} = verticesOfNeighs(all(ismember(tripletsOfNeighs, aQuartet), 2), :);
-            newValueCentroid(end+1, :) = round(mean(verticesPerSide{numParts}(all(ismember(tripletsOfNeighs, aQuartet), 2), :)));
+            distances = pdist(verticesOfNeighs);
+            if all(distances(:) < 10)
+%                 %% threshold = 4.5px
+%                 figure; imshow(cylindre2DImage, colorcube(200))
+%                 hold on;
+%                 for numPoint = 1:size(verticesOfNeighs, 1)
+%                     plot(verticesOfNeighs(numPoint,2), verticesOfNeighs(numPoint, 1), '*')
+%                 end
+                verticesToChange{end+1} = verticesOfNeighs;
+                newValueCentroid(end+1, :) = round(mean(verticesOfNeighs, 1));
+            end
+        end
+        
+        %% if we don't have a fourfold on each side, we move on
+        if length(verticesToChange) ~= (2 - sum(cellfun(@isempty, verticesPerSide)))
+            continue
         end
         
         %% Replace old vertices
