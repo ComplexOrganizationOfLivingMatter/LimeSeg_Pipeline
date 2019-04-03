@@ -46,11 +46,12 @@ files = dir('**/Salivary gland/**/Results/3d_layers_info.mat');
 %     close all
 % end
 
+nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0 && contains(lower(x), 'wildtype'), {files.folder});
+files = files(nonDiscardedFiles);
+
 parfor numFile = 1:length(files)
-    if contains(lower(files(numFile).folder), 'discarded') == 0
-        files(numFile).folder
-        selpath = files(numFile).folder;
-        
-        unrollTube_parallel(selpath);
-    end
+    files(numFile).folder
+    selpath = files(numFile).folder;
+    
+    unrollTube_parallel(selpath);
 end
