@@ -1,4 +1,4 @@
-function [polygon_distribution, neighbours_data] = pipeline(outputDir)
+function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(outputDir)
 %PIPELINE Summary of this function goes here
 %   Detailed explanation goes here
     mkdir(fullfile(outputDir, 'Cells', 'OutputLimeSeg'));
