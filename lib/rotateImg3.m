@@ -1,5 +1,6 @@
-function rotatedImg3d = rotateImg3(img3d)
+function [rotatedImg3d, rotations] = rotateImg3(img3d)
 
+    rotations = [0 0 0];
     closedImg3D = imdilate(img3d>0,strel('sphere',5));
     orientationImg3D = imerode(bwmorph3(closedImg3D,'fill'),strel('sphere',3));
 
@@ -8,11 +9,15 @@ function rotatedImg3d = rotateImg3(img3d)
     img3d_rot1 = imrotate(img3d, - orientationObj.Orientation(1));
     orientationImg3D = imrotate(img3d, - orientationObj.Orientation(1));
     
+    rotations(1) = orientationObj.Orientation(1);
+    
     %rotation B
     xzyImg = permute(img3d_rot1,[1 3 2]);
     orientationImg3D = permute(orientationImg3D,[1 3 2]);
     orientationObj = regionprops3(orientationImg3D, 'Orientation');
     xzyImg3d_rot = imrotate(xzyImg, - orientationObj.Orientation(1));
+    
+    rotations(2) = orientationObj.Orientation(1);
 
     %rotation C
     yzxImg3d_rot = permute(xzyImg3d_rot,[3 2 1]);
@@ -20,6 +25,8 @@ function rotatedImg3d = rotateImg3(img3d)
 
     orientationObj = regionprops3(orientationImg3D, 'Orientation');
     img3d_rotFinal = imrotate(yzxImg3d_rot, - orientationObj.Orientation(1));
+    
+    rotations(3) = orientationObj.Orientation(1);
     
     %come back to original axes
     img3d_rot = permute(img3d_rotFinal,[3 1 2]);
