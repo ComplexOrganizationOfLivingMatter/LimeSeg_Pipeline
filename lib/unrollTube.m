@@ -57,6 +57,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         %Option 4: making projections
         if exist('apicalRotationsOriginal', 'var') == 0
             [img3d_original, rotationsOriginal] = rotateImg3(img3d_original);
+            save(fullfile(selpath, 'apicalRotationsOriginal.mat'), 'rotationsOriginal');
         else
             [img3d_original] = rotateImg3(img3d_original, apicalRotationsOriginal);
         end
