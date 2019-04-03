@@ -67,7 +67,7 @@ for numFile = 1:length(files)
     percentageScutoids{1} = cellfun(@(x, y) ~isequal(x,y), neighsSurface{1}, neighsAccumSurfaces{1});
     apicoBasalTransitions{1} = cellfun(@(x, y) length(setxor(x,y)), neighsSurface{1}, neighsSurface{1});
     
-    infoOfCells = infoPerSurfaceRatio{1, 8};
+    infoOfCells = infoPerSurfaceRatio{1, 4};
     infoOfCells = infoOfCells{:};
     
     areaCells(1) = {infoOfCells.Basal_area};
@@ -79,7 +79,7 @@ for numFile = 1:length(files)
         percentageScutoids{idSR} = cellfun(@(x, y) ~isempty(setxor(x,y)), neighsSurface{1}, neighsSurface{idSR});
         apicoBasalTransitions{idSR} = cellfun(@(x, y) length(setxor(x,y)), neighsSurface{1}, neighsSurface{idSR});
         
-        infoOfCells = infoPerSurfaceRatio{idSR, 8};
+        infoOfCells = infoPerSurfaceRatio{idSR, 4};
         infoOfCells = infoOfCells{:};
         areaCells(idSR) = {infoOfCells.Basal_area};
         volumes(idSR) = {infoOfCells.Volume};
@@ -199,6 +199,24 @@ for numPoint = 1:size(infoEuler3D, 1)
     hold on
     plot(infoEulerActual.mean_PercScutoids,infoEulerActual.mean_neigh3D,'o','MarkerSize',5,...
         'MarkerEdgeColor','black','MarkerFaceColor','blue');
+    xlabel('% Scutoids')
+    ylabel('TotalNeighs')
+    hold off
+    
+    figure(101)
+    hold on
+    plot(infoEulerActual.mean_apicoBasalTransitions, infoEulerActual.mean_neigh3D,'o','MarkerSize',5,...
+        'MarkerEdgeColor','black','MarkerFaceColor',[151 238 152]/255);
+    xlabel('Apico-Basal transitions')
+    ylabel('TotalNeighs')
+    hold off
+    
+    figure(102)
+    hold on
+    plot(infoEulerActual.mean_PercScutoids,infoEulerActual.mean_apicoBasalTransitions,'o','MarkerSize',5,...
+        'MarkerEdgeColor','black','MarkerFaceColor','blue');
+    xlabel('% Scutoids')
+    ylabel('Apico-Basal transitions')
     hold off
 end
 
