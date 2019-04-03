@@ -335,7 +335,9 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
     end
 
     if exist(fullfile(outputDir, 'samiraTable.mat'), 'file') == 0
-        samiraTable = connectVerticesOf2D(cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validCellsFinal, borderCells, surfaceRatio, outputDir, nameOfSimulation);
+        outputDirSplitted = strsplit(outputDir, 'Results');
+        load(fullfile(outputDirSplitted{1}, 'Results', 'valid_cells.mat'))
+        samiraTable = connectVerticesOf2D(deployedImg, newVerticesNeighs2D, newVertices2D, centroids, validCells, borderCells, surfaceRatio, outputDir, nameOfSimulation, deployedImg3x, img3d);
         save(fullfile(outputDir, 'samiraTable.mat'), 'samiraTable');
     else
         load(fullfile(outputDir, 'samiraTable.mat'));
