@@ -61,7 +61,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
             load(zScaleFile)
         else
             zScale = inputdlg('Insert z-scale of Gland');
-            zScale = zScale{1};
+            zScale = str2double(zScale{1});
             save(zScaleFile, 'zScale');
         end
         resizeImg = 1/zScale;
