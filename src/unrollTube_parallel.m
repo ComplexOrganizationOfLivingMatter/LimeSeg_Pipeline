@@ -16,6 +16,7 @@ function unrollTube_parallel(selpath)
             load(fullfile(selpath, '3d_layers_info'), 'colours');
             load(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'));
             
+            mkdir(fullfile(selpath, 'unrolledGlands', 'gland_SR_1'));
             [samiraTablePerSR{1}, apicalAreaValidCells, rotationsOriginal] = unrollTube(infoPerSurfaceRatio{1, 3}, fullfile(selpath, 'unrolledGlands', 'gland_SR_1'), noValidCells, colours);
             areaValidCells{1} = apicalAreaValidCells;
             
@@ -88,6 +89,14 @@ function unrollTube_parallel(selpath)
                 
                 [infoPerSurfaceRatio{idToSave, 8}, infoPerSurfaceRatio{idToSave, 7}] = calculate_CellularFeatures(neighbours_data, neighboursApical, neighboursMid, apicalLayer, midLayer, img3d, noValidCells, validCells, [], [], total_neighbours3D);
             end
+            
+            %% Calculate theoretical surface ratio
+            surfaceRatioOfGland_real = vertcat(infoPerSurfaceRatio{:, 7})';
+            totalPartitions = 10;
+            initialPartitions = (1:(totalPartitions-1))/totalPartitions;
+            surfaceRatioOfGland = surfaceRatioOfGland_real;
+            surfaceRatioOfGland(2:10) = initialPartitions * (surfaceRatioOfGland_real(end) - 1) + 1;
+            infoPerSurfaceRatio{:, 7} = surfaceRatioOfGland;
             
             infoPerSurfaceRatio = cell2table(infoPerSurfaceRatio, 'VariableNames', {'Image3DWithVolumen', 'SR3D', 'Layer3D', 'ApicalBasalCellFeatures3D', 'BasalApicalCellFeatures3D', 'UnrolledLayer2D', 'SR2D', 'ApicalBasalCellFeatures2D'});
             %             save(fullfile(selpath, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'cellularFeatures_BasalToApical', 'cellularFeatures_ApicalToBasal', 'meanSurfaceRatio');
