@@ -261,7 +261,8 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
         finalImageWithValidCells = ismember(midSectionImage, validCellsFinal).*midSectionImage;
     %     figure;imshow(finalImageWithValidCells,colours)
 
-        h = figure ('units','normalized','outerposition',[0 0 1 1], 'visible', 'off');        imshow(midSectionImage+1, colours);
+        h = figure ('units','normalized','outerposition',[0 0 1 1], 'visible', 'off');        
+        imshow(midSectionImage+1, colours);
         hold on;
         midSectionNewLabels = bwlabel(midSectionImage, 4);
         centroids = regionprops(midSectionNewLabels, 'Centroid');
@@ -327,7 +328,10 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
         
         save(fullfile(outputDir, 'allInfo.mat'), 'deployedImg', 'deployedImg3x', 'wholeImage', 'polygon_distribution');
     else
+        load(fullfile(outputDir, 'allInfo.mat'));
+        outputDirOri = outputDir;
         load(fullfile(outputDir, 'verticesInfo.mat'));
+        outputDir = outputDirOri;
     end
 
     if exist(fullfile(outputDir, 'samiraTable.mat'), 'file') == 0
