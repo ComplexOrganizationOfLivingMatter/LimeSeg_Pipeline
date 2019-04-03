@@ -1,4 +1,4 @@
-function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir, noValidCells, colours, apicalArea)
+function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_original, outputDir, noValidCells, colours, apicalArea, apicalRotationsOriginal)
 %UNROLLTUBE Summary of this function goes here
 %   Detailed explanation goes here
     colours = vertcat([1 1 1], colours);
@@ -55,7 +55,11 @@ function [samiraTable, areaOfValidCells] = unrollTube(img3d_original, outputDir,
 %         neighbours = neighbours.neighbourhood;
 
         %Option 4: making projections
-        img3d_original = rotateImg3(img3d_original);
+        if exist('apicalRotationsOriginal', 'var') == 0
+            [img3d_original, rotationsOriginal] = rotateImg3(img3d_original);
+        else
+            [img3d_original] = rotateImg3(img3d_original, apicalRotationsOriginal);
+        end
 
         [allX,allY,allZ]=ind2sub(size(img3d_original),find(img3d_original>0));
         img3d_originalCropped = img3d_original(min(allX):max(allX),min(allY):max(allY),min(allZ):max(allZ));

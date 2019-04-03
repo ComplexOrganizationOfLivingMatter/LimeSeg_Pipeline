@@ -1,4 +1,4 @@
-function [rotatedImg3d, rotations] = rotateImg3(img3d)
+function [rotatedImg3d, rotations] = rotateImg3(img3d, apicalRotationsOriginal)
 
     rotations = [0 0 0];
     closedImg3D = imdilate(img3d>0,strel('sphere',5));
@@ -6,8 +6,13 @@ function [rotatedImg3d, rotations] = rotateImg3(img3d)
 
     %rotation A %% You may keep this untouched
     orientationObj = regionprops3(orientationImg3D, 'Orientation');
-    img3d_rot1 = imrotate(img3d, - orientationObj.Orientation(1));
-    orientationImg3D = imrotate(img3d, - orientationObj.Orientation(1));
+    if exist('apicalRotationsOriginal', 'var') == 0
+        img3d_rot1 = imrotate(img3d, - orientationObj.Orientation(1));
+        orientationImg3D = imrotate(img3d, - orientationObj.Orientation(1));
+    else
+        img3d_rot1 = imrotate(img3d, - apicalRotationsOriginal(1));
+        orientationImg3D = imrotate(img3d, - apicalRotationsOriginal(1));
+    end
     
     rotations(1) = orientationObj.Orientation(1);
     
@@ -15,8 +20,11 @@ function [rotatedImg3d, rotations] = rotateImg3(img3d)
     xzyImg = permute(img3d_rot1,[1 3 2]);
     orientationImg3D = permute(orientationImg3D,[1 3 2]);
     orientationObj = regionprops3(orientationImg3D, 'Orientation');
-    xzyImg3d_rot = imrotate(xzyImg, - orientationObj.Orientation(1));
-    
+    if exist('apicalRotationsOriginal', 'var') == 0
+        xzyImg3d_rot = imrotate(xzyImg, - orientationObj.Orientation(1));
+    else
+        xzyImg3d_rot = imrotate(xzyImg, - apicalRotationsOriginal(2));
+    end
     rotations(2) = orientationObj.Orientation(1);
 
     %rotation C
@@ -24,7 +32,11 @@ function [rotatedImg3d, rotations] = rotateImg3(img3d)
     orientationImg3D = permute(orientationImg3D,[3 2 1]);
 
     orientationObj = regionprops3(orientationImg3D, 'Orientation');
-    img3d_rotFinal = imrotate(yzxImg3d_rot, - orientationObj.Orientation(1));
+    if exist('apicalRotationsOriginal', 'var') == 0
+        img3d_rotFinal = imrotate(yzxImg3d_rot, - orientationObj.Orientation(1));
+    else
+        img3d_rotFinal = imrotate(yzxImg3d_rot, - apicalRotationsOriginal(3)); 
+    end
     
     rotations(3) = orientationObj.Orientation(1);
     
