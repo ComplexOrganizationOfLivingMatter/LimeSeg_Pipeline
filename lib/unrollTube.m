@@ -55,6 +55,17 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
 %         neighbours = neighbours.neighbourhood;
 
         %Option 4: making projections
+        outputDirResults = strsplit(outputDir, 'Results');
+        zScaleFile = fullfile(outputDirResults{1}, 'Results', 'zScaleOfGland.mat');
+        if exist(zScaleFile, 'file') > 0
+            load(zScaleFile)
+        else
+            zScale = inputdlg('Insert z-scale of Gland');
+            zScale = zScale{1};
+            save(zScaleFile, 'zScale');
+        end
+        resizeImg = 1/zScale;
+        
         if exist('apicalRotationsOriginal', 'var') == 0
             [img3d_original, rotationsOriginal] = rotateImg3(img3d_original);
             save(fullfile(outputDir, 'apicalRotationsOriginal.mat'), 'rotationsOriginal');
@@ -89,8 +100,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         vertices3D_Neighbours = verticesInfo.verticesConnectCells;
         vertices3D_Neighbours(cellfun(@isempty, verticesInfo.verticesPerCell), :) = [];
         cellNumNeighbours = cellfun(@length, neighbours);
-
-        resizeImg = 1/4.06; %TODO: REFACTOR REGARDING THE MUTANT
+        
         imgSize = round(size(img3d_original)/resizeImg);
         img3d = double(imresize3(img3d_original, imgSize, 'nearest'));
         validRegion_filled = imfill(double(imclose(img3d>0, strel('sphere', 20))), 26);
