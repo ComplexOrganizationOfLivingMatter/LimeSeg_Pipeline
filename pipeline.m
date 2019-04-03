@@ -7,8 +7,12 @@ function [polygon_distribution, neighbours_data] = pipeline(outputDir)
     mkdir(fullfile(outputDir, 'Results'));
     mkdir(fullfile(outputDir, 'Apical_Labelled'));
 
-
-    resizeImg = 0.25; %This is equal aprox to 1/4.06
+    zScale = inputdlg('Insert z-scale of Gland');
+    zScale = zScale{1};
+    
+    save(fullfile(outputDir, 'zScaleOfGland.mat'), 'zScale');
+    
+    resizeImg = 1/zScale;
 
     tipValue = 4;
 
