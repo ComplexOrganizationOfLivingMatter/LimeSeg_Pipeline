@@ -1,7 +1,6 @@
 function divideObjectInSurfaceRatios(selpath)
 %DIVIDEOBJECTINSURFACERATIOS Summary of this function goes here
 %   Detailed explanation goes here
-    selpath
     try
         if exist(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'), 'file') == 0 && exist(fullfile(selpath, 'apical', 'verticesInfo.mat'), 'file')>0
             %% Loading variables
