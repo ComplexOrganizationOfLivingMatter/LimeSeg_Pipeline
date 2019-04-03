@@ -9,6 +9,11 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
     previousSizeLabels = -1;
     if exist(fullfile(outputDir, 'final3DImg.mat'), 'file')
         load(fullfile(outputDir, 'final3DImg.mat'));
+        if exist('apicalRotationsOriginal', 'var') ~= 0
+            rotationsOriginal = apicalRotationsOriginal;
+        else
+            load(fullfile(outputDir, 'apicalRotationsOriginal.mat'));
+        end
     else
 %         %Option 1: too much neighbours
 %         insideGland = imdilate(img3d_original>0, strel('sphere', 1));
@@ -71,6 +76,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
             save(fullfile(outputDir, 'apicalRotationsOriginal.mat'), 'rotationsOriginal');
         else
             [img3d_original] = rotateImg3(img3d_original, apicalRotationsOriginal);
+            rotationsOriginal = apicalRotationsOriginal;
         end
 
         [allX,allY,allZ]=ind2sub(size(img3d_original),find(img3d_original>0));

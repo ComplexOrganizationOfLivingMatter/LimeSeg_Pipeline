@@ -21,7 +21,7 @@ function unrollTube_parallel(selpath)
             areaValidCells{1} = apicalAreaValidCells;
             
             for numPartition = 2:11
-                [samiraTablePerSR{numPartition}, areaValidCells{numPartition}] = unrollTube(infoPerSurfaceRatio{numPartition, 3}, fullfile(selpath, 'unrolledGlands', ['gland_SR_' numPartition]), noValidCells, colours, apicalAreaValidCells, rotationsOriginal);
+                [samiraTablePerSR{numPartition}, areaValidCells{numPartition}] = unrollTube(infoPerSurfaceRatio{numPartition, 3}, fullfile(selpath, 'unrolledGlands', ['gland_SR_' num2str(numPartition)]), noValidCells, colours, apicalAreaValidCells, rotationsOriginal);
             end
             
             samiraTable = [samiraTablePerSR{:}];
