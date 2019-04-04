@@ -24,6 +24,7 @@ function unrollTube_parallel(selpath)
                 [samiraTablePerSR{numPartition}, areaValidCells{numPartition}] = unrollTube(infoPerSurfaceRatio{numPartition, 3}, fullfile(selpath, 'unrolledGlands', ['gland_SR_' num2str(numPartition)]), noValidCells, colours, apicalAreaValidCells, rotationsOriginal);
             end
             
+            %% Calculate theoretical surface ratio
             samiraTable = vertcat(samiraTablePerSR{:});
             surfaceRatioOfGland_real = unique([samiraTable{:, 1}]);
             totalPartitions = 10;
@@ -61,7 +62,7 @@ function unrollTube_parallel(selpath)
         
     %% Saving final information
     filesOf2DUnroll = dir(fullfile(selpath, '**', 'verticesInfo.mat'));
-    if exist(fullfile(selpath, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'file') == 0
+    if exist(fullfile(selpath, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'file') == 0 && length(filesOf2DUnroll) == 11
         load(fullfile(selpath, 'dividedGland' ,'glandDividedInSurfaceRatios.mat'), 'infoPerSurfaceRatio');
         
         load(fullfile(filesOf2DUnroll(1).folder, 'verticesInfo.mat'));
