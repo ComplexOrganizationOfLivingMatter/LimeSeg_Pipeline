@@ -108,7 +108,7 @@ function unrollTube_parallel(selpath)
         initialPartitions = (1:(totalPartitions-1))/totalPartitions;
         surfaceRatioOfGland = surfaceRatioOfGland_real;
         surfaceRatioOfGland(2:10) = initialPartitions * (surfaceRatioOfGland_real(end) - 1) + 1;
-        infoPerSurfaceRatio{:, 7} = surfaceRatioOfGland;
+        infoPerSurfaceRatio(:, 7) = num2cell(surfaceRatioOfGland)';
         
         infoPerSurfaceRatio = cell2table(infoPerSurfaceRatio, 'VariableNames', {'Image3DWithVolumen', 'SR3D', 'Layer3D', 'ApicalBasalCellFeatures3D', 'BasalApicalCellFeatures3D', 'UnrolledLayer2D', 'SR2D', 'ApicalBasalCellFeatures2D'});
         %             save(fullfile(selpath, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'cellularFeatures_BasalToApical', 'cellularFeatures_ApicalToBasal', 'meanSurfaceRatio');
