@@ -310,9 +310,8 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         imwrite(deployedImg+1, colours, fullfile(outputDir, 'img_original.tif'));
 
         %% Calculating surface ratio
-        areaValidCellsImg = deployedImg;
-        areaValidCellsImg(ismember(deployedImg, noValidCells), :) = 0; 
-        areaOfValidCells = sum(areaValidCellsImg);
+        areaValidCellsImg = deployedImg .* ismember(deployedImg, validCellsFinal);
+        areaOfValidCells = sum(areaValidCellsImg(:) > 0);
 
         if exist('apicalArea', 'var') == 0
             surfaceRatio = 1;
