@@ -38,11 +38,17 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
         labelledImage = fill0sWithCells(labelledImage, imclose(labelledImage, strel('sphere', 3)) == 0);
             
         %% Put both lumen and labelled image at a 90 degrees
-
         orientationGland = regionprops3(lumenImage>0, 'Orientation');
         glandOrientation = -orientationGland.Orientation(1);
         %labelledImage = imrotate(labelledImage, glandOrientation);
         %lumenImage = imrotate(lumenImage, glandOrientation);
+        
+        [labelledImage] = fillEmptySpacesByWatershed3D(labelledImage, outsideGland | lumenImage, 1);
+        outsideGland_NotLumen = ~outsideGland | imdilate(lumenImage, strel('sphere', 2));
+        
+        labelledImage = fill0sWithCells(labelledImage, outsideGland | lumenImage);
+        labelledImage = fill0sWithCells(labelledImage, outsideGland_NotLumen == 0);
+        labelledImage(lumenImage) = 0;
 
         %% Get basal layer by dilating the empty space
         [basalLayer] = getBasalFrom3DImage(labelledImage, lumenImage, tipValue);
