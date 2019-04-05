@@ -21,8 +21,8 @@ function [basalLayer] = getBasalFrom3DImage(labelledImage, lumenImage, tipValue)
     
     basalLayer(:, :, end) = finalObject(:, :, end);
     basalLayer(:, :, 1) = finalObject(:, :, 1);
-    downSide = labelledImage(:, 1:(min(y)+addedRatio), :);
-    upSide = labelledImage(:, (max(y)-addedRatio):end, :);
+    downSide = basalLayer(:, 1:(min(y)+addedRatio), :);
+    upSide = basalLayer(:, (max(y)-addedRatio):end, :);
     
     addedRatio = 9;
     if sum(downSide(:)>0) > sum(upSide(:)>0)
