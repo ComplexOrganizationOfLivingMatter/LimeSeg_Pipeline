@@ -7,10 +7,14 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
     mkdir(fullfile(outputDir, 'Results'));
     mkdir(fullfile(outputDir, 'Apical_Labelled'));
 
-    zScale = inputdlg('Insert z-scale of Gland');
-    zScale = str2double(zScale{1});
-    
-    save(fullfile(outputDir, 'Results', 'zScaleOfGland.mat'), 'zScale');
+    if exist(fullfile(outputDir, 'Results', 'zScaleOfGland.mat'), 'file') == 0
+        zScale = inputdlg('Insert z-scale of Gland');
+        zScale = str2double(zScale{1});
+
+        save(fullfile(outputDir, 'Results', 'zScaleOfGland.mat'), 'zScale');
+    else
+        load(fullfile(outputDir, 'Results', 'zScaleOfGland.mat')); 
+    end
     
     resizeImg = 1/zScale;
 
