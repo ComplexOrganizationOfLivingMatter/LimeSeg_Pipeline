@@ -35,7 +35,7 @@ function uniqNeigh = getNeighboursFromFourProjectedPlanesFrom3Dgland(img3d,colou
     if size(regionsFound, 1) > 1
         [~, biggestRegion] = max(regionsFound.Volume);
         smallerRegions = setdiff(1:size(regionsFound, 1), biggestRegion);
-        badIds = [regionsFound.VoxelIdxList{smallerRegions}];
+        badIds = vertcat(regionsFound.VoxelIdxList{smallerRegions});
         img3d_rotB(badIds) = 0;
     end
     [allX,allY,allZ]=ind2sub(size(img3d_rotB),find(img3d_rotB>0));
