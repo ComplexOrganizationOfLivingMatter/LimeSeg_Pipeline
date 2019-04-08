@@ -35,7 +35,7 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
         [labelledImage, outsideGland] = processCells(fullfile(outputDir, 'Cells', filesep), resizeImg, imgSize, tipValue);
 
         [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
-        labelledImage = fill0sWithCells(labelledImage, imclose(labelledImage, strel('sphere', 3)) == 0);
+        labelledImage = fill0sWithCells(labelledImage, outsideGland | lumenImage);
             
         %% Put both lumen and labelled image at a 90 degrees
         orientationGland = regionprops3(lumenImage>0, 'Orientation');
@@ -60,7 +60,7 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
         %% Export image sequence
         [colours] = exportAsImageSequence(labelledImage, fullfile(outputDir, 'Cells', 'labelledSequence', filesep), colours, tipValue);
     end
-    [outsideGland] = getOutsideGland(labelledImage);
+    [outsideGland] = labelledImage == 0 & imdilate(lumenImage == 0, strel('sphere', 1));
 
     setappdata(0,'outputDir', outputDir);
     setappdata(0,'labelledImage',labelledImage);
