@@ -51,7 +51,7 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
         labelledImage(lumenImage) = 0;
 
         %% Get basal layer by dilating the empty space
-        [basalLayer] = getBasalFrom3DImage(labelledImage, lumenImage, tipValue);
+        basalLayer = getBasalFrom3DImage(labelledImage, lumenImage, tipValue, outsideGland & imdilate(lumenImage == 0, strel('sphere', 1)));
 
         %% Get apical layer by dilating the lumen
         [apicalLayer] = getApicalFrom3DImage(lumenImage, labelledImage);
