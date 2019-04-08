@@ -40,6 +40,7 @@ function [verticesNeighs2D, vertices2D] = obtainVerticesOfBorderCells(deployedIm
                     numRadius = numRadius + 1;
                 end
                 newVertex = round(mean([newVertexX, newVertexY], 1));
+                newVerticesActual.verticesPerCell{numEmptyCell} = newVertex;
             end
         end
 
