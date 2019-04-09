@@ -21,21 +21,21 @@ function [basalLayer] = getBasalFrom3DImage(labelledImage, lumenImage, tipValue,
     basalLayer = finalObject - finalObjectEroded;
 
 
-    [~,y,~] = ind2sub(size(basalLayer),find(basalLayer>0));
-    
-    addedRatio = 20;
-    
-    basalLayer(:, :, end) = finalObject(:, :, end);
-    basalLayer(:, :, 1) = finalObject(:, :, 1);
-    downSide = basalLayer(:, 1:(min(y)+addedRatio), :);
-    upSide = basalLayer(:, (max(y)-addedRatio):end, :);
-    
-    addedRatio = 9;
-    if sum(downSide(:)>0) > sum(upSide(:)>0)
-        basalLayer(:, 1:(min(y)+addedRatio), :) = 0;
-    else
-        basalLayer(:, (max(y)-addedRatio):end, :) = 0;
-    end
+%     [~,y,~] = ind2sub(size(basalLayer),find(basalLayer>0));
+%     
+%     addedRatio = 20;
+%     
+%     basalLayer(:, :, end) = finalObject(:, :, end);
+%     basalLayer(:, :, 1) = finalObject(:, :, 1);
+%     downSide = basalLayer(:, 1:(min(y)+addedRatio), :);
+%     upSide = basalLayer(:, (max(y)-addedRatio):end, :);
+%     
+%     addedRatio = 9;
+%     if sum(downSide(:)>0) > sum(upSide(:)>0)
+%         basalLayer(:, 1:(min(y)+addedRatio), :) = 0;
+%     else
+%         basalLayer(:, (max(y)-addedRatio):end, :) = 0;
+%     end
     
     %     figure;
     %     pcshow([x,y,z]);
