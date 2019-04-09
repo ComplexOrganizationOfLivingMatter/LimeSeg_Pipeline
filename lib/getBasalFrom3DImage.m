@@ -23,31 +23,28 @@ function [basalLayer] = getBasalFrom3DImage(labelledImage, lumenImage, tipValue,
 
     [~,y,~] = ind2sub(size(basalLayer),find(basalLayer>0));
     
-    addedRatio = 10;
+    addedRatio = 20;
     
     basalLayer(:, :, end) = finalObject(:, :, end);
     basalLayer(:, :, 1) = finalObject(:, :, 1);
     downSide = basalLayer(:, 1:(min(y)+addedRatio), :);
     upSide = basalLayer(:, (max(y)-addedRatio):end, :);
     
-    if exist('outsideGland', 'var') == 0
-        addedRatio = 9;
-        if sum(downSide(:)>0) > sum(upSide(:)>0)
-            basalLayer(:, 1:(min(y)+addedRatio), :) = 0;
-        else
-            basalLayer(:, (max(y)-addedRatio):end, :) = 0;
-        end
+    addedRatio = 9;
+    if sum(downSide(:)>0) > sum(upSide(:)>0)
+        basalLayer(:, 1:(min(y)+addedRatio), :) = 0;
+    else
+        basalLayer(:, (max(y)-addedRatio):end, :) = 0;
     end
     
     %     figure;
     %     pcshow([x,y,z]);
-    if isempty(lumenImage) == 0
-        glandParts = bwlabeln(basalLayer>0);
-        glandParts_Unique = unique(glandParts);
-        
-        if length(glandParts_Unique)>2
-            basalLayer(imdilate(lumenImage, strel('sphere', 3))) = 0;
-        end
+    regionsFound = regionprops3(basalLayer>0, {'Volume', 'VoxelIdxList'});
+    if size(regionsFound, 1) > 1
+        [~, biggestRegion] = max(regionsFound.Volume);
+        smallerRegions = setdiff(1:size(regionsFound, 1), biggestRegion);
+        badIds = vertcat(regionsFound.VoxelIdxList{smallerRegions});
+        basalLayer(badIds) = 0;
     end
     %basalLayer = completeImageOfCells(labelledImage .* basalLayer, basalLayer == 0);
     basalLayer = labelledImage .* basalLayer;

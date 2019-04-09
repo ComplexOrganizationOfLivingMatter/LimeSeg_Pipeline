@@ -1,7 +1,18 @@
 function [labelledImage] = smoothObject(labelledImage,pixelLocations, numCell)
 %SMOOTHOBJECT Summary of this function goes here
 %   Detailed explanation goes here
-    cellShape = alphaShape(pixelLocations, 20, 'HoleThreshold', size(labelledImage, 1)*size(labelledImage, 2)/2);
+    cellShape = alphaShape(pixelLocations);
+    pc = criticalAlpha(cellShape,'one-region');
+    cellShape.Alpha = pc;
+    
+%     figure
+%     for numPoint = 1:size(pixelLocations, 1)
+%         plot3(pixelLocations(numPoint, 1), pixelLocations(numPoint, 2), pixelLocations(numPoint, 3), '*')
+%         
+%         hold on;
+%     end
+%     plot(cellShape)
+    
     [qx,qy,qz]=ind2sub(size(labelledImage),find(labelledImage == 0));
     actualCell = zeros(size(labelledImage));
     if numCell == -1
@@ -10,12 +21,16 @@ function [labelledImage] = smoothObject(labelledImage,pixelLocations, numCell)
     else
         lumenImage = 0;
     end
+    
     try
         tf = inShape(cellShape,qx,qy,qz);
         inCellIndices = sub2ind(size(labelledImage), qx(tf), qy(tf), qz(tf));
         actualCell(inCellIndices) = 1;
         actualCell(labelledImage == numCell) = 1;
+        actualCell = imdilate(actualCell, strel('sphere', 2));
         filledCell = imfill(double(actualCell),  4, 'holes');
+        filledCell = imerode(filledCell, strel('sphere', 2));
+        filledCell = double(filledCell);
         if lumenImage
             filledCellOpen = imopen(filledCell, strel('sphere', 2));
         else
