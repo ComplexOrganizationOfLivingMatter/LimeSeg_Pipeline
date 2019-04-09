@@ -43,7 +43,7 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
         %labelledImage = imrotate(labelledImage, glandOrientation);
         %lumenImage = imrotate(lumenImage, glandOrientation);
         
-        
+        [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(labelledImage,outsideGland, lumenImage, outputDir, colours, tipValue);
     end
     [outsideGland] = labelledImage == 0 & imdilate(lumenImage, strel('sphere', 1)) == 0;
 
