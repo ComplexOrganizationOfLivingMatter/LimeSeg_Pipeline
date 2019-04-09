@@ -43,24 +43,9 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
         %labelledImage = imrotate(labelledImage, glandOrientation);
         %lumenImage = imrotate(lumenImage, glandOrientation);
         
-        [labelledImage] = fillEmptySpacesByWatershed3D(labelledImage, outsideGland | lumenImage, 1);
-        outsideGland_NotLumen = ~outsideGland | imdilate(lumenImage, strel('sphere', 2));
         
-        labelledImage = fill0sWithCells(labelledImage, outsideGland | lumenImage);
-        labelledImage = fill0sWithCells(labelledImage, outsideGland_NotLumen == 0);
-        labelledImage(lumenImage) = 0;
-
-        %% Get basal layer by dilating the empty space
-        basalLayer = getBasalFrom3DImage(labelledImage, lumenImage, tipValue, outsideGland & imdilate(lumenImage == 0, strel('sphere', 1)));
-
-        %% Get apical layer by dilating the lumen
-        [apicalLayer] = getApicalFrom3DImage(lumenImage, labelledImage);
-        exportAsImageSequence(apicalLayer, fullfile(outputDir, 'Apical_Labelled'), colours, tipValue);
-
-        %% Export image sequence
-        [colours] = exportAsImageSequence(labelledImage, fullfile(outputDir, 'Cells', 'labelledSequence', filesep), colours, tipValue);
     end
-    [outsideGland] = labelledImage == 0 & imdilate(lumenImage == 0, strel('sphere', 1));
+    [outsideGland] = labelledImage == 0 & imdilate(lumenImage, strel('sphere', 1)) == 0;
 
     setappdata(0,'outputDir', outputDir);
     setappdata(0,'labelledImage',labelledImage);
@@ -88,18 +73,8 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
         if isequal(savingResults, 'Yes')
             labelledImage = getappdata(0, 'labelledImageTemp');
             close all
-            [labelledImage] = fillEmptySpacesByWatershed3D(labelledImage, outsideGland | lumenImage, 1);
-            outsideGland_NotLumen = ~outsideGland | imdilate(lumenImage, strel('sphere', 2));
-            
-            labelledImage = fill0sWithCells(labelledImage, outsideGland | lumenImage);
-            labelledImage = fill0sWithCells(labelledImage, outsideGland_NotLumen == 0);
-            labelledImage(lumenImage) = 0;
-            exportAsImageSequence(labelledImage, fullfile(outputDir, 'Cells', 'labelledSequence', filesep), colours, tipValue);
+            [labelledImage, basalLayer, apicalLayer] = postprocessGland(labelledImage,outsideGland, lumenImage, outputDir, colours, tipValue);
 
-            %% Calculate neighbours and plot missing cells
-            [basalLayer] = getBasalFrom3DImage(labelledImage, lumenImage, tipValue);
-            [apicalLayer] = getApicalFrom3DImage(lumenImage, labelledImage);
-            exportAsImageSequence(apicalLayer, fullfile(outputDir, 'Apical_Labelled'), colours, tipValue);
             [answer, apical3dInfo, notFoundCellsApical, basal3dInfo, notFoundCellsBasal] = calculateMissingCells(labelledImage, lumenImage, apicalLayer, basalLayer, colours, noValidCells);
         else
             [answer] = isEverythingCorrect();
