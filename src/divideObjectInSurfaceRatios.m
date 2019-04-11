@@ -35,15 +35,14 @@ function divideObjectInSurfaceRatios(selpath)
             [~, apicoBasal_SurfaceRatio] = calculate_CellularFeatures(neighbours_data, neighboursApical', neighboursBasal_init', endSurface, startingSurface, obj_img, noValidCells, validCells, [], []);
 
             %% Split in 10 pieces
-            totalPartitions = 10;
-            initialPartitions = (1:(totalPartitions-1))/totalPartitions;
+%             totalPartitions = 10;
+%             initialPartitions = (1:(totalPartitions-1))/totalPartitions;
 
             %% Split with given surface ratios
-        %     definedSurfaceRatio = 1./(0.9:-0.1:0.3);
-        %     totalPartitions = length(definedSurfaceRatio)+1;
-        %     initialPartitions = (definedSurfaceRatio - 1) / (apicoBasal_SurfaceRatio - 1);
+            initialPartitions = ((1.25:0.25:apicoBasal_SurfaceRatio) - 1) / (apicoBasal_SurfaceRatio - 1);
+            totalPartitions = length(initialPartitions)+1;
 
-            realSurfaceRatio = initialPartitions * (apicoBasal_SurfaceRatio - 1) + 1;
+            realSurfaceRatio = 1:0.25:apicoBasal_SurfaceRatio;
 
             imageOfSurfaceRatios = cell(totalPartitions, 1);
             imageOfSurfaceRatios(:) = {zeros(size(obj_img))};
@@ -106,7 +105,7 @@ function divideObjectInSurfaceRatios(selpath)
                 end
             end
 
-            imageOfSurfaceRatios(:, 2) = num2cell([1 realSurfaceRatio]);
+            imageOfSurfaceRatios(:, 2) = num2cell(realSurfaceRatio);
             imageOfSurfaceRatios{totalPartitions+1, 1} = obj_img;
             imageOfSurfaceRatios{totalPartitions+1, 2} = apicoBasal_SurfaceRatio;
 
