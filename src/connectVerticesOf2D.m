@@ -27,7 +27,13 @@ function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertic
 % %             end
 %             
 %             actualCellVertices = [actualCellVertices; newVertices];
-            [actualCellNeighbours, actualCellVertices] = obtainVerticesOfBorderCells(cylindre2DImage, deployedImg3x, img3d, numCell);
+            [borderActualCellNeighbours, borderActualCellVertices] = obtainVerticesOfBorderCells(cylindre2DImage, deployedImg3x, img3d, numCell);
+            if isempty(borderActualCellNeighbours)
+                borderCells(borderCells == numCell) = [];
+            else
+                actualCellVertices = borderActualCellVertices;
+                actualCellNeighbours = borderActualCellNeighbours;
+            end
         end
         
         for numCellNeighbour = unique(actualCellNeighbours(:))'
@@ -115,7 +121,7 @@ function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertic
         for numParts = 1:(1+ (isempty(verticesPerSide{2}) == 0))
             verticesOfNeighs = verticesPerSide{numParts};
             distances = pdist(verticesOfNeighs);
-            if all(distances(:) < 10)
+            if all(distances(:) < 12)
 %                 %% threshold = 4.5px
 %                 figure; imshow(cylindre2DImage, colorcube(200))
 %                 hold on;
