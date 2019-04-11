@@ -114,7 +114,7 @@ function divideObjectInSurfaceRatios(selpath)
                     initialImage = imageOfSurfaceRatios{numPartition, 1};
                     %initialBasalImage = getBasalFrom3DImage(initialImage, lumenImage>0, 4);
 
-                    basalImage_closed_initial = imclose(initialImage>0, strel('disk', 2));
+                    basalImage_closed_initial = imclose(initialImage>0, strel('sphere', 2));
 
                     basalImage_closed = basalImage_closed_initial;
                     [~, y, ~] = ind2sub(size(initialImage),find(initialImage>0));
@@ -126,7 +126,8 @@ function divideObjectInSurfaceRatios(selpath)
                     else
                         basalImage_closed(:, (max(y)-3):end, :) = 1;
                     end
-                    basalImage_filled = imfill(basalImage_closed, 'holes');
+                    basalImage_closed(lumenImage) = 1;
+                    basalImage_filled = imfill(double(basalImage_closed), 18, 'holes');
                     if sum(downSide(:)>0) > sum(upSide(:)>0)
                         basalImage_filled(:, 1:(min(y)+3), :) = basalImage_closed_initial(:, 1:(min(y)+3), :);
                     else
@@ -146,7 +147,14 @@ function divideObjectInSurfaceRatios(selpath)
                     else
                         basalLayer(:, (max(y)-3):end, :) = 0;
                     end
-
+                    
+                    regionsFound = regionprops3(basalLayer>0, {'Volume', 'VoxelIdxList'});
+                    if size(regionsFound, 1) > 1
+                        [~, biggestRegion] = max(regionsFound.Volume);
+                        smallerRegions = setdiff(1:size(regionsFound, 1), biggestRegion);
+                        badIds = vertcat(regionsFound.VoxelIdxList{smallerRegions});
+                        basalLayer(badIds) = 0;
+                    end
                     %basalLayer(imfill(lumenImage, 'holes')) = 0;
 
                     [imageOfSurfaceRatios{numPartition, 3}] = fill0sWithCells(initialImage.*basalLayer, basalLayer == 0);
