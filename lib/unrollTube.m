@@ -1,6 +1,9 @@
 function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_original, outputDir, noValidCells, colours, apicalArea, apicalRotationsOriginal)
 %UNROLLTUBE Summary of this function goes here
 %   Detailed explanation goes here
+    
+    load(noValidCells);
+    load(colours);
     colours = vertcat([1 1 1], colours);
     
     outputDir

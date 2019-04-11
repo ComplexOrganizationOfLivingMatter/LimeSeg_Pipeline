@@ -13,15 +13,14 @@ function unrollTube_parallel(selpath)
         %% Unrolling
         if exist(fullfile(selpath, 'dividedGland' ,'glandDividedInSurfaceRatios.mat'), 'file') > 0
             %% Apical and basal and all the artificial surface ratios
-            load(fullfile(selpath, '3d_layers_info'), 'colours');
             load(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'));
             
             mkdir(fullfile(selpath, 'unrolledGlands', 'gland_SR_1'));
-            [samiraTablePerSR{1}, apicalAreaValidCells, rotationsOriginal] = unrollTube(infoPerSurfaceRatio{1, 3}, fullfile(selpath, 'unrolledGlands', 'gland_SR_1'), noValidCells, colours);
+            [samiraTablePerSR{1}, apicalAreaValidCells, rotationsOriginal] = unrollTube(infoPerSurfaceRatio{1, 3}, fullfile(selpath, 'unrolledGlands', 'gland_SR_1'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info'));
             areaValidCells{1} = apicalAreaValidCells;
-            
-            for numPartition = 2:11
-                [samiraTablePerSR{numPartition}, areaValidCells{numPartition}] = unrollTube(infoPerSurfaceRatio{numPartition, 3}, fullfile(selpath, 'unrolledGlands', ['gland_SR_' num2str(numPartition)]), noValidCells, colours, apicalAreaValidCells, rotationsOriginal);
+            %addAttachedFiles(gcp, fullfile(selpath, 'valid_cells.mat'))
+            parfor numPartition = 2:11
+                [samiraTablePerSR{numPartition}, areaValidCells{numPartition}] = unrollTube(infoPerSurfaceRatio{numPartition, 3}, fullfile(selpath, 'unrolledGlands', ['gland_SR_' num2str(numPartition)]), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info'), apicalAreaValidCells, rotationsOriginal);
             end
             
             %% Calculate theoretical surface ratio
@@ -43,9 +42,11 @@ function unrollTube_parallel(selpath)
             %% ONLY APICAL AND BASAL
             apicalAreaValidCells = 100;
             disp('Apical');
+            mkdir(fullfile(selpath, 'apical'));
             [apicalSamiraTable, apicalAreaValidCells] = unrollTube(apicalLayer, fullfile(selpath, 'apical'), noValidCells, colours);
 
             disp('Basal');
+            fullfile(selpath, 'basal')
             basalSamiraTable = unrollTube(basalLayer, fullfile(selpath, 'basal'), noValidCells, colours, apicalAreaValidCells);
 
             samiraTable = [apicalSamiraTable; basalSamiraTable];
