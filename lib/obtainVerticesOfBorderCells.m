@@ -6,6 +6,10 @@ function [verticesNeighs2D, vertices2D] = obtainVerticesOfBorderCells(deployedIm
     newVertices{2} = [];
     newVerticesNeighs2D{1} = [];
     newVerticesNeighs2D{2} = [];
+    
+    vertices2D = [];
+    verticesNeighs2D = [];
+    
     labelledActualCells3x = bwlabel(deployedImg3x==numBorderCell);
     newLabelBorderCells = unique(labelledActualCells3x .* ismember(deployedImg, numBorderCell));
     newLabelBorderCells(newLabelBorderCells==0) = [];
@@ -50,12 +54,15 @@ function [verticesNeighs2D, vertices2D] = obtainVerticesOfBorderCells(deployedIm
 %         newVerticesNeighs2D{numSide} = [newVerticesNeighs2D{numSide}; newVerticesActual.verticesConnectCells];
     end
     
-    [newVerticesNeighs2D{1}, indicesUnique_1] = unique(newVerticesNeighs2D{1}, 'rows');
-    newVertices{1} = newVertices{1}(indicesUnique_1, :);
-    [newVerticesNeighs2D{2}, indicesUnique_2] = unique(newVerticesNeighs2D{2}, 'rows');
-    newVertices{2} = newVertices{2}(indicesUnique_2, :);
+    if sum(cellfun(@isempty, newVerticesNeighs2D)) == 0
+    
+        [newVerticesNeighs2D{1}, indicesUnique_1] = unique(newVerticesNeighs2D{1}, 'rows');
+        newVertices{1} = newVertices{1}(indicesUnique_1, :);
+        [newVerticesNeighs2D{2}, indicesUnique_2] = unique(newVerticesNeighs2D{2}, 'rows');
+        newVertices{2} = newVertices{2}(indicesUnique_2, :);
 
-    vertices2D = [newVertices{1}; newVertices{2}];
-    verticesNeighs2D = [newVerticesNeighs2D{1}; newVerticesNeighs2D{2}];
+        vertices2D = [newVertices{1}; newVertices{2}];
+        verticesNeighs2D = [newVerticesNeighs2D{1}; newVerticesNeighs2D{2}];
+    end
 end
 
