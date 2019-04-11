@@ -2,16 +2,16 @@ function divideObjectInSurfaceRatios(selpath)
 %DIVIDEOBJECTINSURFACERATIOS Summary of this function goes here
 %   Detailed explanation goes here
     try
-        if exist(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'), 'file') == 0 && exist(fullfile(selpath, 'apical', 'verticesInfo.mat'), 'file')>0
+        if exist(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'), 'file') == 0 && exist(fullfile(selpath, 'unrolledGlands', 'gland_SR_1', 'verticesInfo.mat'), 'file')>0
             %% Loading variables
             load(fullfile(selpath, '3d_layers_info.mat'));
             load(fullfile(selpath, 'valid_cells.mat'));
 
-            load(fullfile(selpath, 'apical', 'verticesInfo.mat'), 'newVerticesNeighs2D');
+            load(fullfile(selpath, 'unrolledGlands', 'gland_SR_1', 'verticesInfo.mat'), 'newVerticesNeighs2D');
             apicalNeighs = newVerticesNeighs2D;
             apicalRealNeighs = arrayfun(@(x) sum(any(ismember(apicalNeighs, x), 2)), 1:max(validCells));
 
-            load(fullfile(selpath, 'basal', 'verticesInfo.mat'), 'newVerticesNeighs2D');
+            load(fullfile(selpath, 'unrolledGlands', 'gland_SR_11', 'verticesInfo.mat'), 'newVerticesNeighs2D');
             basalNeighs = newVerticesNeighs2D;
             basalRealNeighs = arrayfun(@(x) sum(any(ismember(basalNeighs, x), 2)), 1:max(validCells));
 
