@@ -2,10 +2,9 @@ function [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(la
 %POSTPROCESSGLAND Summary of this function goes here
 %   Detailed explanation goes here
     [labelledImage] = fillEmptySpacesByWatershed3D(labelledImage, outsideGland | lumenImage, 1);
-    outsideGland_NotLumen = ~outsideGland | imdilate(lumenImage, strel('sphere', 2));
+    outsideGland_NotLumen = ~outsideGland | lumenImage;
 
     labelledImage = fill0sWithCells(labelledImage, outsideGland | lumenImage);
-    labelledImage = fill0sWithCells(labelledImage, outsideGland_NotLumen == 0);
     labelledImage(lumenImage) = 0;
 
     %% Get basal layer by dilating the empty space
