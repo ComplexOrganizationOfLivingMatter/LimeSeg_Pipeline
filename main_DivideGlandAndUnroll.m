@@ -11,14 +11,15 @@ nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0 && contain
 files = files(nonDiscardedFiles);
 
 disp('----------- DIVIDING GLANDS -------------')
-for numFile = 1:length(files)
+parfor numFile = 1:length(files)
     files(numFile).folder
     selpath = files(numFile).folder;
+    unroll_OnlyApicalAndBasal(selpath)
     divideObjectInSurfaceRatios(selpath);
 end
 
 disp('----------- UNROLLING TUBES -------------')
-for numFile = 1:length(files)
+parfor numFile = 1:13%length(files)
     files(numFile).folder
     selpath = files(numFile).folder;
     

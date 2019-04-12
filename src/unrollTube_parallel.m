@@ -19,7 +19,7 @@ function unrollTube_parallel(selpath)
             [samiraTablePerSR{1}, apicalAreaValidCells, rotationsOriginal] = unrollTube(infoPerSurfaceRatio{1, 3}, fullfile(selpath, 'unrolledGlands', 'gland_SR_1'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info'));
             areaValidCells{1} = apicalAreaValidCells;
             %addAttachedFiles(gcp, fullfile(selpath, 'valid_cells.mat'))
-            parfor numPartition = 2:11
+            for numPartition = 2:11
                 [samiraTablePerSR{numPartition}, areaValidCells{numPartition}] = unrollTube(infoPerSurfaceRatio{numPartition, 3}, fullfile(selpath, 'unrolledGlands', ['gland_SR_' num2str(numPartition)]), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info'), apicalAreaValidCells, rotationsOriginal);
             end
             
@@ -38,18 +38,6 @@ function unrollTube_parallel(selpath)
             end
             
             samiraTable = vertcat(samiraTablePerSR{:});
-        else
-            %% ONLY APICAL AND BASAL
-            apicalAreaValidCells = 100;
-            disp('Apical');
-            mkdir(fullfile(selpath, 'apical'));
-            [apicalSamiraTable, apicalAreaValidCells] = unrollTube(apicalLayer, fullfile(selpath, 'apical'), noValidCells, colours);
-
-            disp('Basal');
-            fullfile(selpath, 'basal')
-            basalSamiraTable = unrollTube(basalLayer, fullfile(selpath, 'basal'), noValidCells, colours, apicalAreaValidCells);
-
-            samiraTable = [apicalSamiraTable; basalSamiraTable];
         end
         
         %% Creating samira table

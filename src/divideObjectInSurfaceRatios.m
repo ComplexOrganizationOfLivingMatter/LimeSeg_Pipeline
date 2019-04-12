@@ -11,7 +11,7 @@ function divideObjectInSurfaceRatios(selpath)
             apicalNeighs = newVerticesNeighs2D;
             apicalRealNeighs = arrayfun(@(x) sum(any(ismember(apicalNeighs, x), 2)), 1:max(validCells));
 
-            load(fullfile(selpath, 'unrolledGlands', 'gland_SR_11', 'verticesInfo.mat'), 'newVerticesNeighs2D');
+            load(fullfile(selpath, 'unrolledGlands', 'gland_SR_basal', 'verticesInfo.mat'), 'newVerticesNeighs2D');
             basalNeighs = newVerticesNeighs2D;
             basalRealNeighs = arrayfun(@(x) sum(any(ismember(basalNeighs, x), 2)), 1:max(validCells));
 
