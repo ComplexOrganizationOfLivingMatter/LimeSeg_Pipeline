@@ -13,7 +13,7 @@ function [image_filled] = fillGlandWithHole(initialImage)
     else
         image_closed(:, (max(y)-3):end, :) = 1;
     end
-    image_closed(lumenImage) = 1;
+    %image_closed(lumenImage) = 1;
     image_filled = imfill(double(image_closed), 18, 'holes');
     if sum(downSide(:)>0) > sum(upSide(:)>0)
         image_filled(:, 1:(min(y)+3), :) = image_closed_initial(:, 1:(min(y)+3), :);

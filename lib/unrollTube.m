@@ -116,7 +116,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         img3d = double(imresize3(img3d_original, imgSize, 'nearest'));
         figure; paint3D(img3d, [50])
         
-        [validRegion_filled] = fillGlandWithHole(initialImage);
+        [validRegion_filled] = fillGlandWithHole(imclose(img3d>0, strel('sphere', 5)));
                     
         %validRegion_filled = imfill(double(imclose(img3d>0, strel('sphere', 20))), 26);
         
