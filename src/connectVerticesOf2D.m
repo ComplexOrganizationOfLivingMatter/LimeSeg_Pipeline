@@ -27,13 +27,13 @@ function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertic
 % %             end
 %             
 %             actualCellVertices = [actualCellVertices; newVertices];
-            [borderActualCellNeighbours, borderActualCellVertices] = obtainVerticesOfBorderCells(cylindre2DImage, deployedImg3x, img3d, numCell);
-            if isempty(borderActualCellNeighbours)
+            [borderActualCellNeighbours, borderActualCellVertices, borderCell] = obtainVerticesOfBorderCells(cylindre2DImage, deployedImg3x, img3d, numCell);
+            if borderCell == 0
                 borderCells(borderCells == numCell) = [];
-            else
-                actualCellVertices = borderActualCellVertices;
-                actualCellNeighbours = borderActualCellNeighbours;
             end
+            
+            actualCellVertices = borderActualCellVertices;
+            actualCellNeighbours = borderActualCellNeighbours;
         end
         
         for numCellNeighbour = unique(actualCellNeighbours(:))'
@@ -143,7 +143,7 @@ function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertic
             allVerticesAtCell = cellVertices{numCellsToChange};
             
             for numVertexToChange = 1:length(verticesToChange)
-                actualLogicalVerticesToChange = all(ismember(allVerticesAtCell, verticesToChange{numVertexToChange}), 2);
+                actualLogicalVerticesToChange = ismember(allVerticesAtCell, verticesToChange{numVertexToChange}, 'rows');
                 allVerticesAtCell(actualLogicalVerticesToChange, :) = repmat(newValueCentroid(numVertexToChange, :), sum(actualLogicalVerticesToChange), 1);
             end
             

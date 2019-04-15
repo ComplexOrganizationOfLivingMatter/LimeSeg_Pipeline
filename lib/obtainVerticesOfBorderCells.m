@@ -1,4 +1,4 @@
-function [verticesNeighs2D, vertices2D] = obtainVerticesOfBorderCells(deployedImg, deployedImg3x, img3d, numBorderCell)
+function [verticesNeighs2D, vertices2D, borderCell] = obtainVerticesOfBorderCells(deployedImg, deployedImg3x, img3d, numBorderCell)
 %OBTAINVERTICESOFBORDERCELLS Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -55,14 +55,17 @@ function [verticesNeighs2D, vertices2D] = obtainVerticesOfBorderCells(deployedIm
     end
     
     if sum(cellfun(@isempty, newVerticesNeighs2D)) == 0
-    
-        [newVerticesNeighs2D{1}, indicesUnique_1] = unique(newVerticesNeighs2D{1}, 'rows');
-        newVertices{1} = newVertices{1}(indicesUnique_1, :);
-        [newVerticesNeighs2D{2}, indicesUnique_2] = unique(newVerticesNeighs2D{2}, 'rows');
-        newVertices{2} = newVertices{2}(indicesUnique_2, :);
-
-        vertices2D = [newVertices{1}; newVertices{2}];
-        verticesNeighs2D = [newVerticesNeighs2D{1}; newVerticesNeighs2D{2}];
+        borderCell = 1;
+    else
+        borderCell = 0;
     end
+    
+    [newVerticesNeighs2D{1}, indicesUnique_1] = unique(newVerticesNeighs2D{1}, 'rows');
+    newVertices{1} = newVertices{1}(indicesUnique_1, :);
+    [newVerticesNeighs2D{2}, indicesUnique_2] = unique(newVerticesNeighs2D{2}, 'rows');
+    newVertices{2} = newVertices{2}(indicesUnique_2, :);
+    
+    vertices2D = [newVertices{1}; newVertices{2}];
+    verticesNeighs2D = [newVerticesNeighs2D{1}; newVerticesNeighs2D{2}];
 end
 
