@@ -115,7 +115,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         imgSize = round(size(img3d_original)/resizeImg);
         img3d = double(imresize3(img3d_original, imgSize, 'nearest'));
         
-        [validRegion] = imclose(img3d>0, strel('sphere', 5));
+        [validRegion] = imclose(img3d>0, strel('sphere', 20));
                     
         %validRegion_filled = imfill(double(imclose(img3d>0, strel('sphere', 20))), 26);
         %validRegion = (validRegion_filled>0) - imerode(validRegion_filled, strel('sphere', 1));
@@ -124,7 +124,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         mkdir(outputDir);
         save(fullfile(outputDir, 'final3DImg.mat'), 'img3d', 'vertices3D_Neighbours', 'vertices3D', 'cellNumNeighbours', 'neighbours', '-v7.3');
     end
-    
+
     if exist(fullfile(outputDir, 'verticesInfo.mat'), 'file') == 0
     
         imgFinalCoordinates=cell(size(img3d,3),1);
