@@ -39,10 +39,10 @@ function divideObjectInSurfaceRatios(selpath)
 %             initialPartitions = (1:(totalPartitions-1))/totalPartitions;
 
             %% Split with given surface ratios
-            initialPartitions = ((1.25:0.25:apicoBasal_SurfaceRatio) - 1) / (apicoBasal_SurfaceRatio - 1);
+            initialPartitions = ((1.5:0.5:apicoBasal_SurfaceRatio) - 1) / (apicoBasal_SurfaceRatio - 1);
             totalPartitions = length(initialPartitions)+1;
 
-            realSurfaceRatio = 1:0.25:apicoBasal_SurfaceRatio;
+            realSurfaceRatio = 1:0.5:apicoBasal_SurfaceRatio;
 
             imageOfSurfaceRatios = cell(totalPartitions, 1);
             imageOfSurfaceRatios(:) = {zeros(size(obj_img))};
@@ -60,7 +60,8 @@ function divideObjectInSurfaceRatios(selpath)
                 [distanceEndingAllPixels] = pdist2(allPixels, endPixels);
 
                 %surfaceRatioDistance = mean(min(distanceEndingStarting, [], 2));
-                surfaceRatioDistance = mean(distanceEndingStarting(:));
+                surfaceRatioDistance =  pdist2(mean(endPixels), mean(startingPixels));
+%                 surfaceRatioDistance = mean(distanceEndingStarting(:));
 
                 partitions = surfaceRatioDistance * initialPartitions;
 
