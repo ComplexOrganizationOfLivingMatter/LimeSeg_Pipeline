@@ -19,19 +19,22 @@ function unrollTube_parallel(selpath)
             [samiraTablePerSR{1}, apicalAreaValidCells, rotationsOriginal] = unrollTube(infoPerSurfaceRatio{1, 3}, fullfile(selpath, 'unrolledGlands', 'gland_SR_1'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info'));
             areaValidCells{1} = apicalAreaValidCells;
             %addAttachedFiles(gcp, fullfile(selpath, 'valid_cells.mat'))
-            for numPartition = 2:11
+            
+            surfaceRatioOfGland = vertcat(infoPerSurfaceRatio{:,2})';
+            nSR = length(surfaceRatioOfGland);
+            for numPartition = 2:nSR
                 [samiraTablePerSR{numPartition}, areaValidCells{numPartition}] = unrollTube(infoPerSurfaceRatio{numPartition, 3}, fullfile(selpath, 'unrolledGlands', ['gland_SR_' num2str(numPartition)]), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info'), apicalAreaValidCells, rotationsOriginal);
             end
             
             %% Calculate theoretical surface ratio
-            samiraTable = vertcat(samiraTablePerSR{:});
-            surfaceRatioOfGland_real = unique([samiraTable{:, 1}]);
-            totalPartitions = 10;
-            initialPartitions = (1:(totalPartitions-1))/totalPartitions;
-            surfaceRatioOfGland = surfaceRatioOfGland_real;
-            surfaceRatioOfGland(2:10) = initialPartitions * (surfaceRatioOfGland_real(end) - 1) + 1;
+%             samiraTable = vertcat(samiraTablePerSR{:});
+%             surfaceRatioOfGland_real = unique([samiraTable{:, 1}]);
+%             totalPartitions = 10;
+%             initialPartitions = (1:(totalPartitions-1))/totalPartitions;
+%             surfaceRatioOfGland = surfaceRatioOfGland_real;
+%             surfaceRatioOfGland(2:10) = initialPartitions * (surfaceRatioOfGland_real(end) - 1) + 1;
             
-            for numPartition = 2:11
+            for numPartition = 2:nSR
                 sT_Actual = samiraTablePerSR{numPartition};
                 sT_Actual(:, 1) = {surfaceRatioOfGland(numPartition)};
                 samiraTablePerSR{numPartition} = sT_Actual;
@@ -61,11 +64,11 @@ function unrollTube_parallel(selpath)
         
         load(fullfile(filesOf2DUnroll(3).folder, 'verticesInfo.mat'));
         basalLayer = cylindre2DImage;
-        infoPerSurfaceRatio{11, 6} = cylindre2DImage;
+        infoPerSurfaceRatio{nSR, 6} = cylindre2DImage;
         [neighboursBasal] = getNeighboursFromVertices(newVerticesNeighs2D);
         
-        neighboursOfAllSurfaces = cell(11, 1);
-        for numSR = 1:11
+        neighboursOfAllSurfaces = cell(nSR, 1);
+        for numSR = 1:nSR
             load(fullfile(filesOf2DUnroll(numSR).folder, 'final3DImg.mat'), 'img3d', 'neighbours');
             load(fullfile(filesOf2DUnroll(numSR).folder, 'verticesInfo.mat'), 'cylindre2DImage', 'newVerticesNeighs2D');
             %                 if isempty(newVerticesNeighs2D)
@@ -78,7 +81,7 @@ function unrollTube_parallel(selpath)
             splittedFolder = strsplit(filesOf2DUnroll(numSR).folder, '_');
             idToSave = str2double(splittedFolder{end});
             
-            idToSave
+            disp(['id to save: ' num2str(idToSave)])
             
             infoPerSurfaceRatio{idToSave, 6} = cylindre2DImage;
             [neighboursMid] = getNeighboursFromVertices(newVerticesNeighs2D);
@@ -93,11 +96,11 @@ function unrollTube_parallel(selpath)
         
         %% Calculate theoretical surface ratio
         surfaceRatioOfGland_real = vertcat(infoPerSurfaceRatio{:, 7})';
-        totalPartitions = 10;
-        initialPartitions = (1:(totalPartitions-1))/totalPartitions;
-        surfaceRatioOfGland = surfaceRatioOfGland_real;
-        surfaceRatioOfGland(2:10) = initialPartitions * (surfaceRatioOfGland_real(end) - 1) + 1;
-        infoPerSurfaceRatio(:, 7) = num2cell(surfaceRatioOfGland)';
+%         totalPartitions = nSR;
+%         initialPartitions = (1:(totalPartitions-1))/totalPartitions;
+%         surfaceRatioOfGland = surfaceRatioOfGland_real;
+%         surfaceRatioOfGland(2:10) = initialPartitions * (surfaceRatioOfGland_real(end) - 1) + 1;
+        infoPerSurfaceRatio(:, 7) = num2cell(surfaceRatioOfGland_real)';
         
         infoPerSurfaceRatio = cell2table(infoPerSurfaceRatio, 'VariableNames', {'Image3DWithVolumen', 'SR3D', 'Layer3D', 'ApicalBasalCellFeatures3D', 'BasalApicalCellFeatures3D', 'UnrolledLayer2D', 'SR2D', 'ApicalBasalCellFeatures2D'});
         %             save(fullfile(selpath, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'cellularFeatures_BasalToApical', 'cellularFeatures_ApicalToBasal', 'meanSurfaceRatio');
