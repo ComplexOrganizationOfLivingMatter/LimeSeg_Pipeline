@@ -1,4 +1,4 @@
-function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_original, outputDir, noValidCells, colours, apicalArea, apicalRotationsOriginal)
+function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_original, img3dComplete, outputDir, noValidCells, colours, apicalArea, apicalRotationsOriginal)
 %UNROLLTUBE Summary of this function goes here
 %   Detailed explanation goes here
     
@@ -10,6 +10,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
     
     %% Unroll
     pixelSizeThreshold = 10;
+    closingPxAreas = 6;
     
     previousSizeLabels = -1;
     if exist(fullfile(outputDir, 'final3DImg.mat'), 'file')
@@ -78,17 +79,20 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         
         if exist('apicalRotationsOriginal', 'var') == 0
             [img3d_original, rotationsOriginal] = rotateImg3(img3d_original);
+            [img3dComplete] = rotateImg3(img3dComplete, rotationsOriginal);
             save(fullfile(outputDir, 'apicalRotationsOriginal.mat'), 'rotationsOriginal');
         else
             [img3d_original] = rotateImg3(img3d_original, apicalRotationsOriginal);
+            [img3dComplete] = rotateImg3(img3dComplete, apicalRotationsOriginal);
             rotationsOriginal = apicalRotationsOriginal;
         end
-
-        [allX,allY,allZ]=ind2sub(size(img3d_original),find(img3d_original>0));
+        
+        [allX,allY,allZ]=ind2sub(size(img3dComplete),find(img3dComplete>0));
         img3d_originalCropped = img3d_original(min(allX):max(allX),min(allY):max(allY),min(allZ):max(allZ));
-
+        img3dComplete_Cropped = img3dComplete(min(allX):max(allX),min(allY):max(allY),min(allZ):max(allZ));
+        
         % Check which side is the longest
-        img3d_closed = fill0sWithCells(img3d_original, imclose(img3d_original>0, strel('sphere', 3)) == 0);
+        img3d_closed = fill0sWithCells(img3d_original, img3dComplete, (img3dComplete & imclose(img3d_original>0, strel('sphere', closingPxAreas))) == 0);
         neighbours = getNeighboursFromFourProjectedPlanesFrom3Dgland(img3d_closed, colours);
         neighbours = checkPairPointCloudDistanceCurateNeighbours(img3d_closed, neighbours);
 
@@ -96,9 +100,10 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         sizeImg3d = size(img3d_originalCropped);
         [~, indices] = sort(sizeImg3d);
         img3d_original = permute(img3d_originalCropped, indices);
-        img3d_original = fill0sWithCells(img3d_original, imclose(img3d_original>0, strel('sphere', 2)) == 0);
+        img3dComplete = permute(img3dComplete_Cropped, indices);
         tipValue = 21;
         img3d_original = addTipsImg3D(tipValue, img3d_original);
+        img3dComplete = addTipsImg3D(tipValue, img3dComplete);
         [verticesInfo] = getVertices3D(img3d_original, neighbours);
         vertices3D = vertcat(verticesInfo.verticesPerCell{:});
 
@@ -113,19 +118,22 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         cellNumNeighbours = cellfun(@length, neighbours);
         
         img3d = double(img3d_original);
+        img3dComplete = double(img3dComplete);
         imgSize = round(size(img3d_original)/resizeImg);
         img3d = double(imresize3(img3d_original, imgSize, 'nearest'));
         
+        img3dComplete = double(imresize3(img3dComplete, imgSize, 'nearest'));
+        
         validRegion = double(imresize3(img3d_original, imgSize)>0);
         
-        %[validRegion] = imclose(img3d>0, strel('sphere', 10));
+        [validRegion] = imclose(validRegion>0, strel('sphere', closingPxAreas));
                     
 %         validRegion_filled = imfill(imfill(imfill(validRegion_all)));
 %         validRegion = (validRegion_filled>0) - imerode(validRegion_filled, strel('sphere', 1));
-        img3d = fill0sWithCells(img3d .* double(validRegion), validRegion==0);
+        img3d = fill0sWithCells(img3d .* double(validRegion), img3dComplete, (img3dComplete & validRegion)==0);
         vertices3D = round(vertices3D / resizeImg);
         mkdir(outputDir);
-        save(fullfile(outputDir, 'final3DImg.mat'), 'img3d', 'vertices3D_Neighbours', 'vertices3D', 'cellNumNeighbours', 'neighbours', '-v7.3');
+        save(fullfile(outputDir, 'final3DImg.mat'), 'img3d', 'img3dComplete', 'vertices3D_Neighbours', 'vertices3D', 'cellNumNeighbours', 'neighbours', '-v7.3');
     end
 
     if exist(fullfile(outputDir, 'verticesInfo.mat'), 'file') == 0
@@ -137,6 +145,9 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
                 continue
             end
             %figure; imshow(img3d(:, :, coordZ)+2, colorcube)
+            
+            %closedZFrame = imclose(img3d(:, :, coordZ)>0, strel('disk', 10));
+            %img3d(:, :, coordZ) = fill0sWithCells(img3d(:, :, coordZ), closedZFrame==0);
 
             %% Remove pixels surrounding the boundary
             filledImage = imfill(double(img3d(:, :, coordZ)>0));
@@ -144,7 +155,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
             filledImage = bwareafilt(filledImage>0, 1, 4);
             finalPerimImage = bwperim(filledImage);
             solidityOfObjects = regionprops(filledImage, 'Solidity');
-            
+%             imshow(filledImage)
             solidityThreshold = 0.6;
             %Check if there is a hole
             if solidityOfObjects.Solidity < solidityThreshold
@@ -198,7 +209,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
                 angleLabelCoord_NewPerimeter = atan2(y_PerimeterNew - centroidY, x_PerimeterNew - centroidX);
                 angleLabelCoord_NewPerimeter_Sorted = sort(angleLabelCoord_NewPerimeter);
                 minDistance = abs(angleLabelCoord_NewPerimeter_Sorted(1) - angleLabelCoord_NewPerimeter_Sorted(2));
-                img3dPerimFilled = fill0sWithCells(img3d(:, :, coordZ), filledImage==0);
+                img3dPerimFilled = fill0sWithCells(img3d(:, :, coordZ), img3dComplete(:, :, coordZ),filledImage==0);
                 maskLabel=finalPerimImage.*img3dPerimFilled;
             else
                 maskLabel=finalPerimImage.*img3d(:, :, coordZ);
@@ -278,6 +289,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         %% Getting correct border cells, valid cells and no valid cells
          %cylindre2DImage = fillEmptySpacesByWatershed2D(deployedImg, imclose(deployedImg>0, strel('disk', 20)) == 0 , colours);
          cylindre2DImage = deployedImg;
+         figure;imshow(cylindre2DImage,colours)
          [wholeImage] = fillEmptySpacesByWatershed2D(deployedImg3x, imclose(deployedImg3x>0, strel('disk', 20)) == 0 , colours);
 
     %     figure;imshow(finalImage,colours)
