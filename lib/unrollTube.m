@@ -112,13 +112,16 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         vertices3D_Neighbours(cellfun(@isempty, verticesInfo.verticesPerCell), :) = [];
         cellNumNeighbours = cellfun(@length, neighbours);
         
+        img3d = double(img3d_original);
         imgSize = round(size(img3d_original)/resizeImg);
         img3d = double(imresize3(img3d_original, imgSize, 'nearest'));
         
-        [validRegion] = imclose(img3d>0, strel('sphere', 20));
+        validRegion = double(imresize3(img3d_original, imgSize)>0);
+        
+        %[validRegion] = imclose(img3d>0, strel('sphere', 10));
                     
-        %validRegion_filled = imfill(double(imclose(img3d>0, strel('sphere', 20))), 26);
-        %validRegion = (validRegion_filled>0) - imerode(validRegion_filled, strel('sphere', 1));
+%         validRegion_filled = imfill(imfill(imfill(validRegion_all)));
+%         validRegion = (validRegion_filled>0) - imerode(validRegion_filled, strel('sphere', 1));
         img3d = fill0sWithCells(img3d .* double(validRegion), validRegion==0);
         vertices3D = round(vertices3D / resizeImg);
         mkdir(outputDir);
