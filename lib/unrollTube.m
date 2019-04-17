@@ -10,7 +10,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
     
     %% Unroll
     pixelSizeThreshold = 10;
-    closingPxAreas = 6;
+    closingPxAreas = 10;
     
     previousSizeLabels = -1;
     if exist(fullfile(outputDir, 'final3DImg.mat'), 'file')
@@ -289,7 +289,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         %% Getting correct border cells, valid cells and no valid cells
          %cylindre2DImage = fillEmptySpacesByWatershed2D(deployedImg, imclose(deployedImg>0, strel('disk', 20)) == 0 , colours);
          cylindre2DImage = deployedImg;
-         figure;imshow(cylindre2DImage,colours)
+%          figure;imshow(cylindre2DImage,colours)
          [wholeImage] = fillEmptySpacesByWatershed2D(deployedImg3x, imclose(deployedImg3x>0, strel('disk', 20)) == 0 , colours);
 
     %     figure;imshow(finalImage,colours)

@@ -13,7 +13,7 @@ function [labelMask] = fill0sWithCells(labelMask, img3dComplete, invalidRegion)
         pixelsIndices = find((imdilate(missingRegions, strel('sphere', 4)).*labelMask)>0);
         [x, y, z] = ind2sub(size(labelMask), pixelsIndices);
 
-        numPartitions = 1000;
+        numPartitions = 100;
         indices = cell(numPartitions, 1);
         distances = cell(numPartitions, 1);
         partialPxs = floor(length(x)/numPartitions);
