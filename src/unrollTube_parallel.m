@@ -16,14 +16,14 @@ function unrollTube_parallel(selpath)
             load(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'));
             
             mkdir(fullfile(selpath, 'unrolledGlands', 'gland_SR_1'));
-            [samiraTablePerSR{1}, apicalAreaValidCells, rotationsOriginal] = unrollTube(infoPerSurfaceRatio{1, 3}, fullfile(selpath, 'unrolledGlands', 'gland_SR_1'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info'));
+            [samiraTablePerSR{1}, apicalAreaValidCells, rotationsOriginal] = unrollTube(infoPerSurfaceRatio{1, 3}, labelledImage, fullfile(selpath, 'unrolledGlands', 'gland_SR_1'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info.mat'));
             areaValidCells{1} = apicalAreaValidCells;
             %addAttachedFiles(gcp, fullfile(selpath, 'valid_cells.mat'))
             
             surfaceRatioOfGland = vertcat(infoPerSurfaceRatio{:,2})';
             nSR = length(surfaceRatioOfGland);
             for numPartition = 2:nSR
-                [samiraTablePerSR{numPartition}, areaValidCells{numPartition}] = unrollTube(infoPerSurfaceRatio{numPartition, 3}, fullfile(selpath, 'unrolledGlands', ['gland_SR_' num2str(numPartition)]), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info'), apicalAreaValidCells, rotationsOriginal);
+                [samiraTablePerSR{numPartition}, areaValidCells{numPartition}] = unrollTube(infoPerSurfaceRatio{numPartition, 3}, labelledImage, fullfile(selpath, 'unrolledGlands', ['gland_SR_' num2str(numPartition)]), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info'), apicalAreaValidCells, rotationsOriginal);
             end
             
             %% Calculate theoretical surface ratio
