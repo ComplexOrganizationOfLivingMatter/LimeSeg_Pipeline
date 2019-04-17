@@ -5,13 +5,12 @@ function unroll_OnlyApicalAndBasal(selpath)
     %% ONLY APICAL AND BASAL
     load(fullfile(selpath, '3d_layers_info.mat'), 'labelledImage', 'apicalLayer', 'basalLayer', 'colours', 'glandOrientation', 'lumenImage');
     
-    apicalAreaValidCells = 100;
     disp('Apical');
     mkdir(fullfile(selpath, 'unrolledGlands', 'gland_SR_1'));
     [~, apicalAreaValidCells, apicalRotationsOriginal] = unrollTube(apicalLayer, labelledImage, fullfile(selpath, 'unrolledGlands', 'gland_SR_1'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info.mat'));
 
     disp('Basal');
     mkdir(fullfile(selpath, 'unrolledGlands', 'gland_SR_basal'));
-    unrollTube(basalLayer, fullfile(selpath, 'unrolledGlands', 'gland_SR_basal'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info.mat'), apicalAreaValidCells, apicalRotationsOriginal);
+    unrollTube(basalLayer, labelledImage, fullfile(selpath, 'unrolledGlands', 'gland_SR_basal'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info.mat'), apicalAreaValidCells, apicalRotationsOriginal);
 end
 
