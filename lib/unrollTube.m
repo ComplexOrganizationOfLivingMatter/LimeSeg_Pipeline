@@ -302,11 +302,11 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
 
         %% We keep the valid cells from that middle image
         validCellsFinal  = setdiff(1:max(midSectionImage(:)), noValidCells);
-        finalImageWithValidCells = ismember(midSectionImage, validCellsFinal).*midSectionImage;
+        finalImageWithValidCells = ismember(cylindre2DImage, validCellsFinal).*cylindre2DImage;
     %     figure;imshow(finalImageWithValidCells,colours)
 
         h = figure ('units','normalized','outerposition',[0 0 1 1], 'visible', 'off');        
-        imshow(midSectionImage+1, colours);
+        imshow(cylindre2DImage+1, colours);
         hold on;
         midSectionNewLabels = bwlabel(midSectionImage, 4);
         centroids = regionprops(midSectionNewLabels, 'Centroid');
