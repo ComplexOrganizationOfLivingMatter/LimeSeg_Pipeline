@@ -146,8 +146,8 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
             end
             %figure; imshow(img3d(:, :, coordZ)+2, colorcube)
             
-            %closedZFrame = imclose(img3d(:, :, coordZ)>0, strel('disk', 10));
-            %img3d(:, :, coordZ) = fill0sWithCells(img3d(:, :, coordZ), closedZFrame==0);
+            closedZFrame = imclose(img3d(:, :, coordZ)>0, strel('disk', round(closingPxAreas)));
+            img3d(:, :, coordZ) = fill0sWithCells(img3d(:, :, coordZ), img3dComplete(:, :, coordZ), closedZFrame==0);
 
             %% Remove pixels surrounding the boundary
             filledImage = imfill(double(img3d(:, :, coordZ)>0));
@@ -256,7 +256,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
 %             end
 %             previousSizeLabels = length(orderedLabels);
 %             
-            hold off;
+            %hold off;
 
             imgFinalCoordinates3x{coordZ} = repmat(orderedLabels, 1, 3);
             
