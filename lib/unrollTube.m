@@ -306,7 +306,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
     %     figure;imshow(finalImageWithValidCells,colours)
 
         h = figure ('units','normalized','outerposition',[0 0 1 1], 'visible', 'off');        
-        imshow(cylindre2DImage+1, colours);
+        imshow(midSectionImage+1, colours);
         hold on;
         midSectionNewLabels = bwlabel(midSectionImage, 4);
         centroids = regionprops(midSectionNewLabels, 'Centroid');
