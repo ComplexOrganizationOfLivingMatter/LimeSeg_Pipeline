@@ -84,7 +84,11 @@ function unrollTube_parallel(selpath)
             midLayer = cylindre2DImage;
             
             splittedFolder = strsplit(filesOf2DUnroll(numSR).folder, '_');
-            idToSave = str2double(splittedFolder{end});
+            if isequal(splittedFolder{end}, 'basal') == 0
+                idToSave = str2double(splittedFolder{end});
+            else
+                idToSave = nSR;
+            end
             
             disp(['id to save: ' num2str(idToSave)])
             
