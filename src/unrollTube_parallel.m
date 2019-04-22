@@ -22,7 +22,7 @@ function unrollTube_parallel(selpath)
             
             surfaceRatioOfGland = vertcat(infoPerSurfaceRatio{:,2})';
             nSR = length(surfaceRatioOfGland);
-            parfor numPartition = 2:nSR
+            for numPartition = 2:nSR
                 if numPartition ~= nSR
                     [samiraTablePerSR{numPartition}, areaValidCells{numPartition}] = unrollTube(infoPerSurfaceRatio{numPartition, 3}, fullfile(selpath, 'unrolledGlands', ['gland_SR_' num2str(numPartition)]), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info'), apicalAreaValidCells, rotationsOriginal);
                 else
@@ -58,7 +58,7 @@ function unrollTube_parallel(selpath)
         
     %% Saving final information
     filesOf2DUnroll = dir(fullfile(selpath, '**', 'verticesInfo.mat'));
-    if exist(fullfile(selpath, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'file') == 0 && length(filesOf2DUnroll) == 11
+    if exist(fullfile(selpath, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'file') == 0
         load(fullfile(selpath, 'dividedGland' ,'glandDividedInSurfaceRatios.mat'), 'infoPerSurfaceRatio');
         
         load(fullfile(filesOf2DUnroll(1).folder, 'verticesInfo.mat'));
@@ -68,6 +68,7 @@ function unrollTube_parallel(selpath)
         
         load(fullfile(filesOf2DUnroll(3).folder, 'verticesInfo.mat'));
         basalLayer = cylindre2DImage;
+        nSR = size(infoPerSurfaceRatio, 1);
         infoPerSurfaceRatio{nSR, 6} = cylindre2DImage;
         [neighboursBasal] = getNeighboursFromVertices(newVerticesNeighs2D);
         
