@@ -2,14 +2,14 @@
 selpath=uigetdir('data');
 %Load the triangulations of basal and apical surface
 load(fullfile(selpath, 'Results', 'unrolledGlands', 'gland_SR_1', 'verticesInfo.mat'), 'newVerticesNeighs2D'); 
-newVerticesNeighs2D_basal=newVerticesNeighs2D;
-load(fullfile(selpath, 'Results', 'unrolledGlands', 'gland_SR_basal', 'verticesInfo.mat'), 'newVerticesNeighs2D'); 
 newVerticesNeighs2D_apical=newVerticesNeighs2D;
+load(fullfile(selpath, 'Results', 'unrolledGlands', 'gland_SR_basal', 'verticesInfo.mat'), 'newVerticesNeighs2D'); 
+newVerticesNeighs2D_basal=newVerticesNeighs2D;
 load(fullfile(selpath, 'Results', 'valid_cells.mat')); 
 
 %% Calculate neighbours from triangulations
-NGs_basal={};
 NGs_apical={};
+NGs_basal={};
 %Apical surface
 for k=1:max(max(newVerticesNeighs2D_apical))
   [m,n]=find(newVerticesNeighs2D_apical==k);
