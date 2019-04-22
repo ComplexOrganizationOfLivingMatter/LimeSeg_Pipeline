@@ -27,12 +27,21 @@ function [labelMask] = fill0sWithCells(labelMask, img3dComplete, invalidRegion)
         end
         distances_all = vertcat(distances{:});
         indices_all = vertcat(indices{:});
-
-        [~, indices_Partitions] = min(distances_all);
-
-        for numEdgePixel = 1:length(indices_Partitions)
-            labelMask(edgePixels(numEdgePixel)) = labelMask(pixelsIndices(indices_all(indices_Partitions(numEdgePixel), numEdgePixel)));
+        
+        
+        if size(distances_all,1)==1
+            indices_Partitions = indices_all;
+            for numEdgePixel = 1:length(indices_Partitions)
+                labelMask(edgePixels(numEdgePixel)) = labelMask(pixelsIndices(indices_Partitions(numEdgePixel)));
+            end
+        else
+            [~, indices_Partitions] = min(distances_all);
+            for numEdgePixel = 1:length(indices_Partitions)
+                labelMask(edgePixels(numEdgePixel)) = labelMask(pixelsIndices(indices_all(indices_Partitions(numEdgePixel), numEdgePixel)));
+            end
         end
+
+        
     end
     %figure; paint3D(labelMask);
 end
