@@ -1,4 +1,4 @@
-function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_original, img3dComplete, outputDir, noValidCells, colours, apicalArea, apicalRotationsOriginal)
+function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_original, outputDir, noValidCells, colours, apicalArea, apicalRotationsOriginal)
 %UNROLLTUBE Summary of this function goes here
 %   Detailed explanation goes here
     
@@ -6,6 +6,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
     load(colours);
     colours = vertcat([1 1 1], colours);
     
+    img3dComplete = labelledImage;
     outputDir
     
     %% Unroll
