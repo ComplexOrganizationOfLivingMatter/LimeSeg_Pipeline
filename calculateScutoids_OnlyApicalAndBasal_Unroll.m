@@ -1,10 +1,9 @@
-function percentageScutoids=calculateScutoids_OnlyApicalAndBasal_Unroll
 %Select path of the salivary gland
 selpath=uigetdir('data');
 %Load the triangulations of basal and apical surface
-load(fullfile(selpath, 'Results', 'unrolledGlands', 'gland_SR_1', 'verticesInfo.mat')); 
+load(fullfile(selpath, 'Results', 'unrolledGlands', 'gland_SR_1', 'verticesInfo.mat'), 'newVerticesNeighs2D'); 
 newVerticesNeighs2D_basal=newVerticesNeighs2D;
-load(fullfile(selpath, 'Results', 'unrolledGlands', 'gland_SR_basal', 'verticesInfo.mat')); 
+load(fullfile(selpath, 'Results', 'unrolledGlands', 'gland_SR_basal', 'verticesInfo.mat'), 'newVerticesNeighs2D'); 
 newVerticesNeighs2D_apical=newVerticesNeighs2D;
 load(fullfile(selpath, 'Results', 'valid_cells.mat')); 
 
@@ -32,4 +31,3 @@ end
  validScutoids=scutoids;
  validScutoids(noValidCells)=[];
  percentageScutoids=sum(validScutoids)/size(validScutoids,1);
-end
