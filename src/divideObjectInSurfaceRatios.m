@@ -1,7 +1,7 @@
 function divideObjectInSurfaceRatios(selpath)
 %DIVIDEOBJECTINSURFACERATIOS Summary of this function goes here
 %   Detailed explanation goes here
-    try
+%     try
         if exist(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'), 'file') == 0 && exist(fullfile(selpath, 'unrolledGlands', 'gland_SR_1', 'verticesInfo.mat'), 'file')>0
             %% Loading variables
             load(fullfile(selpath, '3d_layers_info.mat'));
@@ -158,7 +158,7 @@ function divideObjectInSurfaceRatios(selpath)
                     end
                     %basalLayer(imfill(lumenImage, 'holes')) = 0;
 
-                    [imageOfSurfaceRatios{numPartition, 3}] = fill0sWithCells(initialImage.*basalLayer, basalLayer == 0);
+                    [imageOfSurfaceRatios{numPartition, 3}] = fill0sWithCells(initialImage.*basalLayer, obj_img, basalLayer == 0);
                     %unrollTube(imageOfSurfaceRatios{numPartition, 3}, fullfile(selpath, ['gland_SR_' num2str(imageOfSurfaceRatios{numPartition, 2})]), noValidCells, colours, 1);
                 else
                     imageOfSurfaceRatios{numPartition, 3} = endSurface;
@@ -186,7 +186,7 @@ function divideObjectInSurfaceRatios(selpath)
             infoPerSurfaceRatio = imageOfSurfaceRatios;
             save(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'), 'infoPerSurfaceRatio', 'neighbours');
         end
-    catch 
-        disp(['ERROR IN ', selpath]);
-    end
+%     catch 
+%         disp(['ERROR IN ', selpath]);
+%     end
 end
