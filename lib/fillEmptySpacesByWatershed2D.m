@@ -47,7 +47,9 @@ function [finalImage] = fillEmptySpacesByWatershed2D(labelMask, invalidRegion, c
 
         values = unique(labelMaskFinal(maskWater == nCell));
         
-        unifiedCellsImage(maskWater == nCell) = values(values~=0);
+        if isempty(values(values~=0)) == 0
+            unifiedCellsImage(maskWater == nCell) = values(values~=0);
+        end
     end
     
     %% Unify splitted cells
