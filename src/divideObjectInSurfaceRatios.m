@@ -23,12 +23,10 @@ function divideObjectInSurfaceRatios(selpath)
             apical3dInfo = calculateNeighbours3D(endSurface, 2);
             neighboursApical = checkPairPointCloudDistanceCurateNeighbours(endSurface, apical3dInfo.neighbourhood);
             numNeighsApical = cellfun(@length, neighboursApical);
-            sum(numNeighsApical(validCells) ~= apicalRealNeighs(validCells)')
 
             basal3dInfo = calculateNeighbours3D(startingSurface, 2);
             neighboursBasal_init = checkPairPointCloudDistanceCurateNeighbours(startingSurface, basal3dInfo.neighbourhood);
             numNeighsBasal = cellfun(@length, neighboursBasal_init);
-            sum(numNeighsBasal(validCells) ~= basalRealNeighs(validCells)')
 
             neighbours_data = table(neighboursApical', neighboursBasal_init');
             neighbours_data.Properties.VariableNames = {'Apical','Basal'};
