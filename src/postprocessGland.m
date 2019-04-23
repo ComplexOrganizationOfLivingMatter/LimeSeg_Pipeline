@@ -4,7 +4,7 @@ function [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(la
     [labelledImage] = fillEmptySpacesByWatershed3D(labelledImage, outsideGland | lumenImage, 1);
     outsideGland_NotLumen = ~outsideGland | lumenImage;
 
-    labelledImage = fill0sWithCells(labelledImage, outsideGland | lumenImage);
+    labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
     labelledImage(lumenImage) = 0;
 
     %% Get basal layer by dilating the empty space
