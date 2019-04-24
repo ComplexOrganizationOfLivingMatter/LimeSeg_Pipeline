@@ -288,6 +288,8 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
 
         %% Getting correct border cells, valid cells and no valid cells
          %cylindre2DImage = fillEmptySpacesByWatershed2D(deployedImg, imclose(deployedImg>0, strel('disk', 20)) == 0 , colours);
+         validCellsFinal  = setdiff(1:max(midSectionImage(:)), noValidCells);
+         deployedImg = fill0sWithCells(deployedImg, deployedImg, imfill(ismember(deployedImg, validCellsFinal)>0, 'holes'));
          cylindre2DImage = deployedImg;
 %          figure;imshow(cylindre2DImage,colours)
          [wholeImage] = fillEmptySpacesByWatershed2D(deployedImg3x, imclose(deployedImg3x>0, strel('disk', 3)) == 0 , colours);
@@ -301,7 +303,6 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         midSectionImage(~ismember(relabelFinalImage,labelsFinal))=0;
 
         %% We keep the valid cells from that middle image
-        validCellsFinal  = setdiff(1:max(midSectionImage(:)), noValidCells);
         finalImageWithValidCells = ismember(cylindre2DImage, validCellsFinal).*cylindre2DImage;
     %     figure;imshow(finalImageWithValidCells,colours)
 
