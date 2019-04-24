@@ -97,7 +97,6 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         neighbours = getNeighboursFromFourProjectedPlanesFrom3Dgland(img3d_closed, colours);
         neighbours = checkPairPointCloudDistanceCurateNeighbours(img3d_closed, neighbours);
 
-
         sizeImg3d = size(img3d_originalCropped);
         [~, indices] = sort(sizeImg3d);
         img3d_original = permute(img3d_originalCropped, indices);
@@ -108,11 +107,11 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         [verticesInfo] = getVertices3D(img3d_original, neighbours);
         vertices3D = vertcat(verticesInfo.verticesPerCell{:});
 
-    %     [colours] = exportAsImageSequence_WithVertices(img3d, outputDir, colours, -1, vertices3D);
-    %     figure; paint3D(img3d_original, [], colours);
-    %     for numVertex = 1:size(vertices3D, 1)
-    %         hold on; plot3(vertices3D(numVertex, 1), vertices3D(numVertex, 2), vertices3D(numVertex, 3), 'rx')
-    %     end
+%         [colours] = exportAsImageSequence_WithVertices(img3d, outputDir, colours, -1, vertices3D);
+%         figure; paint3D(img3d_original, [], colours);
+%         for numVertex = 1:size(vertices3D, 1)
+%             hold on; plot3(vertices3D(numVertex, 1), vertices3D(numVertex, 2), vertices3D(numVertex, 3), 'rx')
+%         end
 
         vertices3D_Neighbours = verticesInfo.verticesConnectCells;
         vertices3D_Neighbours(cellfun(@isempty, verticesInfo.verticesPerCell), :) = [];
