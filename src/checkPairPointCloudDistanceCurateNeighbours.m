@@ -26,6 +26,10 @@ function neighCuration = checkPairPointCloudDistanceCurateNeighbours(imgLayer3D,
                 if dist < minDist 
                     minDist = dist;
                 end
+                
+                if minDist <= 3
+                    break
+                end
             end
             
             if minDist > 3
