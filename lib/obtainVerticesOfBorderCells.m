@@ -55,7 +55,8 @@ function [verticesNeighs2D, vertices2D, borderCell] = obtainVerticesOfBorderCell
     end
     
     if sum(cellfun(@isempty, newVerticesNeighs2D)) == 0
-        borderCell = 1;
+        borderCell = sum(cellfun(@(x) size(x, 1) == 1, newVerticesNeighs2D)) == 0;
+        newVerticesNeighs2D(cellfun(@(x) size(x, 1) == 1, newVerticesNeighs2D)) = {[]};
     else
         borderCell = 0;
     end
