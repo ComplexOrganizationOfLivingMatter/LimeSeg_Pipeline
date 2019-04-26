@@ -134,7 +134,7 @@ function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertic
         end
         
         %% if we don't have a fourfold on each side, we move on
-        if length(verticesToChange) ~= (2 - sum(cellfun(@isempty, verticesPerSide)))
+        if length(verticesToChange) < (2 - sum(cellfun(@isempty, verticesPerSide)))
             continue
         end
         
