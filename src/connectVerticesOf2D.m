@@ -121,7 +121,7 @@ function samiraTable = connectVerticesOf2D(cylindre2DImage, neighbours2D, vertic
         for numParts = 1:(1+ (isempty(verticesPerSide{2}) == 0))
             verticesOfNeighs = verticesPerSide{numParts};
             distances = pdist(verticesOfNeighs);
-            if all(distances(:) < 20)
+            if all(distances(:) < 25)
 %                 %% threshold = 4.5px
 %                 figure; imshow(cylindre2DImage, colorcube(200))
 %                 hold on;
