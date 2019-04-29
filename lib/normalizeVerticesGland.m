@@ -4,10 +4,10 @@ function [samiraTable, glandMinValue] = normalizeVerticesGland(samiraTable, cutV
 
 for numRow=1:size(samiraTable,1)
     actualVertices = samiraTable{numRow,5};
-    actualVertices(1:2:end)= actualVertices(1:2:end) - cutValue;
+    actualVertices(2:2:end)= actualVertices(2:2:end) - cutValue;
     samiraTable{numRow,5}=actualVertices;
     minValues(numRow)= min(actualVertices);
-    if cutValue < 0 & minValues(numRow) < 0 
+    if cutValue < 0 && minValues(numRow) < 0 
         disp('error');
     end
 end 
