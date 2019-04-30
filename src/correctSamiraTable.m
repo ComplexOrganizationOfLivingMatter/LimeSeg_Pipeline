@@ -5,12 +5,14 @@ addpath(genpath('gui'))
 close all
 clear all
 
-files = dir('**/data/Salivary gland_ToDivideInConstantPieces/**/Results/*_samirasFormat*.xls');
+files = dir('**/data/Salivary gland_ToDivideInConstantPieces/**/Results/glandDividedInSurfaceRatios_AllUnrollFeatures.mat');
 
 nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0 && contains(lower(x), 'wildtype'), {files.folder});
 files = files(nonDiscardedFiles);
 
 minNumberOfSurfaceRatios = 7;
+steps = 2.5/(minNumberOfSurfaceRatios-1);
+surfaceRatiosExtrapolatedFrom3D = 1:steps:((steps*(minNumberOfSurfaceRatios-1))+1);
 
 for numFile = 1:length(files)
     files(numFile).folder
@@ -34,7 +36,7 @@ for numFile = 1:length(files)
     for numSR= 1:minNumberOfSurfaceRatios
         [normalizedSamiraTable{numSR}] = normalizeVerticesGland(allSamiraTable{numSR}, min(glandMinValue));
         actualSamiraTable=normalizedSamiraTable{numSR};
-        actualSamiraTable(:,1)={infoPerSurfaceRatio.SR3D(numSR)};
+        actualSamiraTable(:,1)={surfaceRatiosExtrapolatedFrom3D(numSR)};
         normalizedSamiraTable{numSR} = actualSamiraTable;
     end
     save(fullfile(gland_SRs(numSR).folder, gland_SRs(numSR).name), 'normalizedSamiraTable', '-append');
@@ -44,5 +46,7 @@ for numFile = 1:length(files)
     %% Creating samira table
     normalizedSamiraTable = vertcat(normalizedSamiraTable{:});
     samiraTableT = cell2table(normalizedSamiraTable, 'VariableNames',{'Radius', 'CellIDs', 'TipCells', 'BorderCell','verticesValues_x_y'});
-    writetable(samiraTableT, fullfile(files(numFile).folder, files(numFile).name));
+    idName_splitted = strsplit(files(numFile).folder, filesep);
+    idName = strjoin(idName_splitted(end-3:end-1), '_');
+    writetable(samiraTableT, fullfile(files(numFile).folder, strcat(idName ,'_samirasFormat.xls')));
 end
