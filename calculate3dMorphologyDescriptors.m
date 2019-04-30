@@ -4,8 +4,8 @@ clear all
 files = dir('**/data/Salivary gland/**/Results/3d_layers_info.mat');
 
 for numFiles=1:length(files)
-load(fullfile(file(numFiles).folder, '3d_layers_info.mat'), 'labelledImage'); 
-load(fullfile(file(numFiles).folder, 'valid_cells.mat'), 'noValidCells'); 
+load(fullfile(files(numFiles).folder, '3d_layers_info.mat'), 'labelledImage'); 
+load(fullfile(files(numFiles).folder, 'valid_cells.mat'), 'noValidCells'); 
 
 morphology3dFeatures={};
 totalCellPrincipleAxis={};
@@ -50,11 +50,12 @@ totalConvexVolume = {morphology3dFeatures{:,4}};
 totalSolidity = {morphology3dFeatures{:,5}};
 totalSurfaceArea = {morphology3dFeatures{:,6}};
 totalSphericity = {morphology3dFeatures{:,7}};
-save(fullfile(file(numFiles).folder, 'morphology3dFeatures.mat'), totalAspectRatio,totalVolume,totalConvexVolume,totalSolidity,totalSurfaceArea,totalSphericity, totalCellPrincipleAxis); 
+
+save(fullfile(files(numFiles).folder, 'morphology3dFeatures.mat'), 'totalAspectRatio','totalVolume','totalConvexVolume','totalSolidity','totalSurfaceArea','totalSphericity','totalCellPrincipleAxis'); 
 
 %% Export to excel
-xls3dFeatures=table(morphology3dFeatures);
+xls3dFeatures=table({morphology3dFeatures{:,1}},totalAspectRatio,totalVolume,totalConvexVolume,totalSolidity,totalSurfaceArea,totalSphericity);
 xls3dFeatures.Properties.VariableNames = {'ID_Cell','AspectRatio','Volume','ConvexVolume','Solidity','SurfaceArea','Sphericity'};
-writetable(xls3dFeatures,fullfile(outputDir,'Results', '3dFeatures_LimeSeg3DSegmentation.xls'), 'Range','B2');
+writetable(xls3dFeatures,fullfile(files(numFiles).folder,'3dFeatures_LimeSeg3DSegmentation.xls'), 'Range','B2');
 
 end
