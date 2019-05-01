@@ -9,8 +9,6 @@ load(fullfile(files(numFiles).folder, 'valid_cells.mat'), 'noValidCells');
 
 morphology3dFeatures={};
 totalCellPrincipleAxis={};
-totalLabelledCells={};
-labelledCell=zeros(size(labelledImage,1),size(labelledImage,2),size(labelledImage,3));
 
 %% Extract each cell and calculate 3D features
 for numCell=1:max(max(max(labelledImage)))
@@ -38,6 +36,16 @@ for numCell=1:max(max(max(labelledImage)))
         morphology3dFeatures{numCell,7} = sphericity;
 
         totalCellPrincipleAxis{numCell,1} = cellPrincipleAxis;
+        
+        cellPrincipleAxis = [];
+        aspectRatio = [];
+        volume= [];
+        convexVolume = [];
+        solidity = [];
+        surfaceArea = [];
+        sphereDiameter = [];
+        sphereArea = [];
+        sphericity = [];
 end
 
 morphology3dFeatures(noValidCells,:)=[];
@@ -54,7 +62,7 @@ totalSphericity = {morphology3dFeatures{:,7}};
 save(fullfile(files(numFiles).folder, 'morphology3dFeatures.mat'), 'totalAspectRatio','totalVolume','totalConvexVolume','totalSolidity','totalSurfaceArea','totalSphericity','totalCellPrincipleAxis'); 
 
 %% Export to excel
-xls3dFeatures=table({morphology3dFeatures{:,1}},totalAspectRatio,totalVolume,totalConvexVolume,totalSolidity,totalSurfaceArea,totalSphericity);
+xls3dFeatures=cell2table(morphology3dFeatures);
 xls3dFeatures.Properties.VariableNames = {'ID_Cell','AspectRatio','Volume','ConvexVolume','Solidity','SurfaceArea','Sphericity'};
 writetable(xls3dFeatures,fullfile(files(numFiles).folder,'3dFeatures_LimeSeg3DSegmentation.xls'), 'Range','B2');
 
