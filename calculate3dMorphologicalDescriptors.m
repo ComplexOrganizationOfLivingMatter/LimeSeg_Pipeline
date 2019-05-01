@@ -7,7 +7,7 @@ for numFiles=1:length(files)
 load(fullfile(files(numFiles).folder, '3d_layers_info.mat'), 'labelledImage'); 
 load(fullfile(files(numFiles).folder, 'valid_cells.mat'), 'noValidCells'); 
 
-morphology3dFeatures={};
+morphological3dFeatures={};
 totalCellPrincipleAxis={};
 
 %% Extract each cell and calculate 3D features
@@ -27,13 +27,13 @@ for numCell=1:max(max(max(labelledImage)))
         sphereArea = 4*pi*((sphereDiameter)/2)^2;
         sphericity = sphereArea/surfaceArea;
         
-        morphology3dFeatures{numCell,1} = numCell;
-        morphology3dFeatures{numCell,2} = aspectRatio;
-        morphology3dFeatures{numCell,3} = volume;
-        morphology3dFeatures{numCell,4} = convexVolume;
-        morphology3dFeatures{numCell,5} = solidity;
-        morphology3dFeatures{numCell,6} = surfaceArea;
-        morphology3dFeatures{numCell,7} = sphericity;
+        morphological3dFeatures{numCell,1} = numCell;
+        morphological3dFeatures{numCell,2} = aspectRatio;
+        morphological3dFeatures{numCell,3} = volume;
+        morphological3dFeatures{numCell,4} = convexVolume;
+        morphological3dFeatures{numCell,5} = solidity;
+        morphological3dFeatures{numCell,6} = surfaceArea;
+        morphological3dFeatures{numCell,7} = sphericity;
 
         totalCellPrincipleAxis{numCell,1} = cellPrincipleAxis;
         
@@ -48,21 +48,21 @@ for numCell=1:max(max(max(labelledImage)))
         sphericity = [];
 end
 
-morphology3dFeatures(noValidCells,:)=[];
+morphological3dFeatures(noValidCells,:)=[];
 totalCellPrincipleAxis(noValidCells,:)=[];
 
 %% Save variables
-totalAspectRatio = {morphology3dFeatures{:,2}};
-totalVolume = {morphology3dFeatures{:,3}};
-totalConvexVolume = {morphology3dFeatures{:,4}};
-totalSolidity = {morphology3dFeatures{:,5}};
-totalSurfaceArea = {morphology3dFeatures{:,6}};
-totalSphericity = {morphology3dFeatures{:,7}};
+totalAspectRatio = {morphological3dFeatures{:,2}};
+totalVolume = {morphological3dFeatures{:,3}};
+totalConvexVolume = {morphological3dFeatures{:,4}};
+totalSolidity = {morphological3dFeatures{:,5}};
+totalSurfaceArea = {morphological3dFeatures{:,6}};
+totalSphericity = {morphological3dFeatures{:,7}};
 
-save(fullfile(files(numFiles).folder, 'morphology3dFeatures.mat'), 'totalAspectRatio','totalVolume','totalConvexVolume','totalSolidity','totalSurfaceArea','totalSphericity','totalCellPrincipleAxis'); 
+save(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'), 'totalAspectRatio','totalVolume','totalConvexVolume','totalSolidity','totalSurfaceArea','totalSphericity','totalCellPrincipleAxis'); 
 
 %% Export to excel
-xls3dFeatures=cell2table(morphology3dFeatures);
+xls3dFeatures=cell2table(morphological3dFeatures);
 xls3dFeatures.Properties.VariableNames = {'ID_Cell','AspectRatio','Volume','ConvexVolume','Solidity','SurfaceArea','Sphericity'};
 writetable(xls3dFeatures,fullfile(files(numFiles).folder,'3dFeatures_LimeSeg3DSegmentation.xls'), 'Range','B2');
 
