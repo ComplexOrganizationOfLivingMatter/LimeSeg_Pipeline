@@ -5,6 +5,7 @@ files = dir('**/data/Salivary gland/**/Results/3d_layers_info.mat');
 
 totalMeanFeatures = [];
 totalStdFeatures = [];
+allFilesName = [];
 
 for numFiles=1:length(files)
 load(fullfile(files(numFiles).folder, '3d_layers_info.mat'), 'labelledImage'); 
@@ -28,8 +29,15 @@ stdFeatures = varfun(@(x) std(x),cells3dFeatures);
 totalMeanFeatures = [totalMeanFeatures; meanFeatures];
 totalStdFeatures = [totalStdFeatures; stdFeatures];
 
+fileName = strsplit(files(1).folder, '/');
+fileName = strjoin({fileName{1,end-2},fileName{1,end-1}}, ' ');
+allFilesName = [allFilesName ; fileName];
+
 end
 
 selpath = dir('**/data/Salivary gland/');
+allFilesName = table(allFilesName, 'VariableNames', {'ID_Glands'});
+
 save(fullfile(selpath(1).folder, 'WT_3dFeatures.mat'), 'totalMeanFeatures','totalStdFeatures')
 writetable([totalMeanFeatures; totalStdFeatures],fullfile(selpath(1).folder,'WT_3dFeatures.xls'), 'Range','B2');
+writetable(allFilesName,fullfile(selpath(1).folder,'name_3dFeatures.xls'), 'Range','B2');
