@@ -19,7 +19,7 @@ sphericity = sphereArea ./ cells3dFeatures.SurfaceArea;
 
 %% Save variables and export to excel
 cells3dFeatures = [table(validCells', 'VariableNames', {'ID_Cell'}), cells3dFeatures(validCells,:), table(aspectRatio(validCells,:), sphericity(validCells,:), 'VariableNames', {'AspectRatio','Sphericity'})];
-writetable(cells3dFeatures,fullfile(files(numFiles).folder,'3dFeatures_LimeSeg3DSegmentation.xls'), 'Range','B2');
+% writetable(cells3dFeatures,fullfile(files(numFiles).folder,'3dFeatures_LimeSeg3DSegmentation.xls'), 'Range','B2');
 save(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'), 'cells3dFeatures') 
 
 %% Calculate mean and std of 3D features
@@ -29,15 +29,19 @@ stdFeatures = varfun(@(x) std(x),cells3dFeatures);
 totalMeanFeatures = [totalMeanFeatures; meanFeatures];
 totalStdFeatures = [totalStdFeatures; stdFeatures];
 
-fileName = strsplit(files(1).folder, '/');
+fileName = strsplit(files(1).folder, {'/','\'});
 fileName = strjoin({fileName{1,end-2},fileName{1,end-1}}, ' ');
 allFilesName = [allFilesName ; fileName];
 
 end
 
 selpath = dir('**/data/Salivary gland/');
+
 allFilesName = table(allFilesName, 'VariableNames', {'ID_Glands'});
+totalStdFeatures = removevars (totalStdFeatures,{'Fun_ID_Cell'});
+totalMeanFeatures = removevars(totalMeanFeatures, {'Fun_ID_Cell'});
+totalStdFeatures.Properties.VariableNames = {'stdVolume','equivDiameter','stdPrincipalAxisLength','convexVolume', 'Solidity', 'surfaceArea', 'aspectRatio', 'Sphericity'};
 
 save(fullfile(selpath(1).folder, 'WT_3dFeatures.mat'), 'totalMeanFeatures','totalStdFeatures')
-writetable([totalMeanFeatures; totalStdFeatures],fullfile(selpath(1).folder,'WT_3dFeatures.xls'), 'Range','B2');
-writetable(allFilesName,fullfile(selpath(1).folder,'name_3dFeatures.xls'), 'Range','B2');
+writetable(allFilesName,fullfile(selpath(1).folder,'WT_3dFeatures.xls'), 'Range','B2');
+writetable([totalMeanFeatures, totalStdFeatures],fullfile(selpath(1).folder,'WT_3dFeatures.xls'), 'Range','C2');
