@@ -6,12 +6,18 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
     load(colours);
     colours = vertcat([1 1 1], colours);
     
-    img3dComplete = labelledImage;
+    if exist('labelledImage_realSize', 'var')
+        img3dComplete = labelledImage_realSize;
+        pixelSizeThreshold = 0;
+        closingPxAreas = 0;
+    else
+        img3dComplete = labelledImage;
+        pixelSizeThreshold = 10;
+        closingPxAreas = 10;
+    end
     outputDir
     
     %% Unroll
-    pixelSizeThreshold = 10;
-    closingPxAreas = 10;
     
     previousSizeLabels = -1;
     if exist(fullfile(outputDir, 'final3DImg.mat'), 'file')
@@ -76,7 +82,12 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
             zScale = str2double(zScale{1});
             save(zScaleFile, 'zScale');
         end
-        resizeImg = 1/zScale;
+        
+        if exist('labelledImage_realSize', 'var')
+            resizeImg = 1;
+        else
+            resizeImg = 1/zScale;
+        end
         
         if exist('apicalRotationsOriginal', 'var') == 0
             [img3d_original, rotationsOriginal] = rotateImg3(img3d_original);
