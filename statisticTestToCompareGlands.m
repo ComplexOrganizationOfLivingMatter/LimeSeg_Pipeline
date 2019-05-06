@@ -34,31 +34,39 @@ allFilesName = [allFilesName ; fileName];
 
 allShapiroWilkHypothesis = [allShapiroWilkHypothesis ; featuresShapiroWilkHypothesis];
 
-%% Levene test to assess the equality of variances.
-% leveneHypothesis = varfun(leveneTest,totalMeanFeatures);
-% allLeveneTests = [allLeveneTests leveneHypothesis];
 end
 
 %% Student-t test to determine if the means of two populations are equal. 
-% Only if there are not the same number of samples.
+% Only if there are not the same number of samples. Before we check if the
+% samples share the same variance. If not, we apply the Welch correction to Student T
+% test.
+
+featuresVarianceHypothesis =table();
 
 for nFeatures=1:size(totalMeanFeatures,2)
 
     if allShapiroWilkHypothesis{1,nFeatures}(1) == 0 && allShapiroWilkHypothesis{2,nFeatures}(1) == 0
-        [tTestHypothesis,pValueTtest] = ttest2(globalMeanFeatures{1,1}{:,nFeatures},globalMeanFeatures{2,1}{:,nFeatures});
+        [varianceHypothesis,variancePvalue] = vartest2(globalMeanFeatures{1,1}{:,nFeatures},globalMeanFeatures{2,1}{:,nFeatures});
+        featuresVarianceHypothesis= [featuresVarianceHypothesis, mergevars(table(varianceHypothesis, variancePvalue), [1 2], 'NewVariableName',featuresNames{nFeatures,1})];
+        
+        if varianceHypothesis == 0
+        [tTestHypothesis,pValueTtest] = ttest2(globalMeanFeatures{1,1}{:,nFeatures},globalMeanFeatures{2,1}{:,nFeatures},'Vartype','equal');
+        else 
+        [tTestHypothesis,pValueTtest] = ttest2(globalMeanFeatures{1,1}{:,nFeatures},globalMeanFeatures{2,1}{:,nFeatures}, 'Vartype','unequal');
+        end
+        
     else 
         tTestHypothesis = NaN;
         pValueTtest = NaN;
     end
     
         allTtestHypothesis = [allTtestHypothesis, mergevars(table(tTestHypothesis, pValueTtest), [1 2], 'NewVariableName',featuresNames{nFeatures,1})];
-end
-        
+end    
 
 %% Save variables and export to excel
 allShapiroWilkHypothesis = [table(allFilesName, 'VariableName', {'Condition'}), allShapiroWilkHypothesis];
-save(fullfile(files(1).folder, 'statisticTests.mat'), 'allTtestHypothesis', 'allShapiroWilkHypothesis')
+save(fullfile(files(1).folder, 'statisticTests.mat'), 'allTtestHypothesis', 'allShapiroWilkHypothesis','featuresVarianceHypothesis')
 writetable(allTtestHypothesis, fullfile(files(1).folder,'statisticalTtest.xls'),'Range','B2');
 system('taskkill /F /IM EXCEL.EXE');
+writetable(featuresVarianceHypothesis, fullfile(files(1).folder,'statisticalTtest.xls'),'Range','B5');
 writetable(allShapiroWilkHypothesis, fullfile(files(1).folder,'statisticalShapiroWilkTest.xls'),'Range','B5');
-
