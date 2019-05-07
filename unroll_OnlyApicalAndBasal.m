@@ -29,9 +29,11 @@ function unroll_OnlyApicalAndBasal(selpath)
         save(fullfile(selpath, '3d_layers_info.mat'), 'labelledImage_realSize', 'lumenImage_realSize', '-append');
     end
     
-    basalLayer = getBasalFrom3DImage(labelledImage_realSize, lumenImage_realSize, 0, labelledImage_realSize == 0 & lumenImage_realSize);
+    basalLayer = getBasalFrom3DImage(labelledImage_realSize, lumenImage_realSize, 0, labelledImage_realSize == 0 & lumenImage_realSize == 0);
     [apicalLayer] = getApicalFrom3DImage(lumenImage_realSize, labelledImage_realSize);
-
+% 
+%     figure; paint3D(apicalLayer)
+%     figure; paint3D(basalLayer)
     
     %% -------------------------- APICAL -------------------------- %%
     disp('Apical');
