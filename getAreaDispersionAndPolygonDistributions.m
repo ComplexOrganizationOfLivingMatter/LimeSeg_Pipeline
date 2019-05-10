@@ -227,73 +227,73 @@ lewis3D_tube8_4 = lewis3D_volNorm;
 % print(h,[path2save 'fig1C_' date '_legend'],'-dtiff','-r300')
     
 
-% %% Fig LEWIS 2D
-%     h = figure('units','normalized','outerposition',[0 0 1 1],'Visible','on');
-%     markerSiz = 20;
-%     linWid = 2;
-%     
-%     colorPlotApiG = [0.2,0.8,0];
-%     indValApiG = ismember(lewisApical_glands(1,:),4:8);
-%     p = polyfit(lewisApical_glands(1,indValApiG), lewisApical_glands(2,indValApiG),1);
-%     f = polyval(p,[min(lewisApical_glands(1,indValApiG))-0.5, lewisApical_glands(1,indValApiG), max(lewisApical_glands(1,indValApiG))+0.5]); 
-%     hold on
-%     plot([min(lewisApical_glands(1,indValApiG))-0.5, lewisApical_glands(1,indValApiG), max(lewisApical_glands(1,indValApiG))+0.5],f,'Color',colorPlotApiG,'LineWidth',linWid)
-%     mdlApical_glands = polyfitn(lewisApical_glands(1,indValApiG), lewisApical_glands(2,indValApiG),1);
+%% Fig LEWIS 2D
+    h = figure('units','normalized','outerposition',[0 0 1 1],'Visible','on');
+    markerSiz = 20;
+    linWid = 2;
+    
+    colorPlotApiG = [0.2,0.8,0];
+    indValApiG = ismember(lewisApical_glands(1,:),5:7);
+    pA = polyfit(lewisApical_glands(1,indValApiG), lewisApical_glands(2,indValApiG),1);
+    f = polyval(pA,[min(lewisApical_glands(1,indValApiG))-0.5, lewisApical_glands(1,indValApiG), max(lewisApical_glands(1,indValApiG))+0.5]); 
+    hold on
+    plot([min(lewisApical_glands(1,indValApiG))-0.5, lewisApical_glands(1,indValApiG), max(lewisApical_glands(1,indValApiG))+0.5],f,'Color',colorPlotApiG,'LineWidth',linWid)
+    mdlApical_glands = polyfitn(lewisApical_glands(1,indValApiG), lewisApical_glands(2,indValApiG),1);
    
-%     colorPlotBasG = [0,0.4,0.2];
-%     indValBasG = ismember(lewisBasal_glands(1,:),4:8);
-%     p = polyfit(lewisBasal_glands(1,indValBasG), lewisBasal_glands(2,indValBasG),1);
-%     f = polyval(p,[min(lewisBasal_glands(1,indValBasG))-0.5, lewisBasal_glands(1,indValBasG), max(lewisBasal_glands(1,indValBasG))+0.5]); 
-%     hold on
-%     plot([min(lewisBasal_glands(1,indValBasG))-0.5, lewisBasal_glands(1,indValBasG), max(lewisBasal_glands(1,indValBasG))+0.5],f,'Color',colorPlotBasG,'LineWidth',linWid)
-%     mdlBasal_glands = polyfitn(lewisBasal_glands(1,indValBasG), lewisBasal_glands(2,indValBasG),1);
+    colorPlotBasG = [0,0.4,0.2];
+    indValBasG = ismember(lewisBasal_glands(1,:),5:7);
+    pB = polyfit(lewisBasal_glands(1,indValBasG), lewisBasal_glands(2,indValBasG),1);
+    f = polyval(pB,[min(lewisBasal_glands(1,indValBasG))-0.5, lewisBasal_glands(1,indValBasG), max(lewisBasal_glands(1,indValBasG))+0.5]); 
+    hold on
+    plot([min(lewisBasal_glands(1,indValBasG))-0.5, lewisBasal_glands(1,indValBasG), max(lewisBasal_glands(1,indValBasG))+0.5],f,'Color',colorPlotBasG,'LineWidth',linWid)
+    mdlBasal_glands = polyfitn(lewisBasal_glands(1,indValBasG), lewisBasal_glands(2,indValBasG),1);
    
-%     colorPlotTubApi = [79,209,255]./255;
-%     indValTubApi = ismember(lewisApical_tube8(1,:),4:8);
-%     p = polyfit(lewisApical_tube8(1,indValTubApi), lewisApical_tube8(2,indValTubApi),1);
-%     f = polyval(p,[min(lewisApical_tube8(1,indValTubApi))-0.5, lewisApical_tube8(1,indValTubApi), max(lewisApical_tube8(1,indValTubApi))+0.5]); 
-%     plot([min(lewisApical_tube8(1,indValTubApi))-0.5, lewisApical_tube8(1,indValTubApi), max(lewisApical_tube8(1,indValTubApi))+0.5],f,'Color',colorPlotTubApi,'LineWidth',linWid)
-%     mdlT8_apical = polyfitn(lewisApical_tube8(1,indValTubApi), lewisApical_tube8(2,indValTubApi),1);
+    colorPlotTubApi = [79,209,255]./255;
+    indValTubApi = ismember(lewisApical_tube8(1,:),4:8);
+    pTa = polyfit(lewisApical_tube8(1,indValTubApi), lewisApical_tube8(2,indValTubApi),1);
+    f = polyval(pTa,[min(lewisApical_tube8(1,indValTubApi))-0.5, lewisApical_tube8(1,indValTubApi), max(lewisApical_tube8(1,indValTubApi))+0.5]); 
+    plot([min(lewisApical_tube8(1,indValTubApi))-0.5, lewisApical_tube8(1,indValTubApi), max(lewisApical_tube8(1,indValTubApi))+0.5],f,'Color',colorPlotTubApi,'LineWidth',linWid)
+    mdlT8_apical = polyfitn(lewisApical_tube8(1,indValTubApi), lewisApical_tube8(2,indValTubApi),1);
 
-%     colorPlotTub8_18 = [0,112/255,192/255];
-%     indValTub8_18 = ismember(lewisBasal_tube8_18(1,:),4:8);
-%     p = polyfit(lewisBasal_tube8_18(1,indValTub8_18), lewisBasal_tube8_18(2,indValTub8_18),1);
-%     f = polyval(p,[min(lewisBasal_tube8_18(1,indValTub8_18))-0.5, lewisBasal_tube8_18(1,indValTub8_18), max(lewisBasal_tube8_18(1,indValTub8_18))+0.5]); 
-%     plot([min(lewisBasal_tube8_18(1,indValTub8_18))-0.5, lewisBasal_tube8_18(1,indValTub8_18), max(lewisBasal_tube8_18(1,indValTub8_18))+0.5],f,'Color',colorPlotTub8_18,'LineWidth',linWid)
-%     mdlT8_18 = polyfitn(lewisBasal_tube8_18(1,indValTub8_18), lewisBasal_tube8_18(2,indValTub8_18),1);
-%   
-%     colorPlotTub8_4 = [27/255,39/255,201/255];
-%     indValTub8_4 = ismember(lewisBasal_tube8_4(1,:),4:8);
-%     p = polyfit(lewisBasal_tube8_4(1,indValTub8_4), lewisBasal_tube8_4(2,indValTub8_4),1);
-%     f = polyval(p,[min(lewisBasal_tube8_4(1,indValTub8_4))-0.5, lewisBasal_tube8_4(1,indValTub8_4), max(lewisBasal_tube8_4(1,indValTub8_4))+0.5]); 
-%     plot([min(lewisBasal_tube8_4(1,indValTub8_4))-0.5, lewisBasal_tube8_4(1,indValTub8_4), max(lewisBasal_tube8_4(1,indValTub8_4))+0.5],f,'Color',colorPlotTub8_4,'LineWidth',linWid)
-%     mdlT8_4 = polyfitn(lewisBasal_tube8_4(1,indValTub8_4), lewisBasal_tube8_4(2,indValTub8_4),1);
-%     
-%     plot(lewisApical_glands(1,indValApiG),lewisApical_glands(2,indValApiG),'.','Color',colorPlotApiG,'MarkerSize',markerSiz)
-%     plot(lewisBasal_glands(1,indValBasG),lewisBasal_glands(2,indValBasG),'.','Color',colorPlotBasG,'MarkerSize',markerSiz)
-%     plot(lewisApical_tube8(1,indValTubApi),lewisApical_tube8(2,indValTubApi),'.','Color',colorPlotTubApi,'MarkerSize',markerSiz)
-%     plot(lewisBasal_tube8_18(1,indValTub8_18),lewisBasal_tube8_18(2,indValTub8_18),'.','Color',colorPlotTub8_18,'MarkerSize',markerSiz)
-%     plot(lewisBasal_tube8_4(1,indValTub8_4),lewisBasal_tube8_4(2,indValTub8_4),'.','Color',colorPlotTub8_4,'MarkerSize',markerSiz)
-% 
-%     title('Lewis 2D')
-%     ylabel('Area normalized')
-%     xlabel('neighbours total')
-%     xlim([3 9])
-%     ylim([0.5 1.5])
-%     yticks([0.5 0.75 1 1.25 1.5])
-%     set(gca,'FontSize', 24,'FontName','Helvetica','YGrid','on','TickDir','out','Box','off');
-%     
-%     print(h,[path2save 'fig_Lewis2D_' date '_noLegend'],'-dtiff','-r300')
-%     
-%     legend({['fit R2 ' num2str(round(mdlApical_glands.R2,4)) ' - RMSE '  num2str(round(mdlApical_glands.RMSE,4)) ],...
-%             ['fit R2 ' num2str(round(mdlBasal_glands.R2,4)) ' - RMSE '  num2str(round(mdlBasal_glands.RMSE,4)) ],...
-%             ['fit R2 ' num2str(round(mdlT8_apical.R2,4)) ' - RMSE '  num2str(round(mdlT8_apical.RMSE,4)) ],...
-%             ['fit R2 ' num2str(round(mdlT8_18.R2,4)) ' - RMSE '  num2str(round(mdlT8_18.RMSE,4)) ],...
-%             ['fit R2 ' num2str(round(mdlT8_4.R2,4)) ' - RMSE '  num2str(round(mdlT8_4.RMSE,4)) ],'Glands apical',...
-%             'Glands basal','Voronoi tube 8 apical','Voronoi tube 8 basal 1.8','Voronoi tube 8 basal 4'},'FontSize',12)
-%     hold off
-%     print(h,[path2save 'fig_Lewis2D_' date],'-dtiff','-r300')
+    colorPlotTub8_18 = [0,112/255,192/255];
+    indValTub8_18 = ismember(lewisBasal_tube8_18(1,:),4:8);
+    pTb18 = polyfit(lewisBasal_tube8_18(1,indValTub8_18), lewisBasal_tube8_18(2,indValTub8_18),1);
+    f = polyval(pTb18,[min(lewisBasal_tube8_18(1,indValTub8_18))-0.5, lewisBasal_tube8_18(1,indValTub8_18), max(lewisBasal_tube8_18(1,indValTub8_18))+0.5]); 
+    plot([min(lewisBasal_tube8_18(1,indValTub8_18))-0.5, lewisBasal_tube8_18(1,indValTub8_18), max(lewisBasal_tube8_18(1,indValTub8_18))+0.5],f,'Color',colorPlotTub8_18,'LineWidth',linWid)
+    mdlT8_18 = polyfitn(lewisBasal_tube8_18(1,indValTub8_18), lewisBasal_tube8_18(2,indValTub8_18),1);
+  
+    colorPlotTub8_4 = [27/255,39/255,201/255];
+    indValTub8_4 = ismember(lewisBasal_tube8_4(1,:),4:8);
+    pTb4 = polyfit(lewisBasal_tube8_4(1,indValTub8_4), lewisBasal_tube8_4(2,indValTub8_4),1);
+    f = polyval(pTb4,[min(lewisBasal_tube8_4(1,indValTub8_4))-0.5, lewisBasal_tube8_4(1,indValTub8_4), max(lewisBasal_tube8_4(1,indValTub8_4))+0.5]); 
+    plot([min(lewisBasal_tube8_4(1,indValTub8_4))-0.5, lewisBasal_tube8_4(1,indValTub8_4), max(lewisBasal_tube8_4(1,indValTub8_4))+0.5],f,'Color',colorPlotTub8_4,'LineWidth',linWid)
+    mdlT8_4 = polyfitn(lewisBasal_tube8_4(1,indValTub8_4), lewisBasal_tube8_4(2,indValTub8_4),1);
+    
+    plot(lewisApical_glands(1,indValApiG),lewisApical_glands(2,indValApiG),'.','Color',colorPlotApiG,'MarkerSize',markerSiz)
+    plot(lewisBasal_glands(1,indValBasG),lewisBasal_glands(2,indValBasG),'.','Color',colorPlotBasG,'MarkerSize',markerSiz)
+    plot(lewisApical_tube8(1,indValTubApi),lewisApical_tube8(2,indValTubApi),'.','Color',colorPlotTubApi,'MarkerSize',markerSiz)
+    plot(lewisBasal_tube8_18(1,indValTub8_18),lewisBasal_tube8_18(2,indValTub8_18),'.','Color',colorPlotTub8_18,'MarkerSize',markerSiz)
+    plot(lewisBasal_tube8_4(1,indValTub8_4),lewisBasal_tube8_4(2,indValTub8_4),'.','Color',colorPlotTub8_4,'MarkerSize',markerSiz)
 
+    title('Lewis 2D')
+    ylabel('Area normalized')
+    xlabel('neighbours total')
+    xlim([3 9])
+    ylim([0.5 1.5])
+    yticks([0.5 0.75 1 1.25 1.5])
+    set(gca,'FontSize', 24,'FontName','Helvetica','YGrid','on','TickDir','out','Box','off');
+    
+    print(h,[path2save 'fig_Lewis2D_' date '_noLegend'],'-dtiff','-r300')
+    
+    legend({['fit R2 ' num2str(round(mdlApical_glands.R2,4)) ' - RMSE '  num2str(round(mdlApical_glands.RMSE,4)) ' - slope ' num2str(round(pA(1),3))],...
+            ['fit R2 ' num2str(round(mdlBasal_glands.R2,4)) ' - RMSE '  num2str(round(mdlBasal_glands.RMSE,4)) ' - slope ' num2str(round(pB(1),3))],...
+            ['fit R2 ' num2str(round(mdlT8_apical.R2,4)) ' - RMSE '  num2str(round(mdlT8_apical.RMSE,4)) ' - slope ' num2str(round(pTa(1),3))],...
+            ['fit R2 ' num2str(round(mdlT8_18.R2,4)) ' - RMSE '  num2str(round(mdlT8_18.RMSE,4)) ' - slope ' num2str(round(pTb18(1),3))],...
+            ['fit R2 ' num2str(round(mdlT8_4.R2,4)) ' - RMSE '  num2str(round(mdlT8_4.RMSE,4)) ' - slope ' num2str(round(pTb4(1),3))],'Glands apical',...
+            'Glands basal','Voronoi tube 8 apical','Voronoi tube 8 basal 1.8','Voronoi tube 8 basal 4'},'FontSize',12)
+    hold off
+    print(h,[path2save 'fig_Lewis2D_' date],'-dtiff','-r300')
+    savefig(h,[path2save 'fig_Lewis2D_' date])
 
 %% Fig LEWIS 3D
     h = figure('units','normalized','outerposition',[0 0 1 1],'Visible','on');
@@ -303,22 +303,22 @@ lewis3D_tube8_4 = lewis3D_volNorm;
 
     colorPlotT8_18 = [0,112/255,192/255];
     indValT818 = ismember(lewis3D_tube8_18(1,:),5:8);
-    p = polyfit(lewis3D_tube8_18(1,indValT818), lewis3D_tube8_18(2,indValT818),1);
-    f = polyval(p,[min(lewis3D_tube8_18(1,indValT818))-0.5, lewis3D_tube8_18(1,indValT818), max(lewis3D_tube8_18(1,indValT818))+0.5]); 
+    pT818 = polyfit(lewis3D_tube8_18(1,indValT818), lewis3D_tube8_18(2,indValT818),1);
+    f = polyval(pT818,[min(lewis3D_tube8_18(1,indValT818))-0.5, lewis3D_tube8_18(1,indValT818), max(lewis3D_tube8_18(1,indValT818))+0.5]); 
     plot([min(lewis3D_tube8_18(1,indValT818))-0.5, lewis3D_tube8_18(1,indValT818), max(lewis3D_tube8_18(1,indValT818))+0.5],f,'Color',colorPlotT8_18,'LineWidth',linWid)
     mdlT8_18 = polyfitn(lewis3D_tube8_18(1,indValT818), lewis3D_tube8_18(2,indValT818),1);
     
     colorPlotT8_4 = [27/255,39/255,201/255];
     indValT84 = ismember(lewis3D_tube8_4(1,:),7:11);
-    p = polyfit(lewis3D_tube8_4(1,indValT84), lewis3D_tube8_4(2,indValT84),1);
-    f = polyval(p,[min(lewis3D_tube8_4(1,indValT84))-0.5, lewis3D_tube8_4(1,indValT84), max(lewis3D_tube8_4(1,indValT84))+0.5]); 
+    pT84 = polyfit(lewis3D_tube8_4(1,indValT84), lewis3D_tube8_4(2,indValT84),1);
+    f = polyval(pT84,[min(lewis3D_tube8_4(1,indValT84))-0.5, lewis3D_tube8_4(1,indValT84), max(lewis3D_tube8_4(1,indValT84))+0.5]); 
     plot([min(lewis3D_tube8_4(1,indValT84))-0.5, lewis3D_tube8_4(1,indValT84), max(lewis3D_tube8_4(1,indValT84))+0.5],f,'Color',colorPlotT8_4,'LineWidth',linWid)
     mdlT8_4 = polyfitn(lewis3D_tube8_4(1,indValT84), lewis3D_tube8_4(2,indValT84),1);
 
     colorPlotGland = round(mean([[0.2,0.8,0];[0,0.4,0.2]]),2);
-    indValGl = ismember(lewis3D_glands(1,:),5:8);
-    p = polyfit(lewis3D_glands(1,indValGl), lewis3D_glands(2,indValGl),1);
-    f = polyval(p,[min(lewis3D_glands(1,indValGl))-0.5, lewis3D_glands(1,indValGl), max(lewis3D_glands(1,indValGl))+0.5]); 
+    indValGl = ismember(lewis3D_glands(1,:),6:8);
+    pTSG = polyfit(lewis3D_glands(1,indValGl), lewis3D_glands(2,indValGl),1);
+    f = polyval(pTSG,[min(lewis3D_glands(1,indValGl))-0.5, lewis3D_glands(1,indValGl), max(lewis3D_glands(1,indValGl))+0.5]); 
     plot([min(lewis3D_glands(1,indValGl))-0.5, lewis3D_glands(1,indValGl), max(lewis3D_glands(1,indValGl))+0.5],f,'Color',colorPlotGland,'LineWidth',linWid)
     mdlGlands = polyfitn(lewis3D_glands(1,indValGl), lewis3D_glands(2,indValGl),1);
     
@@ -335,18 +335,19 @@ lewis3D_tube8_4 = lewis3D_volNorm;
     yticks([0.5 0.75 1 1.25 1.5])
     set(gca,'FontSize', 24,'FontName','Helvetica','YGrid','on','TickDir','out','Box','off');
     
-    preD = predint(mdlT8_4,unique([lewis3D_tube8_18(1,indValT818),lewis3D_tube8_4(1,indValT84)]),0.95,'observation','off');
-    plot([surfRatios max(surfRatios)+1],preD,'--','Color',colorPlot)
-    
+%     preD = predint(mdlT8_4,unique([lewis3D_tube8_18(1,indValT818),lewis3D_tube8_4(1,indValT84)]),0.95,'observation','off');
+%     plot([surfRatios max(surfRatios)+1],preD,'--','Color',colorPlot)
+%     
     print(h,[path2save 'fig_Lewis3D_' date '_noLegend'],'-dtiff','-r300')
 
-    legend({['fit R2 ' num2str(round(mdlT8_18.R2,4)) ' - RMSE '  num2str(round(mdlT8_18.RMSE,4)) ],...
-        ['fit R2 ' num2str(round(mdlT8_4.R2,4)) ' - RMSE '  num2str(round(mdlT8_4.RMSE,4)) ],...
-        ['fit R2 ' num2str(round(mdlGlands.R2,4)) ' - RMSE '  num2str(round(mdlGlands.RMSE,4)) ]...
+    legend({['fit R2 ' num2str(round(mdlT8_18.R2,4)) ' - RMSE '  num2str(round(mdlT8_18.RMSE,4)) ' - slope ' num2str(round(pT818(1),3))],...
+        ['fit R2 ' num2str(round(mdlT8_4.R2,4)) ' - RMSE '  num2str(round(mdlT8_4.RMSE,4)) ' - slope ' num2str(round(pT84(1),3))],...
+        ['fit R2 ' num2str(round(mdlGlands.R2,4)) ' - RMSE '  num2str(round(mdlGlands.RMSE,4)) ' - slope ' num2str(round(pTSG(1),3))]...
         'Voronoi tube 8 - 1.8','Voronoi tube 8 - 4','Glands'},'FontSize',12)
     hold off
     
     print(h,[path2save 'fig_Lewis3D_' date],'-dtiff','-r300')
+    savefig(h,[path2save 'fig_Lewis3D_' date])
 
 
 % %%  figure 2. Relation apical - basal nSides. Violin
