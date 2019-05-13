@@ -8,17 +8,18 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
     
     if exist('labelledImage_realSize', 'var')
         img3dComplete = labelledImage_realSize;
-        pixelSizeThreshold = 0;
-        closingPxAreas = 0;
+        closingPxAreas2D = 0;
+        closingPxAreas3D = 0;
     else
         img3dComplete = labelledImage;
-        pixelSizeThreshold = 10;
-        closingPxAreas = 10;
+        closingPxAreas3D = 10;
+        closingPxAreas2D = closingPxAreas3D;
     end
     outputDir
     
     %% Unroll
     
+    pixelSizeThreshold = 10;
     previousSizeLabels = -1;
     if exist(fullfile(outputDir, 'final3DImg.mat'), 'file')
         load(fullfile(outputDir, 'final3DImg.mat'));
