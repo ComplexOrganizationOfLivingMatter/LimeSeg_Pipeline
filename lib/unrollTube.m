@@ -233,18 +233,21 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
                     filledImageAux(indicesToSave) = 1;
                 end
                 filledImagenew = imfill(filledImageAux | filledImage, 'holes');
+                if isequal(filledImage, filledImage) == 0
                     filledImage = filledImagenew;
                 end
             end
             finalPerimImage = bwperim(filledImage);
-            solidityOfObjects = regionprops(filledImage, 'Solidity');
-%             imshow(filledImage)
             solidityOfObjects = regionprops(filledImage>0, 'Solidity');
             %imshow(filledImage)
             solidityThreshold = 0.6;
             %Check if there is a hole
             if length(solidityOfObjects) == 1
                 goCalculatePerim = solidityOfObjects.Solidity < solidityThreshold;
+            else
+                goCalculatePerim = 1;
+            end
+            if goCalculatePerim
 %                 convexPerimImage = regionprops(imclose(finalPerimImage, strel('disk', 5)), 'convexHull');
 %                 convexPerimImage = convexPerimImage.ConvexHull;
 %                 
@@ -259,7 +262,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
 %                 finalPerimImage = bwperim(validRegion);
 
                 
-                finalPerimImage = bwskel(filledImage);
+                finalPerimImage = bwskel(filledImage>0);
                 %fill0sWithCells(img3d(:, :, coordZ) ,validRegion);
                 
                 [X,Y] = meshgrid(1:size(filledImage,2), 1:size(filledImage,1));
@@ -267,7 +270,8 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
                 s = regionprops(filledImage>0, 'BoundingBox');
                 [rect] = getMinimumBoundingBox(s);
                 
-                bb = floor(s.BoundingBox); %// Could be floating point, so floor it
+                %bb = floor(s.BoundingBox); %// Could be floating point, so floor it
+                bb = rect;
                 cenx = bb(1) + (bb(3) / 2.0); %// Get the centre of the bounding box
                 ceny = bb(2) + (bb(4) / 2.0);
                 
@@ -284,11 +288,13 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
             centroidCoordZ = mean([x, y], 1); % Centroid of each real Y of the cylinder
             centroidX = centroidCoordZ(1);
             centroidY = centroidCoordZ(2);
+            
+            p = boundaryOfCell([x, y], [centroidX centroidY]);
 
             [x, y] = find(finalPerimImage > 0);
 
             %% labelled mask
-            if solidityOfObjects.Solidity < solidityThreshold
+            if goCalculatePerim
                 centroidX = ceny;
                 centroidY = cenx;
                 
@@ -306,7 +312,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
             [angleLabelCoordSort, orderedIndices] = sort(angleLabelCoord);
             
             %% Completing the missing parts of the circle perim
-            if solidityOfObjects.Solidity < solidityThreshold
+            if goCalculatePerim
                 distanceToNextPoint = angleLabelCoordSort([2:end 1]) - angleLabelCoordSort;
                 distanceToNextPoint(end) = distanceToNextPoint(end) + 6;
                 if max(distanceToNextPoint) > minDistance*3
@@ -378,7 +384,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
          validCellsFinal  = setdiff(1:max(deployedImg(:)), noValidCells);
          deployedImg = fill0sWithCells(deployedImg, deployedImg, imfill(ismember(deployedImg, validCellsFinal)>0, 'holes')==0);
          cylindre2DImage = deployedImg;
-%          figure;imshow(cylindre2DImage,colours)
+%          figure;imshow(deployedImg,colours)
          [wholeImage] = fillEmptySpacesByWatershed2D(deployedImg3x, imclose(deployedImg3x>0, strel('disk', 3)) == 0 , colours);
 
     %     figure;imshow(finalImage,colours)
