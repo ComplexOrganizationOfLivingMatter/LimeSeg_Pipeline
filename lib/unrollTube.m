@@ -158,19 +158,96 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
             end
             %figure; imshow(img3d(:, :, coordZ)+2, colorcube)
             
-            closedZFrame = imclose(img3d(:, :, coordZ)>0, strel('disk', round(closingPxAreas)));
+%             unifyingZFrame = bwmorph(img3d(:, :, coordZ)>0, 'bridge', Inf);
+%             dilatedUnified = imdilate(unifyingZFrame, strel('disk', closingPxAreas2D));
+%             unifyingZFrame = bwmorph(dilatedUnified, 'majority', Inf);
+%             closedZFrame = imerode(unifyingZFrame, strel('disk', closingPxAreas2D));
+            closedZFrame = imclose(img3d(:, :, coordZ)>0, strel('disk', round(closingPxAreas2D)));
             img3d(:, :, coordZ) = fill0sWithCells(img3d(:, :, coordZ), img3dComplete(:, :, coordZ), closedZFrame==0);
 
             %% Remove pixels surrounding the boundary
-            filledImage = imfill(double(img3d(:, :, coordZ)>0));
-            %imshow(double(img3d(:, :, coordZ)>0))
-            filledImage = bwareafilt(filledImage>0, 1, 4);
+            filledImage = imfill(double(img3d(:, :, coordZ)>0), 'holes');
+            imshow(img3d(:, :, coordZ), colours)
+            if exist('labelledImage_realSize', 'var') == 0
+                filledImage = bwareafilt(filledImage>0, 1, 4);
+            elseif isequal(filledImage, double(img3d(:, :, coordZ)>0))
+%                 imageLabelled = bwlabel(filledImage);
+%                 infoOfObjects = regionprops(imageLabelled, 'Area');
+% %                 infoOfObjects = regionprops(imageLabelled, {'Area', 'Eccentricity', 'Solidity'});
+% %                 solidityOfObjects = [infoOfObjects.Solidity];
+% %                 circularityOfObjects = [infoOfObjects.Eccentricity];
+%                 areaOfObjects = [infoOfObjects.Area];
+%                 [~, biggerArea] = max(areaOfObjects);
+%                 if sum(areaOfObjects>30) > 1
+%                     imgToChange = imfill(double(imclose(filledImage>0, strel('disk', 5))), 'holes');
+%                     imgToChangedist = bwdist(~imgToChange);
+%                     imgToChangedist = -imgToChangedist;
+%                     imgToChangedist(~imgToChange) = Inf;
+%                     imgToChangeWS = watershed(imgToChangedist);
+%                     imgToChangeWS(~imgToChange) = 0;
+%                     
+%                     objectsToKeep = bwareafilt(imgToChangeWS>0, 1);
+%                     filledImage = objectsToKeep & filledImage;
+%                     %imshow(filledImageToTest);
+%                     %imshow(filledImage);
+%                 end
+                %filledImage = bwareafilt(filledImage>0, 1);
+                [x, y] = find(img3d(:, :, coordZ)>0);
+                coordinates = [x, y];
+                
+                userConfig = struct('xy',coordinates, 'showProg',false,'showResult',false);
+                resultStruct = tspo_ga(userConfig);
+                orderBoundary = [resultStruct.optRoute resultStruct.optRoute(1)];
+                newVertSalesman = coordinates(orderBoundary(1:end-1), :);
+                newVertSalesman = [newVertSalesman; newVertSalesman(1,:)];
+                
+%                 for numCoord = 1:(size(newVertSalesman, 1)-1)
+%                     plot(newVertSalesman(numCoord:numCoord+1, 2), newVertSalesman(numCoord:numCoord+1, 1))
+%                 end
+                
+                [distancePxs] = pdist2(coordinates, coordinates, 'euclidean', 'Smallest', 4);
+                coordinatesToUnify = coordinates(distancePxs(4, :) > 1.5, :);
+
+%                 figure; imshow(filledImage)
+                filledImageAux = filledImage>2;
+                for numCoord = 1:size(coordinatesToUnify, 1)
+                    
+                    midVertex = coordinatesToUnify(numCoord, :);
+                    midvertexIndex = find(ismember(newVertSalesman, midVertex, 'rows'));
+                    if length(midvertexIndex)==1
+                        initVertex = newVertSalesman(midvertexIndex-1, :);
+                        endVertex = newVertSalesman(midvertexIndex+1, :);
+                    else
+                        initVertex = newVertSalesman(2, :);
+                        endVertex = newVertSalesman(end-1, :);
+                    end
+                    
+                    [xnAcum1, ynAcum1] = Drawline3D(initVertex(1), initVertex(2), 0, midVertex(1), midVertex(2), 0);
+                    [xnAcum2, ynAcum2] = Drawline3D(midVertex(1), midVertex(2), 0, endVertex(1), endVertex(2), 0);
+                    
+                    xnAcum = [xnAcum1; xnAcum2];
+                    ynAcum = [ynAcum1; ynAcum2];
+                    %hold on;
+                    %plot(coordinatesToUnify(numCoord, 2), coordinatesToUnify(numCoord, 1), 'r*')
+                    indicesToSave = sub2ind(size(img3d(:, :, coordZ)), xnAcum, ynAcum);
+                    filledImageAux(indicesToSave) = 1;
+                end
+                filledImagenew = imfill(filledImageAux | filledImage, 'holes');
+                if isequal(filledImage, filledImage) == 0
+                    filledImage = filledImagenew;
+                end
+            end
             finalPerimImage = bwperim(filledImage);
-            solidityOfObjects = regionprops(filledImage, 'Solidity');
-%             imshow(filledImage)
+            solidityOfObjects = regionprops(filledImage>0, 'Solidity');
+            %imshow(filledImage)
             solidityThreshold = 0.6;
             %Check if there is a hole
-            if solidityOfObjects.Solidity < solidityThreshold
+            if length(solidityOfObjects) == 1
+                goCalculatePerim = solidityOfObjects.Solidity < solidityThreshold;
+            else
+                goCalculatePerim = 1;
+            end
+            if goCalculatePerim
 %                 convexPerimImage = regionprops(imclose(finalPerimImage, strel('disk', 5)), 'convexHull');
 %                 convexPerimImage = convexPerimImage.ConvexHull;
 %                 
@@ -185,14 +262,16 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
 %                 finalPerimImage = bwperim(validRegion);
 
                 
-                finalPerimImage = bwskel(filledImage);
+                finalPerimImage = bwskel(filledImage>0);
                 %fill0sWithCells(img3d(:, :, coordZ) ,validRegion);
                 
                 [X,Y] = meshgrid(1:size(filledImage,2), 1:size(filledImage,1));
                 
-                s = regionprops(filledImage, 'BoundingBox');
+                s = regionprops(filledImage>0, 'BoundingBox');
+                [rect] = getMinimumBoundingBox(s);
                 
-                bb = floor(s.BoundingBox); %// Could be floating point, so floor it
+                %bb = floor(s.BoundingBox); %// Could be floating point, so floor it
+                bb = rect;
                 cenx = bb(1) + (bb(3) / 2.0); %// Get the centre of the bounding box
                 ceny = bb(2) + (bb(4) / 2.0);
                 
@@ -209,11 +288,13 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
             centroidCoordZ = mean([x, y], 1); % Centroid of each real Y of the cylinder
             centroidX = centroidCoordZ(1);
             centroidY = centroidCoordZ(2);
+            
+            p = boundaryOfCell([x, y], [centroidX centroidY]);
 
             [x, y] = find(finalPerimImage > 0);
 
             %% labelled mask
-            if solidityOfObjects.Solidity < solidityThreshold
+            if goCalculatePerim
                 centroidX = ceny;
                 centroidY = cenx;
                 
@@ -231,7 +312,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
             [angleLabelCoordSort, orderedIndices] = sort(angleLabelCoord);
             
             %% Completing the missing parts of the circle perim
-            if solidityOfObjects.Solidity < solidityThreshold
+            if goCalculatePerim
                 distanceToNextPoint = angleLabelCoordSort([2:end 1]) - angleLabelCoordSort;
                 distanceToNextPoint(end) = distanceToNextPoint(end) + 6;
                 if max(distanceToNextPoint) > minDistance*3
@@ -303,7 +384,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
          validCellsFinal  = setdiff(1:max(deployedImg(:)), noValidCells);
          deployedImg = fill0sWithCells(deployedImg, deployedImg, imfill(ismember(deployedImg, validCellsFinal)>0, 'holes')==0);
          cylindre2DImage = deployedImg;
-%          figure;imshow(cylindre2DImage,colours)
+%          figure;imshow(deployedImg,colours)
          [wholeImage] = fillEmptySpacesByWatershed2D(deployedImg3x, imclose(deployedImg3x>0, strel('disk', 3)) == 0 , colours);
 
     %     figure;imshow(finalImage,colours)
