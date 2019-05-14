@@ -1,7 +1,7 @@
 function [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(labelledImage,outsideGland, lumenImage, outputDir, colours, tipValue)
 %POSTPROCESSGLAND Summary of this function goes here
 %   Detailed explanation goes here
-    [labelledImage] = fillEmptySpacesByWatershed3D(labelledImage, outsideGland | lumenImage, 1);
+    [labelledImage] = fillEmptySpacesByWatershed3D(labelledImage, outsideGland | lumenImage, 1); % error outsideGland?
     outsideGland_NotLumen = ~outsideGland | lumenImage;
 
     labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
