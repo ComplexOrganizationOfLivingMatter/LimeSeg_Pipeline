@@ -8,7 +8,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
     
     if exist('labelledImage_realSize', 'var')
         img3dComplete = labelledImage_realSize;
-        closingPxAreas2D = 0;
+        closingPxAreas2D = 1;
         closingPxAreas3D = 0;
     else
         img3dComplete = labelledImage;
@@ -166,183 +166,10 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
             img3d(:, :, coordZ) = fill0sWithCells(img3d(:, :, coordZ), img3dComplete(:, :, coordZ), closedZFrame==0);
 
             %% Remove pixels surrounding the boundary
-            filledImage = imfill(double(img3d(:, :, coordZ)>0), 'holes');
-            imshow(img3d(:, :, coordZ), colours)
-            if exist('labelledImage_realSize', 'var') == 0
-                filledImage = bwareafilt(filledImage>0, 1, 4);
-            elseif isequal(filledImage, double(img3d(:, :, coordZ)>0))
-%                 imageLabelled = bwlabel(filledImage);
-%                 infoOfObjects = regionprops(imageLabelled, 'Area');
-% %                 infoOfObjects = regionprops(imageLabelled, {'Area', 'Eccentricity', 'Solidity'});
-% %                 solidityOfObjects = [infoOfObjects.Solidity];
-% %                 circularityOfObjects = [infoOfObjects.Eccentricity];
-%                 areaOfObjects = [infoOfObjects.Area];
-%                 [~, biggerArea] = max(areaOfObjects);
-%                 if sum(areaOfObjects>30) > 1
-%                     imgToChange = imfill(double(imclose(filledImage>0, strel('disk', 5))), 'holes');
-%                     imgToChangedist = bwdist(~imgToChange);
-%                     imgToChangedist = -imgToChangedist;
-%                     imgToChangedist(~imgToChange) = Inf;
-%                     imgToChangeWS = watershed(imgToChangedist);
-%                     imgToChangeWS(~imgToChange) = 0;
-%                     
-%                     objectsToKeep = bwareafilt(imgToChangeWS>0, 1);
-%                     filledImage = objectsToKeep & filledImage;
-%                     %imshow(filledImageToTest);
-%                     %imshow(filledImage);
-%                 end
-                %filledImage = bwareafilt(filledImage>0, 1);
-                [x, y] = find(img3d(:, :, coordZ)>0);
-                coordinates = [x, y];
-                
-                userConfig = struct('xy',coordinates, 'showProg',false,'showResult',false);
-                resultStruct = tspo_ga(userConfig);
-                orderBoundary = [resultStruct.optRoute resultStruct.optRoute(1)];
-                newVertSalesman = coordinates(orderBoundary(1:end-1), :);
-                newVertSalesman = [newVertSalesman; newVertSalesman(1,:)];
-                
-%                 for numCoord = 1:(size(newVertSalesman, 1)-1)
-%                     plot(newVertSalesman(numCoord:numCoord+1, 2), newVertSalesman(numCoord:numCoord+1, 1))
-%                 end
-                
-                [distancePxs] = pdist2(coordinates, coordinates, 'euclidean', 'Smallest', 4);
-                coordinatesToUnify = coordinates(distancePxs(4, :) > 1.5, :);
-
-%                 figure; imshow(filledImage)
-                filledImageAux = filledImage>2;
-                for numCoord = 1:size(coordinatesToUnify, 1)
-                    
-                    midVertex = coordinatesToUnify(numCoord, :);
-                    midvertexIndex = find(ismember(newVertSalesman, midVertex, 'rows'));
-                    if length(midvertexIndex)==1
-                        initVertex = newVertSalesman(midvertexIndex-1, :);
-                        endVertex = newVertSalesman(midvertexIndex+1, :);
-                    else
-                        initVertex = newVertSalesman(2, :);
-                        endVertex = newVertSalesman(end-1, :);
-                    end
-                    
-                    [xnAcum1, ynAcum1] = Drawline3D(initVertex(1), initVertex(2), 0, midVertex(1), midVertex(2), 0);
-                    [xnAcum2, ynAcum2] = Drawline3D(midVertex(1), midVertex(2), 0, endVertex(1), endVertex(2), 0);
-                    
-                    xnAcum = [xnAcum1; xnAcum2];
-                    ynAcum = [ynAcum1; ynAcum2];
-                    %hold on;
-                    %plot(coordinatesToUnify(numCoord, 2), coordinatesToUnify(numCoord, 1), 'r*')
-                    indicesToSave = sub2ind(size(img3d(:, :, coordZ)), xnAcum, ynAcum);
-                    filledImageAux(indicesToSave) = 1;
-                end
-                filledImagenew = imfill(filledImageAux | filledImage, 'holes');
-                if isequal(filledImage, filledImage) == 0
-                    filledImage = filledImagenew;
-                end
-            end
-            finalPerimImage = bwperim(filledImage);
-            solidityOfObjects = regionprops(filledImage>0, 'Solidity');
-            %imshow(filledImage)
-            solidityThreshold = 0.6;
-            %Check if there is a hole
-            if length(solidityOfObjects) == 1
-                goCalculatePerim = solidityOfObjects.Solidity < solidityThreshold;
-            else
-                goCalculatePerim = 1;
-            end
-            if goCalculatePerim
-%                 convexPerimImage = regionprops(imclose(finalPerimImage, strel('disk', 5)), 'convexHull');
-%                 convexPerimImage = convexPerimImage.ConvexHull;
-%                 
-%                 validRegion = zeros(size(finalPerimImage));
-%                 [xq, yq] = find(validRegion==0);
-%                 in = inpolygon(xq,yq, round(convexPerimImage(:, 2)), round(convexPerimImage(:, 1)));
-%                 
-%                 indicesInsideCell = sub2ind(size(finalPerimImage), xq, yq);
-%                 
-%                 validRegion(indicesInsideCell(in)) = 1;
-%                 
-%                 finalPerimImage = bwperim(validRegion);
-
-                
-                finalPerimImage = bwskel(filledImage>0);
-                %fill0sWithCells(img3d(:, :, coordZ) ,validRegion);
-                
-                [X,Y] = meshgrid(1:size(filledImage,2), 1:size(filledImage,1));
-                
-                s = regionprops(filledImage>0, 'BoundingBox');
-                [rect] = getMinimumBoundingBox(s);
-                
-                %bb = floor(s.BoundingBox); %// Could be floating point, so floor it
-                bb = rect;
-                cenx = bb(1) + (bb(3) / 2.0); %// Get the centre of the bounding box
-                ceny = bb(2) + (bb(4) / 2.0);
-                
-                radi = max(bb(3), bb(4)) / 2; %// Find the best radius
-                perimeterNew = ((X - cenx).^2 + (Y - ceny).^2) <= radi^2; %// Draw our circle and place in a temp. image
-                perimeterNew = bwperim(perimeterNew); %// Add this circle on top of our output image
-                %figure; imshow(perimeterNew)
-            end
-
-            %imshow(finalPerimImage)
+            [filledImage] = createCompleteSection(img3d, coordZ);
             
-            %% Obtaining the center of the cylinder
-            [x, y] = find(finalPerimImage > 0);
-            centroidCoordZ = mean([x, y], 1); % Centroid of each real Y of the cylinder
-            centroidX = centroidCoordZ(1);
-            centroidY = centroidCoordZ(2);
-            
-            p = boundaryOfCell([x, y], [centroidX centroidY]);
-
-            [x, y] = find(finalPerimImage > 0);
-
-            %% labelled mask
-            if goCalculatePerim
-                centroidX = ceny;
-                centroidY = cenx;
-                
-                [x_PerimeterNew, y_PerimeterNew] = find(perimeterNew > 0);
-                angleLabelCoord_NewPerimeter = atan2(y_PerimeterNew - centroidY, x_PerimeterNew - centroidX);
-                angleLabelCoord_NewPerimeter_Sorted = sort(angleLabelCoord_NewPerimeter);
-                minDistance = abs(angleLabelCoord_NewPerimeter_Sorted(1) - angleLabelCoord_NewPerimeter_Sorted(2));
-                img3dPerimFilled = fill0sWithCells(img3d(:, :, coordZ), img3dComplete(:, :, coordZ),filledImage==0);
-                maskLabel=finalPerimImage.*img3dPerimFilled;
-            else
-                maskLabel=finalPerimImage.*img3d(:, :, coordZ);
-            end
-            %angles label coord regarding centroid
-            angleLabelCoord = atan2(y - centroidY, x - centroidX);
-            [angleLabelCoordSort, orderedIndices] = sort(angleLabelCoord);
-            
-            %% Completing the missing parts of the circle perim
-            if goCalculatePerim
-                distanceToNextPoint = angleLabelCoordSort([2:end 1]) - angleLabelCoordSort;
-                distanceToNextPoint(end) = distanceToNextPoint(end) + 6;
-                if max(distanceToNextPoint) > minDistance*3
-                    [~, positionsToFill] = max(distanceToNextPoint);
-                    if positionsToFill+1 > length(distanceToNextPoint)
-                        newAngles = angleLabelCoord_NewPerimeter_Sorted(angleLabelCoordSort(1) > angleLabelCoord_NewPerimeter_Sorted);
-                        
-                        angleLabelCoordSort = [newAngles; angleLabelCoordSort];
-                        orderedIndices = [zeros(size(newAngles)); orderedIndices];
-                    else
-                        newAngles = angleLabelCoord_NewPerimeter_Sorted(angleLabelCoordSort(positionsToFill) < angleLabelCoord_NewPerimeter_Sorted & angleLabelCoordSort(positionsToFill+1) > angleLabelCoord_NewPerimeter_Sorted);
-                        angleLabelCoordSort = [angleLabelCoordSort(1:positionsToFill); newAngles; angleLabelCoordSort(positionsToFill+1:end)];
-                        orderedIndices = [orderedIndices(1:positionsToFill); zeros(size(newAngles)); orderedIndices(positionsToFill+1:end)];
-                    end
-                end
-            end
-            
-            
-            %% Assing label to pixels of perimeters
-            %If a perimeter coordinate have no label pixels in a range of pi/45 radians, it label is 0
-            orderedLabels = zeros(1,length(angleLabelCoordSort));
-            for nCoord = 1:length(angleLabelCoordSort)
-                if orderedIndices(nCoord) ~= 0
-                    indicesClosest = sub2ind(size(maskLabel), x(orderedIndices(nCoord)), y(orderedIndices(nCoord)));
-                    pixelLabel = maskLabel(indicesClosest);
-                    orderedLabels(nCoord) = pixelLabel;
-                else
-                    orderedLabels(nCoord) = 0;
-                end
-            end
+            %% Create perim
+            [orderedLabels] = perim2line(filledImage, img3d, img3dComplete, coordZ);
             
 %             if abs(previousSizeLabels - length(angleLabelCoordSort)) > 150 && previousSizeLabels ~= -1
 %                 orderedLabels = imresize(orderedLabels, [1 0.1*length(orderedLabels) + 0.9*previousSizeLabels], 'nearest');
@@ -353,6 +180,33 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
 
             imgFinalCoordinates3x{coordZ} = repmat(orderedLabels, 1, 3);
             
+            %If we find that a cell does not continue in the other side and
+            %finish on one side, we put the same pixel on the other side.
+            if orderedLabels(1) ~= orderedLabels(end)
+                orderedLabels(end+1) = orderedLabels(1);
+            end
+            imgFinalCoordinates{coordZ} = orderedLabels;
+        end
+        
+        linesToFix = 472;
+        
+        for coordZ = linesToFix
+            coordZ
+            %% Remove pixels surrounding the boundary
+            [filledImage] = createCompleteSection(img3d, coordZ, labelledImage_realSize);
+
+            %% Create perim
+            [orderedLabels] = perim2line(filledImage, img3d, img3dComplete, coordZ);
+
+            %             if abs(previousSizeLabels - length(angleLabelCoordSort)) > 150 && previousSizeLabels ~= -1
+            %                 orderedLabels = imresize(orderedLabels, [1 0.1*length(orderedLabels) + 0.9*previousSizeLabels], 'nearest');
+            %             end
+            %             previousSizeLabels = length(orderedLabels);
+            %
+            %hold off;
+
+            imgFinalCoordinates3x{coordZ} = repmat(orderedLabels, 1, 3);
+
             %If we find that a cell does not continue in the other side and
             %finish on one side, we put the same pixel on the other side.
             if orderedLabels(1) ~= orderedLabels(end)
@@ -385,6 +239,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
          deployedImg = fill0sWithCells(deployedImg, deployedImg, imfill(ismember(deployedImg, validCellsFinal)>0, 'holes')==0);
          cylindre2DImage = deployedImg;
 %          figure;imshow(deployedImg,colours)
+            deployedImg3x = fill0sWithCells(deployedImg3x, deployedImg3x, imfill(ismember(deployedImg3x, validCellsFinal)>0, 'holes')==0);
          [wholeImage] = fillEmptySpacesByWatershed2D(deployedImg3x, imclose(deployedImg3x>0, strel('disk', 3)) == 0 , colours);
 
     %     figure;imshow(finalImage,colours)
