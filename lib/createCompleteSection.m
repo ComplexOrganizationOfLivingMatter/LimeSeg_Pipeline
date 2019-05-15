@@ -5,7 +5,7 @@ function [filledImage] = createCompleteSection(img3d, coordZ, labelledImage_real
     %             imshow(img3d(:, :, coordZ), colours)
     if exist('labelledImage_realSize', 'var') == 0
         filledImage = bwareafilt(filledImage>0, 1, 4);
-    elseif isequal(filledImage, double(img3d(:, :, coordZ)>0))
+    elseif isequal(filledImage, double(img3d(:, :, coordZ)>0)) || length(unique(bwlabel(filledImage)))>2
 %                 imageLabelled = bwlabel(filledImage);
 %                 infoOfObjects = regionprops(imageLabelled, 'Area');
 % %                 infoOfObjects = regionprops(imageLabelled, {'Area', 'Eccentricity', 'Solidity'});
@@ -74,7 +74,7 @@ function [filledImage] = createCompleteSection(img3d, coordZ, labelledImage_real
             disp('Warning');
         end
     else
-        filledImage = bwareafilt(filledImage>0, 1, 4);
+        filledImage = bwareafilt(filledImage>0, 1);
     end
 end
 
