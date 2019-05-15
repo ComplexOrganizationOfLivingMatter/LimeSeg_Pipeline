@@ -166,7 +166,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
             img3d(:, :, coordZ) = fill0sWithCells(img3d(:, :, coordZ), img3dComplete(:, :, coordZ), closedZFrame==0);
 
             %% Remove pixels surrounding the boundary
-            [filledImage] = createCompleteSection(img3d, coordZ);
+            [filledImage] = createCompleteSection(img3d, coordZ, labelledImage_realSize);
             
             %% Create perim
             [orderedLabels] = perim2line(filledImage, img3d, img3dComplete, coordZ);
