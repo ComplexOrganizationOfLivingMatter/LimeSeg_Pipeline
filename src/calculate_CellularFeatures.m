@@ -1,8 +1,19 @@
 function [CellularFeaturesWithNoValidCells, meanSurfaceRatio] = calculate_CellularFeatures(neighbours_data,apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,polygon_distribution,outputDir, total_neighbours3D)
 %CALCULATE_CELLULARFEATURES Summary of this function goes here
 %   Detailed explanation goes here
+
+%% Check if there is any atypical cell.
+% prompt = {'Enter atypical cells:'};
+% dlgtitle = 'Input';
+% dims = [1 35];
+% definput = {'20','hsv'};
+% atypicalCells = inputdlg(prompt,dlgtitle,dims,definput);
+% atypicalCells = str2num(atypicalCells{1});
+% [basal3dInfo] = checkAtypicalCells(atypicalCells,basal3dInfo);
+% [apical3dInfo] = checkAtypicalCells(atypicalCells,apical3dInfo);
+
 %%  Calculate number of neighbours of each cell
-number_neighbours=table(cellfun(@length,(apical3dInfo)),cellfun(@length,(basal3dInfo)));
+number_neighbours = table(cellfun(@length,(apical3dInfo)),cellfun(@length,(basal3dInfo)));
 if exist('total_neighbours3D', 'var') == 0
     total_neighbours3D = calculateNeighbours3D(labelledImage, 2);
     total_neighbours3D = checkPairPointCloudDistanceCurateNeighbours(labelledImage, total_neighbours3D.neighbourhood', 1);
