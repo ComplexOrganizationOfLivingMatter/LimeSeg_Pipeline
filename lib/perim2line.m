@@ -67,7 +67,12 @@ function [orderedLabels] = perim2line(filledImage, img3d, img3dComplete, coordZ)
         img3dPerimFilled = fill0sWithCells(img3d(:, :, coordZ), img3dComplete(:, :, coordZ),filledImage==0);
         maskLabel=finalPerimImage.*img3dPerimFilled;
     else
-        maskLabel=finalPerimImage.*img3d(:, :, coordZ);
+        if isequal(filledImage, double(img3d(:, :, coordZ)>0))==0
+            img3dPerimFilled = fill0sWithCells(img3d(:, :, coordZ), img3dComplete(:, :, coordZ),filledImage==0);
+        else
+            img3dPerimFilled = img3d(:, :, coordZ);
+        end
+        maskLabel=finalPerimImage.*img3dPerimFilled;
     end
     %angles label coord regarding centroid
     angleLabelCoord = atan2(y - centroidY, x - centroidX);
