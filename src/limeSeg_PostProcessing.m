@@ -73,7 +73,7 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
         if isequal(savingResults, 'Yes')
             labelledImage = getappdata(0, 'labelledImageTemp');
             close all
-            [labelledImage, basalLayer, apicalLayer] = postprocessGland(labelledImage,outsideGland, lumenImage, outputDir, colours, tipValue);
+            [labelledImage, basalLayer, apicalLayer] = postprocessGland(labelledImage,labelledImage==0, lumenImage, outputDir, colours, tipValue);
 
             [answer, apical3dInfo, notFoundCellsApical, basal3dInfo, notFoundCellsBasal] = calculateMissingCells(labelledImage, lumenImage, apicalLayer, basalLayer, colours, noValidCells);
         else
