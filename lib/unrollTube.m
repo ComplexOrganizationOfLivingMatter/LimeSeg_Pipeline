@@ -185,33 +185,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
             if orderedLabels(1) ~= orderedLabels(end)
                 orderedLabels(end+1) = orderedLabels(1);
             end
-            imgFinalCoordinates{coordZ} = orderedLabels;
-        end
-        
-        linesToFix = 472;
-        
-        for coordZ = linesToFix
-            coordZ
-            %% Remove pixels surrounding the boundary
-            [filledImage] = createCompleteSection(img3d, coordZ, labelledImage_realSize);
-
-            %% Create perim
-            [orderedLabels] = perim2line(filledImage, img3d, img3dComplete, coordZ);
-
-            %             if abs(previousSizeLabels - length(angleLabelCoordSort)) > 150 && previousSizeLabels ~= -1
-            %                 orderedLabels = imresize(orderedLabels, [1 0.1*length(orderedLabels) + 0.9*previousSizeLabels], 'nearest');
-            %             end
-            %             previousSizeLabels = length(orderedLabels);
-            %
-            %hold off;
-
-            imgFinalCoordinates3x{coordZ} = repmat(orderedLabels, 1, 3);
-
-            %If we find that a cell does not continue in the other side and
-            %finish on one side, we put the same pixel on the other side.
-            if orderedLabels(1) ~= orderedLabels(end)
-                orderedLabels(end+1) = orderedLabels(1);
-            end
+            %length(orderedLabels)
             imgFinalCoordinates{coordZ} = orderedLabels;
         end
 
