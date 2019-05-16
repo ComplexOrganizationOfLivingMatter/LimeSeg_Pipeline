@@ -3,12 +3,18 @@ function [CellularFeaturesWithNoValidCells, meanSurfaceRatio] = calculate_Cellul
 %   Detailed explanation goes here
 
 %% Check if there is any atypical cell.
-% prompt = {'Enter atypical cells:'};
-% dlgtitle = 'Input';
-% dims = [1 35];
-% definput = {'20','hsv'};
-% atypicalCells = inputdlg(prompt,dlgtitle,dims,definput);
-% atypicalCells = str2num(atypicalCells{1});
+%  if exist(fullfile(outputDir, 'Results', 'atypicalCells.mat'), 'file')
+%         load(fullfile(outputDir, 'Results', 'atypicalCells.mat'))
+%  else
+%     prompt = {'Enter atypical cells:'};
+%     dlgtitle = 'Input';
+%     dims = [1 35];
+%     definput = {'20','hsv'};
+%     atypicalCells = inputdlg(prompt,dlgtitle,dims,definput);
+%     atypicalCells = str2num(atypicalCells{1});
+%     save(fullfile(outputDir, 'Results', 'atypicalCells.mat'), 'atypicalCells')
+%  end
+%  
 % [basal3dInfo] = checkAtypicalCells(atypicalCells,basal3dInfo);
 % [apical3dInfo] = checkAtypicalCells(atypicalCells,apical3dInfo);
 
