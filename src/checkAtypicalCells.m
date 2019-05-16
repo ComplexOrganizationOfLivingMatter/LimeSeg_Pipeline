@@ -5,9 +5,9 @@ function [neighboursInfo] = checkAtypicalCells(atypicalCells,neighboursInfo)
     for nCells = 1:length(atypicalCells)
         for indexCell = 1:size(neighboursInfo,2)
         
-            if ismember(atypicalCells(nCells,1),neighboursInfo{1,indexCell})
+            if ismember(atypicalCells(nCells),neighboursInfo{1,indexCell})
                 selectedCell = neighboursInfo{1,indexCell};
-                selectedCell(selectedCell == atypicalCells(nCells,1));
+                selectedCell(selectedCell == atypicalCells(nCells)) = [];
                 neighboursInfo{1,indexCell} = selectedCell;
             end
 
