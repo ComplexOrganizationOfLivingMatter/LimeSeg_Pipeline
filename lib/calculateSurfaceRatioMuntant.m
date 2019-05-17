@@ -76,15 +76,21 @@ function [] = calculateSurfaceRatioMuntant(basalLayer, apicalLayer, validCells)
         %Apical
         [xApical, yApical] = find(apicalLayer(:, :, numCoordZ));
         centroidApical = mean([xApical, yApical]);
+        if isempty(xApical) == 0
+            [distanceFromApicalToCentroidApical(numCoordZ)] = pdist2([xApical, yApical], centroidApical, 'euclidean', 'Largest', 1);
         
-        [~, basalInnerPixelId] = pdist2([xInnerBasal, yInnerBasal], centroidApical, 'euclidean', 'Largest', 1);
-        basalPoints(numCoordZ, :) = [xInnerBasal(basalPixelId(1)), yInnerBasal(basalPixelId(1))];
-        
-        %Get distance between the centre of apical layer and the mid
-        %basallayer to obtain the Radius basal
-        
+            %Get distance between the centre of apical layer and the mid
+            %basallayer to obtain the Radius basal
+            [distanceFromInnerBasalToCentroidApical] = pdist2([xInnerBasal, yInnerBasal], centroidApical, 'euclidean', 'Largest', 1);
+            [distanceFromOuterBasalToCentroidApical] = pdist2([xOuterBasal, yOuterBasal], centroidApical, 'euclidean', 'Largest', 1);
+            distanceBasalToCentroid(numCoordZ) = mean([distanceFromInnerBasalToCentroidApical, distanceFromOuterBasalToCentroidApical]);
+            %basalPoints(numCoordZ, :) = [xInnerBasal(basalInnerPixelId(1)), yInnerBasal(basalInnerPixelId(1))];
+
+            surfaceRatio(numCoordZ) = distanceBasalToCentroid(numCoordZ) / distanceFromApicalToCentroidApical(numCoordZ);
+        end
         %imshow(plane2d)
         plane2d(coordinatesIndices(inCoordinates)) = 0;
     end
+    surfaceRatio
 end
 
