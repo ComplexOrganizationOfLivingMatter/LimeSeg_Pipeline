@@ -6,6 +6,7 @@ function [apicalLayer] = getApicalFrom3DImage(lumenImage, labelledImage)
     dilatedLumen = imdilate(lumenImage, se);
     apical1Pixel = (dilatedLumen - lumenImage);
     apicalLayer = labelledImage .* apical1Pixel;
+    apicalLayer = fill0sWithCells(apicalLayer, labelledImage, apical1Pixel == 0);
 %     [x,y,z] = ind2sub(size(apicalLayer),find(apicalLayer>0));
 %     figure;
 %     pcshow([x,y,z]);
