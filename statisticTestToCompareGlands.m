@@ -68,5 +68,5 @@ allShapiroWilkHypothesis = [table(allFilesName, 'VariableName', {'Condition'}), 
 save(fullfile(files(1).folder, 'statisticTests.mat'), 'allTtestHypothesis', 'allShapiroWilkHypothesis','featuresVarianceHypothesis')
 writetable(allTtestHypothesis, fullfile(files(1).folder,'statisticalTtest.xls'),'Range','B2');
 system('taskkill /F /IM EXCEL.EXE');
-writetable(featuresVarianceHypothesis, fullfile(files(1).folder,'statisticalTtest.xls'),'Range','B5');
-writetable(allShapiroWilkHypothesis, fullfile(files(1).folder,'statisticalShapiroWilkTest.xls'),'Range','B5');
+writetable(featuresVarianceHypothesis, fullfile(files(1).folder,'statisticalVarianceTest.xls'),'Range','B2');
+writetable(allShapiroWilkHypothesis, fullfile(files(1).folder,'statisticalShapiroWilkTest.xls'),'Range','B2');
