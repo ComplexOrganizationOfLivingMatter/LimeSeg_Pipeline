@@ -11,6 +11,10 @@ function [neighs_real,sides_cells]=calculateNeighbours(L_img,varargin)
         se = strel('disk',varargin{1});
     end
 
+    if size(L_img, 3) ~= 1
+        error('3D image in 2D neighbours');
+    end
+    
     for cel = cells'
         BW = bwperim(L_img==cel);
         BW_dilate=imdilate(BW,se);

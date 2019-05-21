@@ -3,7 +3,6 @@ function [labelMask] = fill0sWithCells(labelMask, img3dComplete, invalidRegion)
 %   Detailed explanation goes here
 
     missingRegions = labelMask == 0 & invalidRegion == 0;
-    edgePixels = find(missingRegions);
     labelMask(missingRegions) = img3dComplete(missingRegions);
 
     missingRegions = labelMask == 0 & invalidRegion == 0;
@@ -40,8 +39,6 @@ function [labelMask] = fill0sWithCells(labelMask, img3dComplete, invalidRegion)
                 labelMask(edgePixels(numEdgePixel)) = labelMask(pixelsIndices(indices_all(indices_Partitions(numEdgePixel), numEdgePixel)));
             end
         end
-
-        
     end
     %figure; paint3D(labelMask);
 end
