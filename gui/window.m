@@ -126,9 +126,8 @@ if roiMask ~= -1
     lumenImage = getappdata(0, 'lumenImage');
 
     if sum(newCellRegion(:)) > 0
-        [y, x] = find(newCellRegion);
+        [y, x] = find(newCellRegion & labelledImage == 0);
 
-        newCellRegion = zeros(size(newCellRegion));
         newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
 
         labelledImage(newIndices) = selectCellId;
