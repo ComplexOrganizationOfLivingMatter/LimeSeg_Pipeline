@@ -37,6 +37,14 @@ function [labelledImage] = smoothObject(labelledImage,pixelLocations, numCell)
             filledCellOpen = filledCell;
         end
         labelledImage(filledCellOpen>0) = numCell;
+        
+%         coordZ = 25;
+%         figure; imshow(actualCell(:, :, coordZ))
+%         hold on;
+%         coordinatesActualZ = find(pixelLocations(:, 3) == coordZ);
+%         for numPoint = coordinatesActualZ
+%             plot(pixelLocations(numPoint, 2), pixelLocations(numPoint, 1), 'r*');
+%         end
         %labelledImage(filledCell) = numCell;
     catch ex
         ex.rethrow();

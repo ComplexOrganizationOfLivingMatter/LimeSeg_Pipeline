@@ -49,9 +49,9 @@ function [labelledImage, outsideGland] = processCells(directoryOfCells, resizeIm
     
     %% Get invalid region
     [outsideGland] = getOutsideGland(labelledImage);
-    
-    % HERE WE CHANGE THE LABELS OF LABELLED IMAGE (CARE)
-    [labelledImage] = fillEmptySpacesByWatershed3D(labelledImage, outsideGland);
+%     
+%     % HERE WE CHANGE THE LABELS OF LABELLED IMAGE (CARE)
+%     [labelledImage] = fillEmptySpacesByWatershed3D(labelledImage, outsideGland);
 
 end
 

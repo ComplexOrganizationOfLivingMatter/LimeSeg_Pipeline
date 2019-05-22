@@ -35,6 +35,14 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
         [labelledImage, outsideGland] = processCells(fullfile(outputDir, 'Cells', filesep), resizeImg, imgSize, tipValue);
 
         [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
+        
+        %It add pixels and remove some
+        validRegion = imfill(bwmorph3(labelledImage>0 | imdilate(lumenImage, strel('sphere', 5)), 'majority'), 'holes');
+        %outsideGland = validRegion == 0;
+        questionedRegion = imdilate(outsideGland, strel('sphere', 2));
+        outsideGland(questionedRegion) = ~validRegion(questionedRegion);
+        outsideGland(lumenImage) = 0;
+        
         labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
             
         %% Put both lumen and labelled image at a 90 degrees
@@ -45,7 +53,7 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
         
         [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(labelledImage,outsideGland, lumenImage, outputDir, colours, tipValue);
     end
-    [outsideGland] = labelledImage == 0 & imdilate(lumenImage, strel('sphere', 1)) == 0;
+    outsideGland = labelledImage == 0 & imdilate(lumenImage, strel('sphere', 1)) == 0;
 
     setappdata(0,'outputDir', outputDir);
     setappdata(0,'labelledImage',labelledImage);
