@@ -11,3 +11,4 @@ docs/
 *.fig
 *.xls
 .DS_Store
+*.xlsx
