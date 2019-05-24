@@ -26,7 +26,7 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
     demoFile =  imageSequenceFiles(3);
     demoImg = imread(fullfile(demoFile.folder, demoFile.name));
 
-    imgSize = round(size(demoImg)*resizeImg);
+    imgSize = size(imresize(demoImg, resizeImg));
 
     if exist(fullfile(outputDir, 'Results', '3d_layers_info.mat'), 'file')
         load(fullfile(outputDir, 'Results', '3d_layers_info.mat'))
