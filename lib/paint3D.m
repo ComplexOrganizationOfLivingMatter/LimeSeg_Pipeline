@@ -76,6 +76,7 @@ function paint3D(varargin)
         newFig.XGrid = 'off';
         newFig.YGrid = 'off';
         newFig.ZGrid = 'off';
+        newFig.Visible = 'off';
     end
     hold off;
 end
