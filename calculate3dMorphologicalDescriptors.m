@@ -16,15 +16,18 @@ cells3dFeatures = regionprops3(labelledImage, 'PrincipalAxisLength', 'Volume', '
 aspectRatio = max(cells3dFeatures.PrincipalAxisLength,[],2) ./ min(cells3dFeatures.PrincipalAxisLength,[],2);
 sphereArea = 4 * pi .* ((cells3dFeatures.EquivDiameter) ./ 2) .^ 2;
 sphericity = sphereArea ./ cells3dFeatures.SurfaceArea;
+normalizedVolume = cells3dFeatures.Volume/mean(cells3dFeatures.Volume);
+
 
 %% Save variables and export to excel
-cells3dFeatures = [table(validCells', 'VariableNames', {'ID_Cell'}), cells3dFeatures(validCells,:), table(aspectRatio(validCells,:), sphericity(validCells,:), 'VariableNames', {'AspectRatio','Sphericity'})];
+cells3dFeatures = [table(validCells', 'VariableNames', {'ID_Cell'}), cells3dFeatures(validCells,:), table(aspectRatio(validCells,:), sphericity(validCells,:), normalizedVolume(validCells), 'VariableNames', {'AspectRatio','Sphericity','normalizedVolume'})];
 writetable(cells3dFeatures,fullfile(files(numFiles).folder,'3dFeatures_LimeSeg3DSegmentation.xls'), 'Range','B2');
 save(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'), 'cells3dFeatures') 
 
 %% Calculate mean and std of 3D features
 meanFeatures = varfun(@(x) mean(x),cells3dFeatures);
 stdFeatures = varfun(@(x) std(x),cells3dFeatures);
+normalizedVolume = cells3dFeatures.Volume/mean(cells3dFeatures.Volume);
 
 totalMeanFeatures = [totalMeanFeatures; meanFeatures];
 totalStdFeatures = [totalStdFeatures; stdFeatures];
@@ -44,7 +47,7 @@ selpath = dir('**/data/Salivary gland/');
 allFilesName = table(allFilesName, 'VariableNames', {'ID_Glands'});
 totalStdFeatures = removevars (totalStdFeatures,{'Fun_ID_Cell'});
 totalMeanFeatures = removevars(totalMeanFeatures, {'Fun_ID_Cell'});
-totalStdFeatures.Properties.VariableNames = {'stdVolume','stdEquivDiameter','stdPrincipalAxisLength','stdConvexVolume', 'stdSolidity', 'stdSurfaceArea', 'stdAspectRatio', 'stdSphericity'};
+totalStdFeatures.Properties.VariableNames = {'stdVolume','stdEquivDiameter','stdPrincipalAxisLength','stdConvexVolume', 'stdSolidity', 'stdSurfaceArea', 'stdAspectRatio', 'stdSphericity', 'stdNormalizedVolume'};
 
 save(fullfile(selpath(1).folder, 'global_3dFeatures.mat'), 'totalMeanFeatures','totalStdFeatures')
 writetable([allFilesName,totalMeanFeatures,totalStdFeatures], fullfile(selpath(1).folder,'global_3dFeatures.xls'),'Range','B2');
