@@ -16,15 +16,20 @@ imgToShow = imageSequence(:, :, selectedZ);
 cla('reset') 
 imshow(imgToShow);
 hold on;
-[xIndices, yIndices] = find(labelledImage(:, :,  selectedZ) == selectCellId);
-if isempty(xIndices) == 0
-    s2 = scatter(xIndices, yIndices, 'blue','filled','SizeData',10);
-    hold off
-    alpha(s2,.4)
-end
+    if selectCellId > 0
+        [xIndices, yIndices] = find(labelledImage(:, :,  selectedZ) == selectCellId);
+        if isempty(xIndices) == 0
+            s2 = scatter(xIndices, yIndices, 'blue','filled','SizeData',10);
+            hold off
+            alpha(s2,.4)
+        end
+        [xIndices, yIndices] = find(lumenImage(:, :,  selectedZ) == 1);
+    else
+        [xIndices, yIndices] = find(lumenImage(:, :,  selectedZ) == 1);
+    end
+
 
 %% Showing lumen
-[xIndices, yIndices] = find(lumenImage(:, :,  selectedZ) == 1);
 if isempty(xIndices) == 0
     hold on
     s = scatter(xIndices, yIndices, 'red', 'filled','SizeData',10);
