@@ -27,10 +27,13 @@ function [] = calculateSurfaceRatioMutant(basalLayer, apicalLayer, labelledImage
     end 
     
     labelledImageRealSR = double(imclose(labelledImageToCalculateSR > 0,strel('sphere',2)));
+    filledGland = imfill(labelledImageRealSR);
     labelledImageRealSR = labelledImageRealSR .* labelledImage;
-    
-    [apicalLayer] = getApicalFrom3DImage(imfill(labelledImageRealSR), labelledImageRealSR);
-    [basalLayer] = getBasalFrom3DImage(labelledImage, lumenImage, tipValue, outsideGland);
+    lumenImageRealSR = bwlabeln(labelledImageRealSR==0 & (filledGland>0));
+    volumeLumenImage = regionprops3(lumenImageRealSR,'Volume');
+    [~,indexLumenImage] = max(volumeLumenImage.Volume);
+    [apicalLayer] = getApicalFrom3DImage(lumenImageRealSR==indexLumenImage, labelledImageRealSR);
+    [basalLayer] = getBasalFrom3DImage(labelledImage, lumenImageRealSR==indexLumenImage, tipValue, filledGland==0);
     
     %% Create the cylinder between both surfaces
     load('D:\Pablo\LimeSeg_Pipeline\tmp\sr_info.mat')
