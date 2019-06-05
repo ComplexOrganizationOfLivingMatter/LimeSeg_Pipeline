@@ -29,6 +29,9 @@ function [] = calculateSurfaceRatioMutant(basalLayer, apicalLayer, labelledImage
     labelledImageRealSR = double(imclose(labelledImageToCalculateSR > 0,strel('sphere',2)));
     labelledImageRealSR = labelledImageRealSR .* labelledImage;
     
+    [apicalLayer] = getApicalFrom3DImage(imfill(labelledImageRealSR), labelledImageRealSR);
+    [basalLayer] = getBasalFrom3DImage(labelledImage, lumenImage, tipValue, outsideGland);
+    
     %% Create the cylinder between both surfaces
     load('D:\Pablo\LimeSeg_Pipeline\tmp\sr_info.mat')
     %TODO: REMOVE NO-VALID CELLS AREA
