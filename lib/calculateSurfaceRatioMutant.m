@@ -1,4 +1,4 @@
-function [] = calculateSurfaceRatioMuntant(basalLayer, apicalLayer, labelledImage, validCells)
+function [] = calculateSurfaceRatioMutant(basalLayer, apicalLayer, labelledImage, validCells)
 %CALCULATESURFACERATIOMUNTANT Summary of this function goes here
 %   We ought to get the surface ratio (RadiusBasal/RadiusApical). In this
 %   case we want to get RadiusBasal as a cylindre amid two basal surfaces:
@@ -24,8 +24,11 @@ function [] = calculateSurfaceRatioMuntant(basalLayer, apicalLayer, labelledImag
         [possibleIndicesX, possibleIndicesY, possibleIndicesZ] = ind2sub(size(labelledImage), indicesCell);
         pixelsIn = inShape(plotCell, possibleIndicesX, possibleIndicesY, possibleIndicesZ);
         labelledImageToCalculateSR(indicesCell(pixelsIn)) = numCell;
-    end
-
+    end 
+    
+    labelledImageRealSR = double(imclose(labelledImageToCalculateSR > 0,strel('sphere',2)));
+    labelledImageRealSR = labelledImageRealSR .* labelledImage;
+    
     %% Create the cylinder between both surfaces
     load('D:\Pablo\LimeSeg_Pipeline\tmp\sr_info.mat')
     %TODO: REMOVE NO-VALID CELLS AREA
