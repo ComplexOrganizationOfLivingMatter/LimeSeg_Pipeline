@@ -1,4 +1,4 @@
-function [] = calculateSurfaceRatioMutant(basalLayer, apicalLayer, labelledImage, validCells)
+function [realSurfaceRatio] = calculateSurfaceRatioMutant(basalLayer, apicalLayer, labelledImage, validCells)
 %CALCULATESURFACERATIOMUNTANT Summary of this function goes here
 %   We ought to get the surface ratio (RadiusBasal/RadiusApical). In this
 %   case we want to get RadiusBasal as a cylindre amid two basal surfaces:
@@ -37,10 +37,11 @@ function [] = calculateSurfaceRatioMutant(basalLayer, apicalLayer, labelledImage
     [basalLayer] = getBasalFrom3DImage(labelledImage, lumenImageRealSR==indexLumenImage, tipValue, filledGland==0);
     
     %% Calculate real Surface Ratio
-    apicalAreaCells=cell2mat(struct2cell(regionprops(apicalLayer,'Area'))).';
-    basalAreaCells=cell2mat(struct2cell(regionprops(basalLayer,'Area'))).';
-    realSurfaceRatio = mean(basalAreaCells) / mean(apicalAreaCells);
+    apicalAreaCells=regionprops(apicalLayer,'Area');
+    basalAreaCells=regionprops(basalLayer,'Area');
+    apicalAreaCells = apicalAreaCells(validCells);
+    basalAreaCells = basalAreaCells(validCells);
+    realSurfaceRatio = mean([basalAreaCells.Area]) / mean([apicalAreaCells.Area]);
     
-
 end
 
