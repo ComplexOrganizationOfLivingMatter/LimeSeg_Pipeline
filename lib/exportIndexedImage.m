@@ -7,7 +7,7 @@ function [labelledImageFinal] = exportIndexedImage(labelledImage, initialSize, t
     
     %Here 1 is the background
     for numZ = 1:initialSize(3)
-        imwrite(labelledImageFinal(:, :, numZ), [1 1 1; colours], strcat('tmp/imgZCoord_', num2str(numZ),'.tif'));
+        imwrite(labelledImageFinal(:, :, numZ)', [1 1 1; colours], strcat('tmp/imgZCoord_', num2str(numZ),'.tif'));
     end
 end
 
