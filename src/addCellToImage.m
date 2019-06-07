@@ -16,7 +16,7 @@ function [labelledImage] = addCellToImage(pixelLocations, labelledImage, numCell
 %     end
 
     %Real final size of labelledImage
-    labelledImage(max(pixelLocations(:, 1)) + 1, max(pixelLocations(:, 2)) + 1, max(pixelLocations(:, 3)) + 1) = 0;
+    labelledImage(max(pixelLocations(:, 1)), max(pixelLocations(:, 2)), max(pixelLocations(:, 3))) = 0;
 
     %filledCell = imfill(labelledImage == numCell, [pixelLocations(numPixel, 1)+1, pixelLocations(numPixel, 2)+1, pixelLocations(numPixel, 3)+1], 4);
     

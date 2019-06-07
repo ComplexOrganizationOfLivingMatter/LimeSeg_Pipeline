@@ -126,17 +126,25 @@ if roiMask ~= -1
     lumenImage = getappdata(0, 'lumenImage');
 
     if sum(newCellRegion(:)) > 0
-        [y, x] = find(newCellRegion);
+        insideGland = labelledImage(:,:,selectedZ) > 0;
+        if selectCellId > 0
+            [y, x] = find(newCellRegion & insideGland');
+            newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
+            labelledImage(newIndices) = selectCellId;
+            labelledImage(lumenImage>0) = 0;
+            %Smooth surface of next and previos Z
+            labelledImage = smoothCellContour3D(labelledImage, selectCellId, (selectedZ-3):(selectedZ+3), lumenImage);
+            
+        else
+            [y, x] = find(newCellRegion);
+            newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
+            labelledImage(newIndices) = selectCellId;
+            lumenImage(newIndices) = 1;
+            labelledImage(lumenImage>0) = 0;
+            setappdata(0, 'lumenImage', lumenImage);
+        end
 
-        newCellRegion = zeros(size(newCellRegion));
-        newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
-
-        labelledImage(newIndices) = selectCellId;
-        labelledImage(lumenImage>0) = 0;
-
-        %Smooth surface of next and previos Z
-        labelledImage = smoothCellContour3D(labelledImage, selectCellId, (selectedZ-3):(selectedZ+3), lumenImage);
-
+        
         setappdata(0, 'labelledImageTemp', labelledImage);
         showSelectedCell();
     end
@@ -230,7 +238,7 @@ function decreaseID_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 newValue = getappdata(0, 'cellId')-1;
-if newValue > 0
+if newValue >= 0
     setappdata(0, 'cellId', newValue);
     set(handles.tbCellId,'string',num2str(newValue));
     showSelectedCell();

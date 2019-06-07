@@ -16,7 +16,7 @@ function uniqNeigh = getNeighboursFromFourProjectedPlanesFrom3Dgland(img3d,colou
     end
 
     img3d_rotA = rotateImg3(img3d_section1);
-    try
+    
         regionsFound = regionprops3(imclose(img3d_rotA, strel('sphere', 3))>0, {'VoxelIdxList', 'Volume'});
         if size(regionsFound, 1) > 1
             [~, biggestRegion] = max(regionsFound.Volume);
@@ -24,9 +24,7 @@ function uniqNeigh = getNeighboursFromFourProjectedPlanesFrom3Dgland(img3d,colou
             badIds = vertcat(regionsFound.VoxelIdxList{smallerRegions});
             img3d_rotA(badIds) = 0;
         end
-    catch
-        
-    end
+
     [allX,allY,allZ]=ind2sub(size(img3d_rotA),find(img3d_rotA>0));
     img3d_rotACrop = img3d_rotA(min(allX):max(allX),min(allY):max(allY),min(allZ):max(allZ));
     

@@ -26,7 +26,7 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
     demoFile =  imageSequenceFiles(3);
     demoImg = imread(fullfile(demoFile.folder, demoFile.name));
 
-    imgSize = round(size(demoImg)*resizeImg);
+    imgSize = size(imresize(demoImg, resizeImg));
 
     if exist(fullfile(outputDir, 'Results', '3d_layers_info.mat'), 'file')
         load(fullfile(outputDir, 'Results', '3d_layers_info.mat'))
@@ -35,6 +35,14 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
         [labelledImage, outsideGland] = processCells(fullfile(outputDir, 'Cells', filesep), resizeImg, imgSize, tipValue);
 
         [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
+        
+        %It add pixels and remove some
+        validRegion = imfill(bwmorph3(labelledImage>0 | imdilate(lumenImage, strel('sphere', 5)), 'majority'), 'holes');
+        %outsideGland = validRegion == 0;
+        questionedRegion = imdilate(outsideGland, strel('sphere', 2));
+        outsideGland(questionedRegion) = ~validRegion(questionedRegion);
+        outsideGland(lumenImage) = 0;
+        
         labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
             
         %% Put both lumen and labelled image at a 90 degrees
@@ -45,7 +53,7 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
         
         [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(labelledImage,outsideGland, lumenImage, outputDir, colours, tipValue);
     end
-    [outsideGland] = labelledImage == 0 & imdilate(lumenImage, strel('sphere', 1)) == 0;
+    outsideGland = labelledImage == 0 & imdilate(lumenImage, strel('sphere', 1)) == 0;
 
     setappdata(0,'outputDir', outputDir);
     setappdata(0,'labelledImage',labelledImage);
@@ -72,6 +80,7 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
 
         if isequal(savingResults, 'Yes')
             labelledImage = getappdata(0, 'labelledImageTemp');
+            lumenImage = getappdata(0, 'lumenImage');
             close all
             [labelledImage, basalLayer, apicalLayer] = postprocessGland(labelledImage,labelledImage==0, lumenImage, outputDir, colours, tipValue);
 
