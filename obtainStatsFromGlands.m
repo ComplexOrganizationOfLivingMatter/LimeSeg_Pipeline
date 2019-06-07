@@ -19,36 +19,61 @@ resultsFileName = 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat';
 numberOfSurfaceRatios = 11;
 namesSR = arrayfun(@(x) ['sr' strrep(num2str(x),'.','_')],1:numberOfSurfaceRatios,'UniformOutput', false);
 %namesSR = {'sr1' 'sr2'};
-for numFile = 1:length(files)
-    files(numFile).folder
-    
-    load(fullfile(files(numFile).folder, files(numFile).name));
-    load(fullfile(files(numFile).folder, 'valid_cells.mat'));
-    if exist(fullfile(files(numFile).folder, resultsFileName), 'file')
-        load(fullfile(files(numFile).folder, resultsFileName))
-    else
-        continue
-        %divideObjectInSurfaceRatios(files(numFile).folder);
-    end
-    
-    if exist('infoPerSurfaceRatio', 'var')
-        numberOfSurfaceRatios = size(infoPerSurfaceRatio, 1);
-    else
-        numberOfSurfaceRatios = 2;
-    end
-    
-    if exist('neighboursOfAllSurfaces', 'var') == 0 && numberOfSurfaceRatios == 11
-        neighboursOfAllSurfaces = cell(numberOfSurfaceRatios, 1);
-        filesOf2DUnroll = dir(fullfile(files(numFile).folder, '**', 'verticesInfo.mat'));
-        for numSR = 1:numberOfSurfaceRatios
-            load(fullfile(filesOf2DUnroll(numSR).folder, 'verticesInfo.mat'), 'newVerticesNeighs2D');
-            
-            if numSR == 1
-                idToSave = 1;
-            elseif numSR == 2
-                idToSave = size(infoPerSurfaceRatio, 1);
-            else
-                idToSave = numSR - 1;
+
+steps = 2.5/(minNumberOfSurfaceRatios-1);
+surfaceRatiosExtrapolatedFrom3D = 1:steps:((steps*(minNumberOfSurfaceRatios-1))+1);
+
+totalDataBasal = [];
+totalDataAccum = [];
+
+realSRBasal = [];
+realSRAccum = [];
+meanVolumeMicronsPerGland = zeros(length(files),2);
+
+
+if ~exist('Results/salivaryGland_Info_20_05_2019.mat','file')
+    for numFile = 1:length(files)
+        files(numFile).folder
+
+        load(fullfile(files(numFile).folder, files(numFile).name));
+        load(fullfile(files(numFile).folder, 'valid_cells.mat'));
+        if exist(fullfile(files(numFile).folder, resultsFileName), 'file')
+            load(fullfile(files(numFile).folder, resultsFileName))
+        else
+            continue
+            %divideObjectInSurfaceRatios(files(numFile).folder);
+        end
+        load([files(numFile).folder '\unrolledGlands\gland_SR_basal\final3DImg.mat'],'img3dComplete')
+        
+        volume3d = regionprops3(img3dComplete,'Volume');
+        volume3d = cat(1,volume3d.Volume);
+        meanVolumeMicronsPerGland(numFile,1) = mean(volume3d(validCells)); 
+        meanVolumeMicronsPerGland(numFile,2) = std(volume3d(validCells)); 
+        if exist('infoPerSurfaceRatio', 'var')
+            numberOfSurfaceRatios = size(infoPerSurfaceRatio, 1);
+        else
+            numberOfSurfaceRatios = 2;
+        end
+
+        meanSR(numFile, 1) = infoPerSurfaceRatio{end, 2};
+        meanSR(numFile, 2) = infoPerSurfaceRatio{end, 7};
+        meanSR(numFile, 3) = infoPerSurfaceRatio{minNumberOfSurfaceRatios, 2};
+        meanSR(numFile, 4) = infoPerSurfaceRatio{minNumberOfSurfaceRatios, 7};
+        if exist('neighboursOfAllSurfaces', 'var') == 0
+            neighboursOfAllSurfaces = cell(numberOfSurfaceRatios, 1);
+            filesOf2DUnroll = dir(fullfile(files(numFile).folder, '**', 'verticesInfo.mat'));
+            for numSR = 1:numberOfSurfaceRatios
+                load(fullfile(filesOf2DUnroll(numSR).folder, 'verticesInfo.mat'), 'newVerticesNeighs2D');
+
+                if numSR == 1
+                    idToSave = 1;
+                elseif numSR == 2
+                    idToSave = size(infoPerSurfaceRatio, 1);
+                else
+                    idToSave = numSR - 1;
+                end
+
+                neighboursOfAllSurfaces{idToSave} = getNeighboursFromVertices(newVerticesNeighs2D);
             end
             
             neighboursOfAllSurfaces{idToSave} = getNeighboursFromVertices(newVerticesNeighs2D);
@@ -132,8 +157,41 @@ for numFile = 1:length(files)
     %Scutoids per number of sides
     [meanWinningPerSidePerFile{numFile, 1}, cellsPerSide{numFile}] = calculateMeanWinning3DNeighbours(numNeighAccumPerSurfacesRealization, validCells);
     clearvars 'meanNeighsScutoidsPerSF_ValidCells' 'neighbours'
+
+    save('Results/salivaryGland_Info_20_05_2019.mat', 'mean_PercScutoids_basal', 'infoEuler3D', 'numNeighPerSurface', 'numNeighAccumPerSurfaces', 'numNeighOfNeighPerSurface', 'numNeighOfNeighAccumPerSurface', 'areaCellsPerSurface', 'volumePerSurface', 'numCells_Total', 'neighbours_apical', 'neighbours_basal', 'neighbours_total', 'polygon_distribution_apical', 'polygon_distribution_basal','meanVolumeMicronsPerGland', 'mean_apicoBasalTransitionsPerGland', 'mean_neighsAccum');
+else
+    load('Results/salivaryGland_Info_20_05_2019.mat');
 end
 
+nTotal_apicobasalT = [mean_apicoBasalTransitionsPerGland{:}; mean_neighsAccum{:}; mean_Scutoids{:}; surfaceRatiosPerFile{:}]';
+%% NTotal vs ApicoBasal
+figure; 
+%hold on;
+for numPoint = 1:size(nTotal_apicobasalT, 1)
+    plot(nTotal_apicobasalT(numPoint, 1), nTotal_apicobasalT(numPoint, 2), 'o', 'MarkerSize', 5, 'Color', [151 238 152]/255, 'MarkerFaceColor', [151 238 152]/255, 'MarkerEdgeColor', [151 238 152]/255)
+    hold on;
+end
+% %% NTotal vs Scutoids
+% figure; 
+% for numPoint = 1:size(nTotal_apicobasalT, 1)
+%     plot(nTotal_apicobasalT(numPoint, 3), nTotal_apicobasalT(numPoint, 2), 'ko','MarkerSize',5, 'MarkerFaceColor',[151 238 152]/255)
+%     hold on;
+% end
+% xlabel('% Scutoids')
+% ylabel('N Total')
+% legend('S. Gland');
+% %% NTotal vs SR
+% figure; 
+% for numPoint = 1:size(nTotal_apicobasalT, 1)
+%     plot(nTotal_apicobasalT(numPoint, 4), nTotal_apicobasalT(numPoint, 2), 'ko','MarkerSize',5, 'MarkerFaceColor',[151 238 152]/255, )
+%     hold on;
+% end
+% xlabel('Surface ratio')
+% ylabel('N Total')
+% legend('S. Gland');
+
+%%
+mean_apicoBasalTransitions_final
 dim = ndims(meanWinningPerSidePerFile{1});          %# Get the number of dimensions for your arrays
 M = cat(dim+1,meanWinningPerSidePerFile{:});        %# Convert to a (dim+1)-dimensional matrix
 meanWinningPerSide_Total = mean(M,dim+1, 'omitnan');  %# Get the mean across arrays
