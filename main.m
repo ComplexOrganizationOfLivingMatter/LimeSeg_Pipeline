@@ -2,13 +2,12 @@
 addpath(genpath('src'))
 addpath(genpath('lib'))
 addpath(genpath('gui'))
-addpath(genpath(fullfile('..','Epithelia3D', 'InSilicoModels', 'TubularModel', 'src')));
 
 close all
 
 selpath = uigetdir('data');
 if isempty(selpath) == 0
-    [polygon_distribution, neighbours_data] = pipeline(selpath);
+    [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(selpath);
 
     save(fullfile(selpath,'Results/polygon_distribution.mat'), 'polygon_distribution', 'neighbours_data')
 
@@ -20,13 +19,3 @@ if isempty(selpath) == 0
     end
 end
 
-% load(fullfile(selpath, 'Results', '3d_layers_info.mat'));
-% load(fullfile(selpath, 'Results', 'valid_cells.mat'));
-% % allCellsInit = union(validCells, noValidCells);
-% % allCells = allCellsInit;
-% % allCells([58, 39, 30]) = [];
-% % validCells = intersect(validCells, allCells);
-% % noValidCells = setdiff(allCellsInit, validCells);
-% [infoPerSurfaceRatio, neighbours] = divideObjectInSurfaceRatios(labelledImage, basalLayer, apicalLayer, validCells, noValidCells, colours, selpath);
-
-% save(fullfile(selpath, 'Results', 'glandDividedInSurfaceRatios.mat'), 'infoPerSurfaceRatio', 'neighbours');

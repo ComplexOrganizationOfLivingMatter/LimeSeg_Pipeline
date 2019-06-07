@@ -1,35 +1,47 @@
-function [rotatedImg3d, originalRotation] = rotateImg3(img3d, resizeImg, definedRotation)
+function [rotatedImg3d, rotations] = rotateImg3(img3d, apicalRotationsOriginal)
 
-    img3d_reduced=imresize3(img3d,resizeImg,'nearest');
-    orientationObj = regionprops3(img3d_reduced>0, 'Orientation');
-    originalRotation(1) = orientationObj.Orientation(1);
-    if exist('predefinedRotation', 'var') == 0
+    rotations = [0 0 0];
+    closedImg3D = imdilate(img3d>0,strel('sphere',5));
+    orientationImg3D = imerode(bwmorph3(closedImg3D,'fill'),strel('sphere',3));
+
+    %rotation A %% You may keep this untouched
+    orientationObj = regionprops3(orientationImg3D, 'Orientation');
+    if exist('apicalRotationsOriginal', 'var') == 0
         img3d_rot1 = imrotate(img3d, - orientationObj.Orientation(1));
+        orientationImg3D = imrotate(img3d, - orientationObj.Orientation(1));
     else
-        img3d_rot1 = imrotate(img3d, - definedRotation(1));
+        img3d_rot1 = imrotate(img3d, - apicalRotationsOriginal(1));
+        orientationImg3D = imrotate(img3d, - apicalRotationsOriginal(1));
     end
     
-
+    rotations(1) = orientationObj.Orientation(1);
+    
+    %rotation B
     xzyImg = permute(img3d_rot1,[1 3 2]);
-    orientationObj = regionprops3(imresize3(xzyImg,resizeImg,'nearest')>0, 'Orientation');
-    originalRotation(2) = orientationObj.Orientation(1);
-    if exist('predefinedRotation', 'var') == 0
+    orientationImg3D = permute(orientationImg3D,[1 3 2]);
+    orientationObj = regionprops3(orientationImg3D, 'Orientation');
+    if exist('apicalRotationsOriginal', 'var') == 0
         xzyImg3d_rot = imrotate(xzyImg, - orientationObj.Orientation(1));
     else
-        xzyImg3d_rot = imrotate(xzyImg, - definedRotation(2));
+        xzyImg3d_rot = imrotate(xzyImg, - apicalRotationsOriginal(2));
     end
+    rotations(2) = orientationObj.Orientation(1);
 
+    %rotation C
     yzxImg3d_rot = permute(xzyImg3d_rot,[3 2 1]);
-    orientationObj = regionprops3(imresize3(yzxImg3d_rot,resizeImg,'nearest')>0, 'Orientation');
-    originalRotation(3) = orientationObj.Orientation(1);
+    orientationImg3D = permute(orientationImg3D,[3 2 1]);
 
-    
-    if exist('predefinedRotation', 'var') == 0
+    orientationObj = regionprops3(orientationImg3D, 'Orientation');
+    if exist('apicalRotationsOriginal', 'var') == 0
         img3d_rotFinal = imrotate(yzxImg3d_rot, - orientationObj.Orientation(1));
     else
-        img3d_rotFinal = imrotate(yzxImg3d_rot, - definedRotation(3));
+        img3d_rotFinal = imrotate(yzxImg3d_rot, - apicalRotationsOriginal(3)); 
     end
-    img3d_rot = permute(img3d_rotFinal,[3 2 1]);
+    
+    rotations(3) = orientationObj.Orientation(1);
+    
+    %come back to original axes
+    img3d_rot = permute(img3d_rotFinal,[3 1 2]);
     
     [xCol, yRow, z] = ind2sub(size(img3d_rot),find(img3d_rot>0));
     if min(xCol) <= 0 || min(yRow) <= 0 || min(z) <= 0

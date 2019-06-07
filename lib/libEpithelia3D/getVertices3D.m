@@ -3,8 +3,8 @@ function [ verticesInfo] = getVertices3D( L_img, neighbours, invalidRegion)
 % cell
 
 ratio=3;
-[xgrid, ygrid, zgrid] = meshgrid(-ratio:ratio); 
-ball = (sqrt(xgrid.^2 + ygrid.^2 + zgrid.^2) <= ratio); 
+
+ball = strel('sphere', ratio);
 
 neighboursVertices = buildTripletsOfNeighs( neighbours );%intersect dilatation of each cell of triplet
 vertices = cell(size(neighboursVertices, 1), 1);
@@ -48,7 +48,5 @@ end
 
 verticesInfo.verticesPerCell = vertices;
 verticesInfo.verticesConnectCells = neighboursVertices;
-
-
 end
 

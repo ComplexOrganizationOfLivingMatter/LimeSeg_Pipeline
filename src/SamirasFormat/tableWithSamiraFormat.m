@@ -1,4 +1,4 @@
-function [samiraTableVoronoi, cellsVoronoi] = tableWithSamiraFormat(cellWithVertices,cellCentroids, missingVertices, nSurfR, pathSplitted, nameOfSimulation)
+function [samiraTableVoronoi, cellsVoronoi] = tableWithSamiraFormat(cellWithVertices,cellCentroids, missingVertices, nSurfR, outputDir, nameOfSimulation)
 %TABLEWITHSAMIRAFORMAT Summary of this function goes here
 %   Detailed explanation goes here
 %
@@ -48,9 +48,6 @@ function [samiraTableVoronoi, cellsVoronoi] = tableWithSamiraFormat(cellWithVert
     end
     
     %Plot
-    nameSplitted = strsplit(nameOfSimulation, '_');
-    dir2save = strcat(strjoin(pathSplitted(1:end-2), '\'),'\verticesSamira\');
-    mkdir(dir2save)
-    plotVerticesPerSurfaceRatio(samiraTableVoronoi((end-numCell+1):end,:),missingVerticesCoord,dir2save,nameSplitted,'Natural',nSurfR)
+    plotVerticesPerSurfaceRatio(samiraTableVoronoi((end-numCell+1):end,:),missingVerticesCoord, outputDir, nameOfSimulation, nSurfR)
 end
 
