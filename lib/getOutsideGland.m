@@ -3,8 +3,9 @@ function [outsideGland] = getOutsideGland(labelledImage)
 %   Detailed explanation goes here
     [allX,allY,allZ] = ind2sub(size(labelledImage),find(zeros(size(labelledImage))==0));
     [x, y, z] = ind2sub(size(labelledImage), find(labelledImage>0));
-    glandObject = alphaShape(x, y, z, 5);
-
+    glandObject = alphaShape(x, y, z);
+    pc = criticalAlpha(glandObject,'one-region');
+    glandObject.Alpha = pc;
 
     numPartitions = 100;
     partialPxs = ceil(length(allX)/numPartitions);
@@ -18,5 +19,11 @@ function [outsideGland] = getOutsideGland(labelledImage)
     end
     outsideGland = true(size(labelledImage));
     outsideGland(idIn) = 0;
+    
+    insideGland = imdilate(outsideGland == 0, strel('sphere', 1));
+    insideGlandFilled = imfill(double(insideGland),  4, 'holes');
+    insideGlandFilled = imerode(insideGlandFilled, strel('sphere', 1));
+    
+    outsideGland = insideGlandFilled == 0;
 end
 

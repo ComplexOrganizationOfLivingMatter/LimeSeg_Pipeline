@@ -1,4 +1,4 @@
-function [polygon_distribution, neighbours_data] = pipeline(outputDir)
+function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(outputDir)
 %PIPELINE Summary of this function goes here
 %   Detailed explanation goes here
     mkdir(fullfile(outputDir, 'Cells', 'OutputLimeSeg'));
@@ -8,7 +8,16 @@ function [polygon_distribution, neighbours_data] = pipeline(outputDir)
     mkdir(fullfile(outputDir, 'Apical_Labelled'));
 
 
-    resizeImg = 0.25; %This is equal aprox to 1/4.06
+    if exist(fullfile(outputDir, 'Results', 'zScaleOfGland.mat'), 'file') == 0
+        zScale = inputdlg('Insert z-scale of Gland');
+        zScale = str2double(zScale{1});
+
+        save(fullfile(outputDir, 'Results', 'zScaleOfGland.mat'), 'zScale');
+    else
+        load(fullfile(outputDir, 'Results', 'zScaleOfGland.mat')); 
+    end
+    
+    resizeImg = 1/zScale;
 
     tipValue = 4;
 
@@ -18,7 +27,7 @@ function [polygon_distribution, neighbours_data] = pipeline(outputDir)
     demoFile =  imageSequenceFiles(3);
     demoImg = imread(fullfile(demoFile.folder, demoFile.name));
 
-    imgSize = round(size(demoImg)*resizeImg);
+    imgSize = size(imresize(demoImg, resizeImg));
 
     if exist(fullfile(outputDir, 'Results', '3d_layers_info.mat'), 'file')
         load(fullfile(outputDir, 'Results', '3d_layers_info.mat'))
@@ -27,26 +36,25 @@ function [polygon_distribution, neighbours_data] = pipeline(outputDir)
         [labelledImage, outsideGland] = processCells(fullfile(outputDir, 'Cells', filesep), resizeImg, imgSize, tipValue);
 
         [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
-        %labelledImage = completeImageOfCells(labelledImage, imclose(labelledImage, strel('sphere', 1)) == 0);
+        
+        %It add pixels and remove some
+        validRegion = imfill(bwmorph3(labelledImage>0 | imdilate(lumenImage, strel('sphere', 5)), 'majority'), 'holes');
+        %outsideGland = validRegion == 0;
+        questionedRegion = imdilate(outsideGland, strel('sphere', 2));
+        outsideGland(questionedRegion) = ~validRegion(questionedRegion);
+        outsideGland(lumenImage) = 0;
+        
+        labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
             
         %% Put both lumen and labelled image at a 90 degrees
-
         orientationGland = regionprops3(lumenImage>0, 'Orientation');
         glandOrientation = -orientationGland.Orientation(1);
         %labelledImage = imrotate(labelledImage, glandOrientation);
         %lumenImage = imrotate(lumenImage, glandOrientation);
-
-        %% Get basal layer by dilating the empty space
-        [basalLayer] = getBasalFrom3DImage(labelledImage, lumenImage, tipValue);
-
-        %% Get apical layer by dilating the lumen
-        [apicalLayer] = getApicalFrom3DImage(lumenImage, labelledImage);
-        exportAsImageSequence(apicalLayer, fullfile(outputDir, 'Apical_Labelled'), colours, tipValue);
-
-        %% Export image sequence
-        [colours] = exportAsImageSequence(labelledImage, fullfile(outputDir, 'Cells', 'labelledSequence', filesep), colours, tipValue);
+        
+        [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(labelledImage,outsideGland, lumenImage, outputDir, colours, tipValue);
     end
-    [outsideGland] = getOutsideGland(labelledImage);
+    outsideGland = labelledImage == 0 & imdilate(lumenImage, strel('sphere', 1)) == 0;
 
     setappdata(0,'outputDir', outputDir);
     setappdata(0,'labelledImage',labelledImage);
@@ -73,15 +81,10 @@ function [polygon_distribution, neighbours_data] = pipeline(outputDir)
 
         if isequal(savingResults, 'Yes')
             labelledImage = getappdata(0, 'labelledImageTemp');
+            lumenImage = getappdata(0, 'lumenImage');
             close all
-            [labelledImage] = fillEmptySpacesByWatershed3D(labelledImage, outsideGland | lumenImage, 1);
-            labelledImage = completeImageOfCells(labelledImage, imclose(labelledImage, strel('sphere', 1)) == 0);
-            exportAsImageSequence(labelledImage, fullfile(outputDir, 'Cells', 'labelledSequence', filesep), colours, tipValue);
+            [labelledImage, basalLayer, apicalLayer] = postprocessGland(labelledImage,labelledImage==0, lumenImage, outputDir, colours, tipValue);
 
-            %% Calculate neighbours and plot missing cells
-            [basalLayer] = getBasalFrom3DImage(labelledImage, lumenImage, tipValue);
-            [apicalLayer] = getApicalFrom3DImage(lumenImage, labelledImage);
-            exportAsImageSequence(apicalLayer, fullfile(outputDir, 'Apical_Labelled'), colours, tipValue);
             [answer, apical3dInfo, notFoundCellsApical, basal3dInfo, notFoundCellsBasal] = calculateMissingCells(labelledImage, lumenImage, apicalLayer, basalLayer, colours, noValidCells);
         else
             [answer] = isEverythingCorrect();
@@ -93,9 +96,9 @@ function [polygon_distribution, neighbours_data] = pipeline(outputDir)
     save(fullfile(outputDir, 'Results', '3d_layers_info.mat'), 'labelledImage', 'basalLayer', 'apicalLayer', 'apical3dInfo', 'basal3dInfo', 'colours', 'lumenImage','glandOrientation', '-v7.3')
 
     %% Calculate poligon distribution
-    [polygon_distribution_Apical] = calculate_polygon_distribution(cellfun(@length, apical3dInfo.neighbourhood), validCells);
-    [polygon_distribution_Basal] = calculate_polygon_distribution(cellfun(@length, basal3dInfo.neighbourhood), validCells);
-    neighbours_data = table(apical3dInfo.neighbourhood, basal3dInfo.neighbourhood);
+    [polygon_distribution_Apical] = calculate_polygon_distribution(cellfun(@length, apical3dInfo), validCells);
+    [polygon_distribution_Basal] = calculate_polygon_distribution(cellfun(@length, basal3dInfo), validCells);
+    neighbours_data = table(apical3dInfo, basal3dInfo);
     polygon_distribution = table(polygon_distribution_Apical, polygon_distribution_Basal);
     neighbours_data.Properties.VariableNames = {'Apical','Basal'};
     polygon_distribution.Properties.VariableNames = {'Apical','Basal'};

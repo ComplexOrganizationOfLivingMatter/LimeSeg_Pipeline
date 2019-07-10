@@ -16,35 +16,50 @@ function uniqNeigh = getNeighboursFromFourProjectedPlanesFrom3Dgland(img3d,colou
     end
 
     img3d_rotA = rotateImg3(img3d_section1);
+    
+        regionsFound = regionprops3(imclose(img3d_rotA, strel('sphere', 3))>0, {'VoxelIdxList', 'Volume'});
+        if size(regionsFound, 1) > 1
+            [~, biggestRegion] = max(regionsFound.Volume);
+            smallerRegions = setdiff(1:size(regionsFound, 1), biggestRegion);
+            badIds = vertcat(regionsFound.VoxelIdxList{smallerRegions});
+            img3d_rotA(badIds) = 0;
+        end
+
     [allX,allY,allZ]=ind2sub(size(img3d_rotA),find(img3d_rotA>0));
     img3d_rotACrop = img3d_rotA(min(allX):max(allX),min(allY):max(allY),min(allZ):max(allZ));
     
     img3d_rotB = rotateImg3(img3d_section2);
+    regionsFound = regionprops3(imclose(img3d_rotB, strel('sphere', 3))>0, {'VoxelIdxList', 'Volume'});
+    if size(regionsFound, 1) > 1
+        [~, biggestRegion] = max(regionsFound.Volume);
+        smallerRegions = setdiff(1:size(regionsFound, 1), biggestRegion);
+        badIds = vertcat(regionsFound.VoxelIdxList{smallerRegions});
+        img3d_rotB(badIds) = 0;
+    end
     [allX,allY,allZ]=ind2sub(size(img3d_rotB),find(img3d_rotB>0));
     img3d_rotBCrop = img3d_rotB(min(allX):max(allX),min(allY):max(allY),min(allZ):max(allZ));
 
     [upProjA,downProjA,leftProjA,rightProjA] = get4ProjectionsAlongMajorAxis(img3d_rotACrop,colours);
-    radiusNeigh = 1;
     
     maxCell = max(img3d(:));
     
-    neighUpA = calculateNeighbours(upProjA,radiusNeigh);
+    neighUpA = calculateNeighbours(upProjA);
     neighUpA = [neighUpA,cell(1,maxCell-length(neighUpA))];
-    neighDownA = calculateNeighbours(downProjA,radiusNeigh);
+    neighDownA = calculateNeighbours(downProjA);
     neighDownA = [neighDownA,cell(1,maxCell-length(neighDownA))];
-    neighLeftA = calculateNeighbours(leftProjA,radiusNeigh);
+    neighLeftA = calculateNeighbours(leftProjA);
     neighLeftA = [neighLeftA,cell(1,maxCell-length(neighLeftA))];
-    neighRightA = calculateNeighbours(rightProjA,radiusNeigh);
+    neighRightA = calculateNeighbours(rightProjA);
     neighRightA = [neighRightA,cell(1,maxCell-length(neighRightA))];
 
     [upProjB,downProjB,leftProjB,rightProjB] = get4ProjectionsAlongMajorAxis(img3d_rotBCrop,colours);
-    neighUpB = calculateNeighbours(upProjB,radiusNeigh);
+    neighUpB = calculateNeighbours(upProjB);
     neighUpB = [neighUpB,cell(1,maxCell-length(neighUpB))];
-    neighDownB = calculateNeighbours(downProjB,radiusNeigh);
+    neighDownB = calculateNeighbours(downProjB);
     neighDownB = [neighDownB,cell(1,maxCell-length(neighDownB))];
-    neighLeftB = calculateNeighbours(leftProjB,radiusNeigh);
+    neighLeftB = calculateNeighbours(leftProjB);
     neighLeftB = [neighLeftB,cell(1,maxCell-length(neighLeftB))];
-    neighRightB = calculateNeighbours(rightProjB,radiusNeigh);
+    neighRightB = calculateNeighbours(rightProjB);
     neighRightB = [neighRightB,cell(1,maxCell-length(neighRightB))];
     
     %unify neighs

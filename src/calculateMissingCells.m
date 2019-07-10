@@ -5,20 +5,26 @@ function [answer, apical3dInfo, notFoundCellsApical, basal3dInfo, notFoundCellsB
     allCells = unique(labelledImage(:));
     allCells(allCells == 0) = [];
     
-    [apical3dInfo] = calculateNeighbours3D(apicalLayer);
-    if length(allCells) ~= length(apical3dInfo.neighbourhood)
-        addingCells = length(allCells) - length(apical3dInfo.neighbourhood);
-        apical3dInfo.neighbourhood(end+addingCells) = {[]};
+    [apical3dInfo] = calculateNeighbours3D(apicalLayer, 2, apicalLayer == 0);
+    apical3dInfo = apical3dInfo.neighbourhood';
+%     apical3dInfo = getNeighboursFromFourProjectedPlanesFrom3Dgland(apicalLayer, colours);
+%     apical3dInfo = checkPairPointCloudDistanceCurateNeighbours(apicalLayer, apical3dInfo);
+    if length(allCells) ~= length(apical3dInfo)
+        addingCells = length(allCells) - length(apical3dInfo);
+        apical3dInfo(end+addingCells) = {[]};
     end
-    notFoundCellsApical = find(cellfun(@(x) isempty(x), apical3dInfo.neighbourhood))';
+    notFoundCellsApical = find(cellfun(@(x) isempty(x), apical3dInfo))';
 
     %Display missing cells in basal
-    [basal3dInfo] = calculateNeighbours3D(basalLayer);
-    if length(allCells) ~= length(basal3dInfo.neighbourhood)
-        addingCells = length(allCells) - length(basal3dInfo.neighbourhood);
-        basal3dInfo.neighbourhood(end+addingCells) = {[]};
+    [basal3dInfo] = calculateNeighbours3D(basalLayer, 2, basalLayer == 0);
+    basal3dInfo = basal3dInfo.neighbourhood';
+%     basal3dInfo = getNeighboursFromFourProjectedPlanesFrom3Dgland(basalLayer, colours);
+%     basal3dInfo = checkPairPointCloudDistanceCurateNeighbours(basalLayer, basal3dInfo);
+    if length(allCells) ~= length(basal3dInfo)
+        addingCells = length(allCells) - length(basal3dInfo);
+        basal3dInfo(end+addingCells) = {[]};
     end
-    notFoundCellsBasal = find(cellfun(@(x) isempty(x), basal3dInfo.neighbourhood))';
+    notFoundCellsBasal = find(cellfun(@(x) isempty(x), basal3dInfo))';
 
 
     %% Plot with missing cells

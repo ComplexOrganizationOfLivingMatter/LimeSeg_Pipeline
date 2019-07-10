@@ -7,3 +7,8 @@ docs/
 *.asv
 *.ini
 *.mat
+*.png
+*.fig
+*.xls
+.DS_Store
+*.xlsx
