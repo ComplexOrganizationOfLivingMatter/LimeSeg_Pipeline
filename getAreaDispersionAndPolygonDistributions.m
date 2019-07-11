@@ -166,8 +166,11 @@ nRealizations = 20;
 H = 512;
 W = 4096;
 nSeeds = 200;
-calculatePolDist(H,W,nSeeds,VorN,nRealizations)
+
 folderTube = ['..\Epithelia3D\InSilicoModels\TubularModel\data\tubularCVT\Data\' num2str(H) 'x' num2str(W) 'seeds\polygonDistribution_diag_' num2str(VorN) '.mat'];
+if ~exist(folderTube,'file')
+    calculatePolDist(H,W,nSeeds,VorN,nRealizations)
+end
 path2save = 'docs\figuresMathPaper\';
 load(folderTube)
 lewisApical_tube = lewis_NormArea; 
