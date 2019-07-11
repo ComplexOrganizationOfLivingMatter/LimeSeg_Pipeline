@@ -138,7 +138,7 @@ If you have to leave and you have not finish the salivary gland, you can always 
 ## Step 3: Matlab's refining process
 
 1. Execute 'Epithelia3D/Salivary Glands/LimeSeg_3DSegmentation/main.m' in Matlab. It is prepared for R2018a.
-2. Select the folder where you have your images. Remember to have all the directories as explained in the 'Directories hierarchy'.
+2. Select the folder where you have your images. Remember to have all the directories as explained in the [Directories hierarchy](directories-hierarchy).
 3. Go to 'Cells/labelledSequence', where you will find the labelled image for each Z plane.
 4. Find the invalid cells (i.e. cells that does not have the correct neighbours), which will be at the tips of the salivary gland.
 5. When the pop-up dialog shown 'Insert the non-valid cells', insert the IDs of the no valid cells (**comma-separated**, e.g. '1, 30, 3, 95') and click 'ok!'.
