@@ -5,137 +5,138 @@ addpath(genpath('src'))
 addpath(genpath('lib'))
 addpath(genpath(fullfile('..','Epithelia3D', 'InSilicoModels', 'TubularModel', 'src')));
 
-% files = dir('**/Salivary gland/**/Results/3d_layers_info.mat');
-% 
-% nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0, {files.folder});
-% files = files(nonDiscardedFiles);
-% 
-% surfLayers = {'apical','basal'};
-% 
-% polyDistApical = cell(size(files,1),1);
-% polyDistBasal = cell(size(files,1),1);
-% logNormAreaApical = cell(size(files,1),1);
-% logNormAreaBasal = cell(size(files,1),1);
-% normAreaApical = cell(size(files,1),1);
-% normAreaBasal = cell(size(files,1),1);
-% normVolumeCells = cell(size(files,1),1);
-% totalSidesCellsApical = cell(size(files,1),1);
-% totalSidesCellsBasal = cell(size(files,1),1);
-% totalSidesCells = cell(size(files,1),1);
-% neighExchanges = zeros(size(files,1),1);
-% percScutoids = zeros(size(files,1),1); 
-% 
-% 
-% for nFile = 1 : size(files,1)
-%       
-%     for nSurf = 1:2
-%         load([files(nFile).folder '\' surfLayers{nSurf} '\final3DImg.mat'],'img3d')
-%         load([files(nFile).folder '\' surfLayers{nSurf} '\verticesInfo.mat'],'validCellsFinal','newVerticesNeighs2D')
-% 
-%         neighsCells = cell(1,max(newVerticesNeighs2D(:)));
-%         for nCell = 1 : max(newVerticesNeighs2D(:))
-%         	 [nRow,nCol]=find(ismember(newVerticesNeighs2D,nCell));
-%              cellsNeigh = unique(newVerticesNeighs2D(nRow,:));
-%              cellsNeigh = cellsNeigh(cellsNeigh~=nCell);
-%              neighsCells{nCell} = cellsNeigh;             
-%         end
-%         sidesCells = cellfun(@(x) length(x), neighsCells);
-%         [polyDist]=calculate_polygon_distribution(sidesCells,validCellsFinal);
-%         
-%         volumePerim = regionprops3(img3d,'Volume');
-%         areaCells = cat(1,volumePerim.Volume);
-%         areaValidCells = areaCells(validCellsFinal);
-%         
-%         
-%         
-%         if nSurf == 1
-%             polyDistApical{nFile} = polyDist(2,:);
-%             logNormAreaApical{nFile} = log10(areaValidCells./(mean(areaValidCells)));
-%             normAreaApical{nFile} = areaValidCells./(mean(areaValidCells));
-%             totalSidesCellsApical{nFile} = sidesCells(validCellsFinal);
-%             neighsCellsApical = neighsCells;
-%         else
-%             polyDistBasal{nFile} = polyDist(2,:);
-%             logNormAreaBasal{nFile} = log10(areaValidCells./(mean(areaValidCells)));
-%             normAreaBasal{nFile} = areaValidCells./(mean(areaValidCells));
-%             totalSidesCellsBasal{nFile} = sidesCells(validCellsFinal);
-%             neighsCellsBasal = neighsCells;
-%             
-%             neighChanges = cellfun(@(x,y) length(setxor(x,y)),neighsCellsBasal(validCellsFinal),neighsCellsApical(validCellsFinal));
-%             numScutoids = cellfun(@(x,y) ~isempty(setxor(x,y)),neighsCellsBasal(validCellsFinal),neighsCellsApical(validCellsFinal));
-%             
-%             totalSidesCells{nFile} = cellfun(@(x,y) length(unique([x;y])),neighsCellsBasal(validCellsFinal),neighsCellsApical(validCellsFinal));
-% 
-%             
-%             neighExchanges(nFile) = sum(neighChanges)/length(validCellsFinal);
-%             percScutoids(nFile) = sum(numScutoids)/length(validCellsFinal);
-%             
-%             
-%         end
-%     end
-%     load([files(nFile).folder '\3d_layers_info.mat'],'labelledImage')
-%     
-%     volumeCells = regionprops3(labelledImage,'Volume');
-%     volumeCells = cat(1,volumeCells.Volume);
-%     volumeValidCells = volumeCells(validCellsFinal);
-%     normVolumeCells{nFile} = volumeValidCells./(mean(volumeValidCells));
-% end
-% 
-% polyDistBasal = cell2mat(vertcat(polyDistBasal{:}));
-% meanPolyDistBasal = mean(polyDistBasal);
-% stdPolyDistBasal = std(polyDistBasal);
-% 
-% polyDistApical = cell2mat(vertcat(polyDistApical{:}));
-% meanPolyDistApical = mean(polyDistApical);
-% stdPolyDistApical = std(polyDistApical);
-% 
-% dispersionLogNormAreaBasal = vertcat(logNormAreaBasal{:});
-% dispersionLogNormAreaApical = vertcat(logNormAreaApical{:});
-% 
-% dispersionNormAreaBasal = vertcat(normAreaBasal{:});
-% dispersionNormAreaApical = vertcat(normAreaApical{:});
-% dispersionNormVolume = vertcat(normVolumeCells{:});
-% 
-% listPolygons = 3:23;
-% 
-% relationNormArea_numSidesBasal = [horzcat(totalSidesCellsBasal{:})',dispersionNormAreaBasal];
-% relationNormArea_numSidesApical = [horzcat(totalSidesCellsApical{:})',dispersionNormAreaApical];
-% relationNormVol_numSidesVolume = [horzcat(totalSidesCells{:})',dispersionNormVolume];
-% 
-% 
-% %relationNsidesApical-basal
-% totalSidesCells = horzcat(totalSidesCells{:})';
-% totalSidesTotalApical = arrayfun(@(x) totalSidesCells(horzcat(totalSidesCellsApical{:})' == x),4:9,'UniformOutput',false);
-% 
-% uniqSidesBasal = unique(horzcat(totalSidesCellsBasal{:}));
-% uniqSidesApical = unique(horzcat(totalSidesCellsApical{:}));
-% uniqSides3D = unique(totalSidesCells);
-% 
-% 
-% lewisBasal_NormArea = [uniqSidesBasal;arrayfun(@(x) mean(relationNormArea_numSidesBasal(ismember(relationNormArea_numSidesBasal(:,1),x),2)),uniqSidesBasal);
-%     arrayfun(@(x) std(relationNormArea_numSidesBasal(ismember(relationNormArea_numSidesBasal(:,1),x),2)),uniqSidesBasal)];
-% 
-% lewisApical_NormArea = [uniqSidesApical;arrayfun(@(x) mean(relationNormArea_numSidesApical(ismember(relationNormArea_numSidesApical(:,1),x),2)),uniqSidesApical);
-%     arrayfun(@(x) std(relationNormArea_numSidesApical(ismember(relationNormArea_numSidesApical(:,1),x),2)),uniqSidesApical)];
-% 
-% lewis3D_NormVol = [uniqSides3D';arrayfun(@(x) mean(relationNormVol_numSidesVolume(ismember(relationNormVol_numSidesVolume(:,1),x),2)),uniqSides3D)';
-%     arrayfun(@(x) std(relationNormVol_numSidesVolume(ismember(relationNormVol_numSidesVolume(:,1),x),2)),uniqSides3D)'];
-% 
-% 
-% meanScutoids = mean(percScutoids);
-% stdScutoids = std(percScutoids);
-% meanNeighExchanges = mean(neighExchanges);
-% stdNeighExchanges = std(neighExchanges);
-% 
-% mkdir('docs\figuresMathPaper\');
-% save(['docs\figuresMathPaper\lewis2D_3D_averagePolygon_AreasDistribution_' date '.mat'],'meanScutoids','stdScutoids','meanNeighExchanges','stdNeighExchanges','meanPolyDistBasal','stdPolyDistBasal','meanPolyDistApical','stdPolyDistApical','dispersionLogNormAreaBasal','dispersionLogNormAreaApical','dispersionNormAreaBasal','dispersionNormAreaApical','dispersionNormVolume','listPolygons','lewisBasal_NormArea','lewisApical_NormArea','lewis3D_NormVol','totalSidesTotalApical')
-% 
+%% Extracting and organizing information from segmented 3D Salivary Glands
+files = dir('**/Salivary gland/**/Results/3d_layers_info.mat');
+
+nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0, {files.folder});
+files = files(nonDiscardedFiles);
+
+surfLayers = {'apical','basal'};
+
+polyDistApical = cell(size(files,1),1);
+polyDistBasal = cell(size(files,1),1);
+logNormAreaApical = cell(size(files,1),1);
+logNormAreaBasal = cell(size(files,1),1);
+normAreaApical = cell(size(files,1),1);
+normAreaBasal = cell(size(files,1),1);
+normVolumeCells = cell(size(files,1),1);
+totalSidesCellsApical = cell(size(files,1),1);
+totalSidesCellsBasal = cell(size(files,1),1);
+totalSidesCells = cell(size(files,1),1);
+neighExchanges = zeros(size(files,1),1);
+percScutoids = zeros(size(files,1),1); 
 
 
-%%Represent figures
-folderSalGland = 'docs\figuresMathPaper\lewis2D_3D_averagePolygon_AreasDistribution_29-Mar-2019.mat';
+for nFile = 1 : size(files,1)
+      
+    for nSurf = 1:2
+        load([files(nFile).folder '\' surfLayers{nSurf} '\final3DImg.mat'],'img3d')
+        load([files(nFile).folder '\' surfLayers{nSurf} '\verticesInfo.mat'],'validCellsFinal','newVerticesNeighs2D')
 
-% folderSalGland = ['docs\figuresMathPaper\lewis2D_3D_averagePolygon_AreasDistribution_' date '.mat'];
+        neighsCells = cell(1,max(newVerticesNeighs2D(:)));
+        for nCell = 1 : max(newVerticesNeighs2D(:))
+        	 [nRow,nCol]=find(ismember(newVerticesNeighs2D,nCell));
+             cellsNeigh = unique(newVerticesNeighs2D(nRow,:));
+             cellsNeigh = cellsNeigh(cellsNeigh~=nCell);
+             neighsCells{nCell} = cellsNeigh;             
+        end
+        sidesCells = cellfun(@(x) length(x), neighsCells);
+        [polyDist]=calculate_polygon_distribution(sidesCells,validCellsFinal);
+        
+        volumePerim = regionprops3(img3d,'Volume');
+        areaCells = cat(1,volumePerim.Volume);
+        areaValidCells = areaCells(validCellsFinal);
+        
+        
+        
+        if nSurf == 1
+            polyDistApical{nFile} = polyDist(2,:);
+            logNormAreaApical{nFile} = log10(areaValidCells./(mean(areaValidCells)));
+            normAreaApical{nFile} = areaValidCells./(mean(areaValidCells));
+            totalSidesCellsApical{nFile} = sidesCells(validCellsFinal);
+            neighsCellsApical = neighsCells;
+        else
+            polyDistBasal{nFile} = polyDist(2,:);
+            logNormAreaBasal{nFile} = log10(areaValidCells./(mean(areaValidCells)));
+            normAreaBasal{nFile} = areaValidCells./(mean(areaValidCells));
+            totalSidesCellsBasal{nFile} = sidesCells(validCellsFinal);
+            neighsCellsBasal = neighsCells;
+            
+            neighChanges = cellfun(@(x,y) length(setxor(x,y)),neighsCellsBasal(validCellsFinal),neighsCellsApical(validCellsFinal));
+            numScutoids = cellfun(@(x,y) ~isempty(setxor(x,y)),neighsCellsBasal(validCellsFinal),neighsCellsApical(validCellsFinal));
+            
+            totalSidesCells{nFile} = cellfun(@(x,y) length(unique([x;y])),neighsCellsBasal(validCellsFinal),neighsCellsApical(validCellsFinal));
+
+            
+            neighExchanges(nFile) = sum(neighChanges)/length(validCellsFinal);
+            percScutoids(nFile) = sum(numScutoids)/length(validCellsFinal);
+            
+            
+        end
+    end
+    load([files(nFile).folder '\3d_layers_info.mat'],'labelledImage')
+    
+    volumeCells = regionprops3(labelledImage,'Volume');
+    volumeCells = cat(1,volumeCells.Volume);
+    volumeValidCells = volumeCells(validCellsFinal);
+    normVolumeCells{nFile} = volumeValidCells./(mean(volumeValidCells));
+end
+
+polyDistBasal = cell2mat(vertcat(polyDistBasal{:}));
+meanPolyDistBasal = mean(polyDistBasal);
+stdPolyDistBasal = std(polyDistBasal);
+
+polyDistApical = cell2mat(vertcat(polyDistApical{:}));
+meanPolyDistApical = mean(polyDistApical);
+stdPolyDistApical = std(polyDistApical);
+
+dispersionLogNormAreaBasal = vertcat(logNormAreaBasal{:});
+dispersionLogNormAreaApical = vertcat(logNormAreaApical{:});
+
+dispersionNormAreaBasal = vertcat(normAreaBasal{:});
+dispersionNormAreaApical = vertcat(normAreaApical{:});
+dispersionNormVolume = vertcat(normVolumeCells{:});
+
+listPolygons = 3:23;
+
+relationNormArea_numSidesBasal = [horzcat(totalSidesCellsBasal{:})',dispersionNormAreaBasal];
+relationNormArea_numSidesApical = [horzcat(totalSidesCellsApical{:})',dispersionNormAreaApical];
+relationNormVol_numSidesVolume = [horzcat(totalSidesCells{:})',dispersionNormVolume];
+
+
+%relationNsidesApical-basal
+totalSidesCells = horzcat(totalSidesCells{:})';
+totalSidesTotalApical = arrayfun(@(x) totalSidesCells(horzcat(totalSidesCellsApical{:})' == x),4:9,'UniformOutput',false);
+
+uniqSidesBasal = unique(horzcat(totalSidesCellsBasal{:}));
+uniqSidesApical = unique(horzcat(totalSidesCellsApical{:}));
+uniqSides3D = unique(totalSidesCells);
+
+
+lewisBasal_NormArea = [uniqSidesBasal;arrayfun(@(x) mean(relationNormArea_numSidesBasal(ismember(relationNormArea_numSidesBasal(:,1),x),2)),uniqSidesBasal);
+    arrayfun(@(x) std(relationNormArea_numSidesBasal(ismember(relationNormArea_numSidesBasal(:,1),x),2)),uniqSidesBasal)];
+
+lewisApical_NormArea = [uniqSidesApical;arrayfun(@(x) mean(relationNormArea_numSidesApical(ismember(relationNormArea_numSidesApical(:,1),x),2)),uniqSidesApical);
+    arrayfun(@(x) std(relationNormArea_numSidesApical(ismember(relationNormArea_numSidesApical(:,1),x),2)),uniqSidesApical)];
+
+lewis3D_NormVol = [uniqSides3D';arrayfun(@(x) mean(relationNormVol_numSidesVolume(ismember(relationNormVol_numSidesVolume(:,1),x),2)),uniqSides3D)';
+    arrayfun(@(x) std(relationNormVol_numSidesVolume(ismember(relationNormVol_numSidesVolume(:,1),x),2)),uniqSides3D)'];
+
+
+meanScutoids = mean(percScutoids);
+stdScutoids = std(percScutoids);
+meanNeighExchanges = mean(neighExchanges);
+stdNeighExchanges = std(neighExchanges);
+
+mkdir('docs\figuresMathPaper\');
+save(['docs\figuresMathPaper\lewis2D_3D_averagePolygon_AreasDistribution_' date '.mat'],'meanScutoids','stdScutoids','meanNeighExchanges','stdNeighExchanges','meanPolyDistBasal','stdPolyDistBasal','meanPolyDistApical','stdPolyDistApical','dispersionLogNormAreaBasal','dispersionLogNormAreaApical','dispersionNormAreaBasal','dispersionNormAreaApical','dispersionNormVolume','listPolygons','lewisBasal_NormArea','lewisApical_NormArea','lewis3D_NormVol','totalSidesTotalApical')
+
+
+
+%% Represent paper figures (LEWIS 2D and 3D, and 'poor get richer')
+
+% folderSalGland = 'docs\figuresMathPaper\lewis2D_3D_averagePolygon_AreasDistribution_29-Mar-2019.mat';
+folderSalGland = ['docs\figuresMathPaper\lewis2D_3D_averagePolygon_AreasDistribution_' date '.mat'];
 
 load(folderSalGland)
 lewis3D_glands = lewis3D_NormVol;
@@ -309,7 +310,7 @@ lewis3D_tube_4 = lewis3D_volNorm;
     savefig(h,[path2save 'fig_Lewis3D_Vor_' num2str(VorN) '_' date])
 
 
-%%  figure Relation apical - basal nSides. Violin
+%%  figure Relation apical - basal nSides. 'Poor get richer'
 totalSidesCellsTube175 = horzcat(totalSidesCellsTube175{:});
 totalSidesCellsTube4 = horzcat(totalSidesCellsTube4{:});
 
