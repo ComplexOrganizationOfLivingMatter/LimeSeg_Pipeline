@@ -161,7 +161,7 @@ colorPlotBasG = [0,0.4,0.2];
 colorPlotGland = round(mean([[0.2,0.8,0];[0,0.4,0.2]]),2);
 
 
-%% tube apical
+%% load tubes data
 nRealizations = 20;
 H = 512;
 W = 4096;
@@ -175,14 +175,6 @@ path2save = 'docs\figuresMathPaper\';
 load(folderTube)
 lewisApical_tube = lewis_NormArea; 
 
-% h = figure('units','normalized','outerposition',[0 0 1 1],'Visible','on');
-% fD = fitdist(dispersionLogNormArea,'Normal');
-% x_values = -0.3:0.02:0.3;
-% y = pdf(fD,x_values);
-% y = y/sum(y);
-% histogram(dispersionLogNormArea,'BinWidth',0.02,'Normalization','probability','FaceColor',[79/255,209/255,255/255],'EdgeAlpha',0,'FaceAlpha',0); 
-% hold on
-% plot(x_values,y,'LineWidth',3,'Color',[79/255,209/255,255/255])
 
 %% tube basal - 1.75
 folderTube = ['..\Pedro\Epithelia3D\InSilicoModels\TubularModel\data\tubularVoronoiModel\expansion\512x4096_200seeds\diagram' num2str(VorN) '\'];
@@ -192,16 +184,6 @@ totalSidesCellsTube175 = totalSidesCells;
 lewisBasal_tube_175 = lewis_NormArea; 
 lewis3D_tube_175 = lewis3D_volNorm;
 
-% dispersionLogNormAreaBasal175 = dispersionLogNormArea;
-% 
-% % h = figure('units','normalized','outerposition',[0 0 1 1],'Visible','on');
-% fD = fitdist(dispersionLogNormAreaBasal175,'Stable');
-% y = pdf(fD,x_values);
-% y = y/sum(y);
-% hold on
-% histogram(dispersionLogNormAreaBasal175,'BinWidth',0.02,'Normalization','probability','FaceColor',[0,112/255,192/255],'EdgeAlpha',0,'FaceAlpha',0); 
-% hold on
-% plot(x_values,y,'LineWidth',3,'Color',[0,112/255,192/255])
 
 %% tube basal - 4
 load([folderTube 'polygonDistribution_diag_' num2str(VorN) 'sr4.mat'])
@@ -210,51 +192,6 @@ totalSidesCellsTube4 = totalSidesCells;
 lewisBasal_tube_4 = lewis_NormArea; 
 lewis3D_tube_4 = lewis3D_volNorm;
 
-% dispersionLogNormAreaBasal4 = dispersionLogNormArea;
-% 
-% % h = figure('units','normalized','outerposition',[0 0 1 1],'Visible','on');
-% 
-% fD = fitdist(dispersionLogNormAreaBasal4,'Stable');
-% y = pdf(fD,x_values);
-% y = y/sum(y);
-% hold on
-% histogram(dispersionLogNormAreaBasal4,'BinWidth',0.02,'Normalization','probability','FaceColor',[27/255,39/255,201/255],'EdgeAlpha',0,'FaceAlpha',0); 
-% hold on
-% plot(x_values,y,'LineWidth',3,'Color',[27/255,39/255,201/255])
-
-
-% %% S.Glands basal
-% % h = figure('units','normalized','outerposition',[0 0 1 1],'Visible','on');
-%  
-% x_values = -0.8:0.02:0.4;
-% fD = fitdist(dispersionLogNormAreaBasal,'Stable');
-% y = pdf(fD,x_values);
-% y = y/sum(y);
-% hold on
-% histogram(dispersionLogNormAreaBasal,'BinWidth',0.02,'Normalization','probability','FaceColor',[0,0.4,0.2],'EdgeAlpha',0,'FaceAlpha',0); 
-% hold on
-% plot(x_values,y,'LineWidth',3,'Color',[0,0.4,0.2])
-% 
-% %% S.Glands apical
-% % h = figure('units','normalized','outerposition',[0 0 1 1],'Visible','on');
-% fD = fitdist(dispersionLogNormAreaApical,'Stable');
-% y = pdf(fD,x_values);
-% y = y/sum(y);
-% hold on
-% histogram(dispersionLogNormAreaApical,'BinWidth',0.02,'Normalization','probability','FaceColor',[0.2,0.8,0],'EdgeAlpha',0,'FaceAlpha',0); 
-% plot(x_values,y,'LineWidth',3,'Color',[0.2,0.8,0])
-% 
-% xlim([-0.4,0.4])
-% ylim([0,0.1])
-% title('Area distribution')
-% xlabel('log10(normalized area)')
-% ylabel('proportion')
-% set(gca,'FontSize', 24,'FontName','Helvetica','YGrid','on','TickDir','out','Box','off');
-% print(h,[path2save 'fig1C_' date '_noLegend'],'-dtiff','-r300')
-% 
-% legend({'Voronoi tube 8 - apical','Voronoi tube 8 - apical', 'Voronoi tube 8 - basal - sr 1.8','Voronoi tube 8 - basal - sr 1.8', 'Voronoi tube 8 - basal - sr 4','Voronoi tube 8 - basal - sr 4','S.Glands - basal','S.Glands - basal', 'S.Glands - apical','S.Glands - apical'})
-% 
-% print(h,[path2save 'fig1C_' date '_legend'],'-dtiff','-r300')
     
 
 %% Fig LEWIS 2D
