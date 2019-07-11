@@ -164,6 +164,7 @@ From step to step, it could take some time.
 ### Directories hierarchy
 
 'Cells' -> Save all the information related the cells (ROIs, images...).
+
 'Cells/OutputLimeSeg' -> Save the cell info from LimeSeg.
 
 'ImageSequence' -> Original image sequence without modifying
