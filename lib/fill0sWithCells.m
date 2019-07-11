@@ -1,6 +1,8 @@
 function [labelMask] = fill0sWithCells(labelMask, img3dComplete, invalidRegion)
-%COMPLETEIMAGEOFCELLS Summary of this function goes here
-%   Detailed explanation goes here
+%FILL0SWITHCELLS Fill the empty space belonging to the gland with cells
+%   LimeSeg output may have created artificial spaces between cells that we
+%   know they don't exist. Therefore, we will fill these spaces (0s within the
+%   gland, not outside) with the ID of the cell closest to each space.
 
     missingRegions = labelMask == 0 & invalidRegion == 0;
     labelMask(missingRegions) = img3dComplete(missingRegions);
@@ -12,6 +14,7 @@ function [labelMask] = fill0sWithCells(labelMask, img3dComplete, invalidRegion)
         pixelsIndices = find((imdilate(missingRegions, strel('sphere', 4)).*labelMask)>0);
         [x, y, z] = ind2sub(size(labelMask), pixelsIndices);
 
+        %% Splitting calculation to perform it in batches
         numPartitions = 100;
         indices = cell(numPartitions, 1);
         distances = cell(numPartitions, 1);
