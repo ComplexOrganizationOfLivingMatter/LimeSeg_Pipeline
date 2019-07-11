@@ -1,4 +1,4 @@
-
+%% Pipeline to unroll the divide the glands in SR and unroll the tubes to obtain them in 2D.
 addpath(genpath('src'))
 addpath(genpath('lib'))
 addpath(genpath('gui'))

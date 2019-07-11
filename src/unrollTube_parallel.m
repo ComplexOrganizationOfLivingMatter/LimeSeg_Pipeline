@@ -1,6 +1,6 @@
 function unrollTube_parallel(selpath)
-%UNROLLTUBE_PARALLEL Summary of this function goes here
-%   Detailed explanation goes here
+%UNROLLTUBE_PARALLEL Perform unrolling all the layers
+%   
 
     idName_splitted = strsplit(selpath, filesep);
     idName = strjoin(idName_splitted(end-3:end-1), '_');
@@ -10,7 +10,7 @@ function unrollTube_parallel(selpath)
     
     if exist(strcat(selpath, '\', idName ,'_samirasFormat.xls'), 'file') == 0
         
-        %% Unrolling
+        %% Unroll all the intermediate layers, although apical and basal may have already been unrolled
         if exist(fullfile(selpath, 'dividedGland' ,'glandDividedInSurfaceRatios.mat'), 'file') > 0
             %% Apical and basal and all the artificial surface ratios
             load(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'));
@@ -56,7 +56,7 @@ function unrollTube_parallel(selpath)
         writetable(newCrossesTable, strcat(selpath, '\', idName ,'_VertCrosses.xls'));
     end
         
-    %% Saving final information
+    %% Saving final information with the right order
     filesOf2DUnroll = dir(fullfile(selpath, '**', 'verticesInfo.mat'));
     if exist(fullfile(selpath, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'file') == 0
         load(fullfile(selpath, 'dividedGland' ,'glandDividedInSurfaceRatios.mat'), 'infoPerSurfaceRatio');
