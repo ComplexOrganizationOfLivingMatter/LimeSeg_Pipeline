@@ -40,7 +40,7 @@ function unrollTube_parallel(selpath)
                 samiraTablePerSR{numPartition} = sT_Actual;
             end
             
-            samiraTable = vertcat(samiraTablePerSR{:});
+            samiraTable = vertcat(samiraTablePerSR{1:minNumberOfSurfaceRatios});
         end
         
         %% Creating samira table
