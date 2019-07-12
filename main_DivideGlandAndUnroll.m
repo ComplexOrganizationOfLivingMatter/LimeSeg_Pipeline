@@ -6,7 +6,7 @@ addpath(genpath('gui'))
 close all
 clear all
 
-files = dir('**/data/Salivary gland_ToDivideInConstantPieces/**/Results/3d_layers_info.mat');
+files = dir('**/data/Salivary gland_ExtractedVertices_Correct/**/Results/3d_layers_info.mat');
 nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0 && contains(lower(x), 'wildtype'), {files.folder});
 files = files(nonDiscardedFiles);
 

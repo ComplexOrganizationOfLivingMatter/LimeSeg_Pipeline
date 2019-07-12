@@ -1,7 +1,7 @@
 function unrollTube_parallel(selpath)
 %UNROLLTUBE_PARALLEL Perform unrolling all the layers
 %   
-
+    minNumberOfSurfaceRatios = 7;
     idName_splitted = strsplit(selpath, filesep);
     idName = strjoin(idName_splitted(end-3:end-1), '_');
     
@@ -31,14 +31,10 @@ function unrollTube_parallel(selpath)
             end
             
             %% Calculate theoretical surface ratio
-%             samiraTable = vertcat(samiraTablePerSR{:});
-%             surfaceRatioOfGland_real = unique([samiraTable{:, 1}]);
-%             totalPartitions = 10;
-%             initialPartitions = (1:(totalPartitions-1))/totalPartitions;
-%             surfaceRatioOfGland = surfaceRatioOfGland_real;
-%             surfaceRatioOfGland(2:10) = initialPartitions * (surfaceRatioOfGland_real(end) - 1) + 1;
+            steps = 2.5/(minNumberOfSurfaceRatios-1);
+            surfaceRatioOfGland = 1:steps:((steps*(minNumberOfSurfaceRatios-1))+1);
             
-            for numPartition = 2:nSR
+            for numPartition = 2:minNumberOfSurfaceRatios
                 sT_Actual = samiraTablePerSR{numPartition};
                 sT_Actual(:, 1) = {surfaceRatioOfGland(numPartition)};
                 samiraTablePerSR{numPartition} = sT_Actual;
