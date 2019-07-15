@@ -33,7 +33,7 @@ meanVolumeMicronsPerGland = zeros(length(files),2);
 
 
 
-if ~exist('docs/salivaryGland_Info_20_05_2019.mat','file')
+if ~exist('Results/salivaryGland_Info_20_05_2019.mat','file')
     for numFile = 1:length(files)
         files(numFile).folder
 
