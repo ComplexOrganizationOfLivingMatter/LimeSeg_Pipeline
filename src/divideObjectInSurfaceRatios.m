@@ -1,7 +1,10 @@
 function divideObjectInSurfaceRatios(selpath)
-%DIVIDEOBJECTINSURFACERATIOS Summary of this function goes here
-%   Detailed explanation goes here
-%     try
+%DIVIDEOBJECTINSURFACERATIOS Divide cylindrical object into different
+%surface ratios
+%   Obtain the cells’ neighborhood relation of salivary glands for
+%   different values of the radial expansion.
+
+    try
         if exist(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'), 'file') == 0 && exist(fullfile(selpath, 'unrolledGlands', 'gland_SR_1', 'verticesInfo.mat'), 'file')>0
             %% Loading variables
             load(fullfile(selpath, '3d_layers_info.mat'));
@@ -45,6 +48,10 @@ function divideObjectInSurfaceRatios(selpath)
             imageOfSurfaceRatios = cell(totalPartitions, 1);
             imageOfSurfaceRatios(:) = {zeros(size(obj_img))};
             for numCell = unique([validCells, noValidCells])
+                % First, We calculated the cell height by estimating the 
+                % distance between the average voxel positions of the 
+                % apical surface with respect to the average voxel 
+                % positions of its basal surface
                 [xStarting, yStarting, zStarting] = ind2sub(size(startingSurface), find(startingSurface == numCell));
                 [xEnd, yEnd, zEnd] = ind2sub(size(endSurface), find(endSurface == numCell));
 
@@ -108,6 +115,7 @@ function divideObjectInSurfaceRatios(selpath)
             imageOfSurfaceRatios{totalPartitions+1, 1} = obj_img;
             imageOfSurfaceRatios{totalPartitions+1, 2} = apicoBasal_SurfaceRatio;
 
+            %% Generate again the images from the previous information
             for numPartition = 1:(totalPartitions+1)
                 if numPartition > 1
                     initialImage = imageOfSurfaceRatios{numPartition, 1};
@@ -162,6 +170,7 @@ function divideObjectInSurfaceRatios(selpath)
                     imageOfSurfaceRatios{numPartition, 3} = endSurface;
                 end
 
+                %% Calculate and export information of each concentric layer
                 basal3dInfo = calculateNeighbours3D(imageOfSurfaceRatios{numPartition, 3}, 2);
                 neighboursBasal = checkPairPointCloudDistanceCurateNeighbours(imageOfSurfaceRatios{numPartition, 3}, basal3dInfo.neighbourhood);
                 neighbours_data = table(neighboursApical', neighboursBasal');
@@ -184,7 +193,7 @@ function divideObjectInSurfaceRatios(selpath)
             infoPerSurfaceRatio = imageOfSurfaceRatios;
             save(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'), 'infoPerSurfaceRatio', 'neighbours');
         end
-%     catch 
-%         disp(['ERROR IN ', selpath]);
-%     end
+    catch 
+        disp(['ERROR IN ', selpath]);
+    end
 end

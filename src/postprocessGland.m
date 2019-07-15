@@ -1,6 +1,8 @@
 function [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(labelledImage,outsideGland, lumenImage, outputDir, colours, tipValue)
-%POSTPROCESSGLAND Summary of this function goes here
-%   Detailed explanation goes here
+%POSTPROCESSGLAND Process gland image to obtain layers and export
+%   Once the gland has all its features on the 3D images, we extracted the
+%   layers (apical and basal) and export it in slices.
+
 %     [labelledImage] = fillEmptySpacesByWatershed3D(labelledImage, outsideGland | lumenImage, 1); % error outsideGland?
 %     outsideGland_NotLumen = ~outsideGland | lumenImage;
 

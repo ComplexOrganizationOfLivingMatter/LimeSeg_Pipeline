@@ -1,6 +1,7 @@
 function unroll_OnlyApicalAndBasal(selpath)
-%UNROLL_ONLYAPICALANDBASAL Summary of this function goes here
-%   Detailed explanation goes here
+%UNROLL_ONLYAPICALANDBASAL Perform unrolling only to the apical and basal
+%surface of a S. Gland
+%   
 
     variablesOfFile = who('-file', fullfile(selpath, '3d_layers_info.mat'));
     
@@ -28,6 +29,7 @@ function unroll_OnlyApicalAndBasal(selpath)
         save(fullfile(selpath, '3d_layers_info.mat'), 'labelledImage_realSize', 'lumenImage_realSize', '-append');
     end
     
+    %% Obtain layers on its real 3D size
     basalLayer = getBasalFrom3DImage(labelledImage_realSize, lumenImage_realSize, 0, labelledImage_realSize == 0 & lumenImage_realSize == 0);
     [apicalLayer] = getApicalFrom3DImage(lumenImage_realSize, labelledImage_realSize);
     

@@ -1,6 +1,7 @@
 function [labelledImage, lumenImage, glandOrientation] = processLumen(lumenDir, labelledImage, resizeImg, tipValue)
-%PROCESSLUMEN Summary of this function goes here
-%   Detailed explanation goes here
+%PROCESSLUMEN Obtain segmented lumen from images
+%   Import the lumen from the original images where the lumen is in black
+%   and white to remove the cells invading it on the 3D labelled image.
 
     lumenStack = dir(fullfile(lumenDir, 'SegmentedLumen', '*.tif'));
     NoValidFiles = startsWith({lumenStack.name},'._','IgnoreCase',true);

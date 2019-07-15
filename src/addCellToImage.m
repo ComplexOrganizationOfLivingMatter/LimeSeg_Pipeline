@@ -1,9 +1,8 @@
 function [labelledImage] = addCellToImage(pixelLocations, labelledImage, numCell)
 %ADDCELLTOIMAGE Summary of this function goes here
-%   Detailed explanation goes here
-    % We added for the same x,y several zs, because we found that some
-    % of the zs were not completed (i.e. some zs of some cells were
-    % composed by only a few pixels).
+%   We added for the same x,y several zs, because we found that some of the
+%   zs were not completed (i.e. some zs of some cells were composed by only
+%   a few pixels).
 
 %     for numPixel = 1:size(pixelLocations, 1)
 % %         zPixels = pixelLocations(numPixel, 3)-numDepth:1:pixelLocations(numPixel, 3)+numDepth;

@@ -1,4 +1,4 @@
-
+%% First pipeline to modify mistakes on S. Glands
 addpath(genpath('src'))
 addpath(genpath('lib'))
 addpath(genpath('gui'))

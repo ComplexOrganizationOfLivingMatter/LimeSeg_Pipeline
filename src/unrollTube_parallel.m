@@ -1,7 +1,7 @@
 function unrollTube_parallel(selpath)
-%UNROLLTUBE_PARALLEL Summary of this function goes here
-%   Detailed explanation goes here
-
+%UNROLLTUBE_PARALLEL Perform unrolling all the layers
+%   
+    minNumberOfSurfaceRatios = 7;
     idName_splitted = strsplit(selpath, filesep);
     idName = strjoin(idName_splitted(end-3:end-1), '_');
     
@@ -10,7 +10,7 @@ function unrollTube_parallel(selpath)
     
     if exist(strcat(selpath, '\', idName ,'_samirasFormat.xls'), 'file') == 0
         
-        %% Unrolling
+        %% Unroll all the intermediate layers, although apical and basal may have already been unrolled
         if exist(fullfile(selpath, 'dividedGland' ,'glandDividedInSurfaceRatios.mat'), 'file') > 0
             %% Apical and basal and all the artificial surface ratios
             load(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'));
@@ -31,20 +31,16 @@ function unrollTube_parallel(selpath)
             end
             
             %% Calculate theoretical surface ratio
-%             samiraTable = vertcat(samiraTablePerSR{:});
-%             surfaceRatioOfGland_real = unique([samiraTable{:, 1}]);
-%             totalPartitions = 10;
-%             initialPartitions = (1:(totalPartitions-1))/totalPartitions;
-%             surfaceRatioOfGland = surfaceRatioOfGland_real;
-%             surfaceRatioOfGland(2:10) = initialPartitions * (surfaceRatioOfGland_real(end) - 1) + 1;
+            steps = 2.5/(minNumberOfSurfaceRatios-1);
+            surfaceRatioOfGland = 1:steps:((steps*(minNumberOfSurfaceRatios-1))+1);
             
-            for numPartition = 2:nSR
+            for numPartition = 2:minNumberOfSurfaceRatios
                 sT_Actual = samiraTablePerSR{numPartition};
                 sT_Actual(:, 1) = {surfaceRatioOfGland(numPartition)};
                 samiraTablePerSR{numPartition} = sT_Actual;
             end
             
-            samiraTable = vertcat(samiraTablePerSR{:});
+            samiraTable = vertcat(samiraTablePerSR{1:minNumberOfSurfaceRatios});
         end
         
         %% Creating samira table
@@ -56,7 +52,7 @@ function unrollTube_parallel(selpath)
         writetable(newCrossesTable, strcat(selpath, '\', idName ,'_VertCrosses.xls'));
     end
         
-    %% Saving final information
+    %% Saving final information with the right order
     filesOf2DUnroll = dir(fullfile(selpath, '**', 'verticesInfo.mat'));
     if exist(fullfile(selpath, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'file') == 0
         load(fullfile(selpath, 'dividedGland' ,'glandDividedInSurfaceRatios.mat'), 'infoPerSurfaceRatio');

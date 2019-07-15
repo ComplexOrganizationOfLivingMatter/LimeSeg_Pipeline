@@ -1,12 +1,13 @@
 function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_original, outputDir, noValidCells, colours, apicalArea, apicalRotationsOriginal)
-%UNROLLTUBE Summary of this function goes here
-%   Detailed explanation goes here
+%UNROLLTUBE Unroll Salivary Glands as tubes
+%   The cylindrical layers (apical and basal) of the salivary gland were
+%   mapped in the Cartesian plane for analysis using a cylindrical 
+%   coordinates transformation.
     
     load(noValidCells);
     load(colours);
     colours = vertcat([1 1 1], colours);
     
-
     %% Step 1: Creating image with its real size, in case it is necessary
     if exist('labelledImage_realSR', 'var')
         img3dComplete = labelledImage_realSR;
@@ -23,8 +24,6 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
     end
     outputDir
     
-    %% Unroll
-    
     pixelSizeThreshold = 10;
     previousSizeLabels = -1;
     if exist(fullfile(outputDir, 'final3DImg.mat'), 'file')
@@ -35,51 +34,6 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
             load(fullfile(outputDir, 'apicalRotationsOriginal.mat'));
         end
     else
-%         %Option 1: too much neighbours
-%         insideGland = imdilate(img3d_original>0, strel('sphere', 1));
-%         edgePixels = find(insideGland & img3d_original==0);
-%         img2Dilate = zeros(size(img3d_original));
-%         sphereDilated = strel('sphere', 2);
-%         neighbours3d = cell(max(img3d_original(:)), 1);
-%         for numPixel = edgePixels'
-%             img2Dilate(numPixel) = 1;
-%             neighbours = unique(img3d_original(imdilate(img2Dilate, sphereDilated)>0));
-%             if length(neighbours) > 2
-%                 neighbours(neighbours==0) = [];
-%                 for numNeighbour = neighbours'
-%                     neighbours3d{numNeighbour} = unique([neighbours', neighbours3d{numNeighbour}]);
-%                 end
-%             end
-%             img2Dilate(numPixel) = 0;
-%         end
-%         neighbours = neighbours3d;
-% 
-%         %Option 2: use the closest distance to a pixel
-%     %     insideGland = imclose(img3d_original>0, strel('sphere', 3));
-%     %     img3d_OnlyLateralWalls = img3d_original<=0 & insideGland;
-%     %     img3d_OnlyLateralWalls = img3d_original .* imdilate(img3d_OnlyLateralWalls, strel('sphere', 1));
-%         [x, y, z] = ind2sub(size(img3d_original), find(img3d_original>0));
-%         cellsPointCloud = pointCloud([x, y, z], 'Intensity', img3d_original(img3d_original>0));
-%         neighbours = cell(max(img3d_original(:)), 1);
-%         for numCell = 1:max(img3d_original(:))
-%             actualCellPerim = img3d_original==numCell;
-%             actualPointCloud = select(cellsPointCloud, find(cellsPointCloud.Intensity ~= numCell));
-%             for numPointPerim = find(actualCellPerim)'
-%                 [x, y, z] = ind2sub(size(img3d_original), numPointPerim);
-%                 [indices, ~] = findNearestNeighbors(actualPointCloud, [x, y, z], 5, 'MaxLeafChecks', 200, 'Sort', true);
-%                 cellNeighbours = actualPointCloud.Intensity(indices);
-%                 cellNeighbours(cellNeighbours == numCell) = [];
-%                 if isempty(cellNeighbours) == 0
-%                     neighbours{numCell} = unique([cellNeighbours', neighbours{numCell}]);
-%                 end
-%             end
-%         end
-% 
-%         %Option 3: Original version
-%         [neighbours] = calculateNeighbours3D(img3d_original); %Correct neighbours
-%         neighbours = neighbours.neighbourhood;
-
-        %Option 4: making projections
         outputDirResults = strsplit(outputDir, 'Results');
         zScaleFile = fullfile(outputDirResults{1}, 'Results', 'zScaleOfGland.mat');
         if exist(zScaleFile, 'file') > 0
@@ -96,6 +50,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
             resizeImg = 1/zScale;
         end
         
+        %% Rotate the image to obtain all the glands with the same orientation
         if exist('apicalRotationsOriginal', 'var') == 0
             [img3d_original, rotationsOriginal] = rotateImg3(img3d_original);
             [img3dComplete] = rotateImg3(img3dComplete, rotationsOriginal);
@@ -154,6 +109,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         save(fullfile(outputDir, 'final3DImg.mat'), 'img3d', 'img3dComplete', 'vertices3D_Neighbours', 'vertices3D', 'cellNumNeighbours', 'neighbours', '-v7.3');
     end
 
+    %% Step 2: Get each 3D spherical line to a 2D line
     if exist(fullfile(outputDir, 'verticesInfo.mat'), 'file') == 0
     
         imgFinalCoordinates=cell(size(img3d,3),1);
@@ -308,6 +264,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         outputDir = outputDirOri;
     end
 
+    %% Export as samira table and other features
     if exist(fullfile(outputDir, 'samiraTable.mat'), 'file') == 0
         outputDirSplitted = strsplit(outputDir, 'Results');
         load(fullfile(outputDirSplitted{1}, 'Results', 'valid_cells.mat'))

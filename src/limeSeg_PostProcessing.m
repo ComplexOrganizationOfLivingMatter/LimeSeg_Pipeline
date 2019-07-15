@@ -103,9 +103,9 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
     neighbours_data.Properties.VariableNames = {'Apical','Basal'};
     polygon_distribution.Properties.VariableNames = {'Apical','Basal'};
 
-    %% Export to excel cellular features
-    cellularFeatures = calculate_CellularFeatures(neighbours_data,apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,polygon_distribution,outputDir);
-    
-%   save(fullfile(outputDir, 'Results', 'cellularFeaturesExcel.mat'), cellularFeatures); 
+%     %% Export to excel cellular features
+%     cellularFeatures = calculate_CellularFeatures(neighbours_data,apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,polygon_distribution,outputDir);
+%     
+%     save(fullfile(outputDir, 'Results', 'cellularFeaturesExcel.mat'), cellularFeatures); 
 end
 

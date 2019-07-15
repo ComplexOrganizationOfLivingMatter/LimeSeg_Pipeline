@@ -1,6 +1,8 @@
 function [answer, apical3dInfo, notFoundCellsApical, basal3dInfo, notFoundCellsBasal] = calculateMissingCells(labelledImage, lumenImage, apicalLayer, basalLayer, colours, noValidCells)
-%CALCULATEMISSINGCELLS Summary of this function goes here
-%   Detailed explanation goes here
+%CALCULATEMISSINGCELLS Calculate and plot missing cells in both layers
+%   We calculate which cells are missing from apical and basal layer, which
+%   may be a mistake. In addition, we plot the layers and where are the
+%   missing cells.
 
     allCells = unique(labelledImage(:));
     allCells(allCells == 0) = [];

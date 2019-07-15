@@ -1,6 +1,7 @@
 function [labelledImage, outsideGland] = processCells(directoryOfCells, resizeImg, imgSize, tipValue)
-%PROCESSCELLS Summary of this function goes here
-%   Detailed explanation goes here
+%PROCESSCELLS Obtain cells from output limeSeg
+%   Import the point cloud of cells to create a 3D image (as a 3D matrix)
+%   that will allow to use it here on Matlab.
 
     cellFiles = dir(fullfile(directoryOfCells, 'OutputLimeSeg', 'cell_*'));
     
@@ -12,6 +13,7 @@ function [labelledImage, outsideGland] = processCells(directoryOfCells, resizeIm
         ptCloud = pcread(plyFile);
         pixelLocations = round(double(ptCloud.Location)*resizeImg);
         try
+            % Import a single cell
             [labelledImage] = addCellToImage(pixelLocations, labelledImage, numCell);
         catch ex
             if isequal(ex.message, 'The alpha shape is empty.')

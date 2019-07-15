@@ -1,9 +1,11 @@
-
+%% Messy file to create the figures of the article, obtaining several measurements which were not captured directly.
+% Use it at your own risk.
 clear all
 close all
 
 addpath(genpath('src'))
 addpath(genpath('lib'))
+addpath(genpath(fullfile('..','Epithelia3D', 'InSilicoModels', 'TubularModel', 'src')));
 
 files = dir('**/data/Salivary gland_ExtractedVertices_Correct/**/Results/3d_layers_info.mat');
 
@@ -31,7 +33,7 @@ meanVolumeMicronsPerGland = zeros(length(files),2);
 
 
 
-if ~exist('docs/salivaryGland_Info_20_05_2019.mat','file')
+if ~exist('Results/salivaryGland_Info_20_05_2019.mat','file')
     for numFile = 1:length(files)
         files(numFile).folder
 
