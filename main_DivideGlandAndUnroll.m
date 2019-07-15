@@ -6,12 +6,14 @@ addpath(genpath('gui'))
 close all
 clear all
 
-files = dir('**/data/Salivary gland_ToDivideInConstantPieces/**/Results/3d_layers_info.mat');
-nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0 && contains(lower(x), 'wildtype'), {files.folder});
+
+files = dir('**/data/Salivary gland/**/Results/3d_layers_info.mat');
+nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0 && contains(lower(x), 'e-cadh'), {files.folder});
+
 files = files(nonDiscardedFiles);
 
 disp('----------- DIVIDING GLANDS -------------')
-parfor numFile = 1:length(files)
+for numFile = 4%1:length(files)
     files(numFile).folder
     selpath = files(numFile).folder;
     unroll_OnlyApicalAndBasal(selpath)

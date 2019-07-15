@@ -8,7 +8,6 @@ function unroll_OnlyApicalAndBasal(selpath)
         load(fullfile(selpath, '3d_layers_info.mat'), 'lumenImage_realSize', 'labelledImage_realSize');
     else
         load(fullfile(selpath, '3d_layers_info.mat'), 'lumenImage', 'labelledImage');
-
         %% Creating image with a real size
         outputDirResults = strsplit(selpath, 'Results');
         zScaleFile = fullfile(outputDirResults{1}, 'Results', 'zScaleOfGland.mat');
@@ -31,6 +30,13 @@ function unroll_OnlyApicalAndBasal(selpath)
     
     basalLayer = getBasalFrom3DImage(labelledImage_realSize, lumenImage_realSize, 0, labelledImage_realSize == 0 & lumenImage_realSize == 0);
     [apicalLayer] = getApicalFrom3DImage(lumenImage_realSize, labelledImage_realSize);
+    
+    if contains(selpath, 'ecadh')
+        [apicalLayer_realSR,basalLayer_realSR,labelledImage_realSR, lumenImage_realSR] = flattenMutantGland(apicalLayer, basalLayer, labelledImage);
+        save(fullfile(selpath, '3d_layers_info.mat'), 'apicalLayer_realSR', 'basalLayer_realSR', 'labelledImage_realSR', 'lumenImage_realSR', '-append');
+        apicalLayer = apicalLayer_realSR;
+        basalLayer = basalLayer_realSR;
+    end
 % 
 %     figure; paint3D(apicalLayer)
 %     figure; paint3D(basalLayer)
