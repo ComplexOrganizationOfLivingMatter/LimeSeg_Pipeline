@@ -1,4 +1,4 @@
-function unroll_OnlyApicalAndBasal(selpath)
+function unroll_OnlyApicalAndBasal(selpath, testing)
 %UNROLL_ONLYAPICALANDBASAL Perform unrolling only to the apical and basal
 %surface of a S. Gland
 %   
