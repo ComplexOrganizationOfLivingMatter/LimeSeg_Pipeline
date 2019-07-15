@@ -99,7 +99,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         
         validRegion = double(imresize3(img3d_original, imgSize)>0);
         
-        [validRegion] = imclose(validRegion>0, strel('sphere', closingPxAreas));
+        [validRegion] = imclose(validRegion>0, strel('sphere', closingPxAreas3D));
                     
         img3d = fill0sWithCells(img3d .* double(validRegion), img3dComplete, (img3dComplete & validRegion)==0);
         %vertices3D = round(vertices3D / resizeImg);

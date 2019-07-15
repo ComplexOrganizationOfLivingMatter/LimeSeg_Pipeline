@@ -1,11 +1,11 @@
-function divideObjectInSurfaceRatios(selpath)
+function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
 %DIVIDEOBJECTINSURFACERATIOS Divide cylindrical object into different
 %surface ratios
 %   Obtain the cells’ neighborhood relation of salivary glands for
 %   different values of the radial expansion.
-
+    infoPerSurfaceRatio = [];
     try
-        if exist(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'), 'file') == 0 && exist(fullfile(selpath, 'unrolledGlands', 'gland_SR_1', 'verticesInfo.mat'), 'file')>0
+        if (exist(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'), 'file') == 0 && exist(fullfile(selpath, 'unrolledGlands', 'gland_SR_1', 'verticesInfo.mat'), 'file')>0) || exist('testing', 'var')
             %% Loading variables
             load(fullfile(selpath, '3d_layers_info.mat'));
             load(fullfile(selpath, 'valid_cells.mat'));
@@ -182,16 +182,20 @@ function divideObjectInSurfaceRatios(selpath)
                 [imageOfSurfaceRatios{numPartition, 5}, ~] = calculate_CellularFeatures(neighbours_data, neighboursBasal_init', neighboursBasal', startingSurface, imageOfSurfaceRatios{numPartition, 3}, imageOfSurfaceRatios{numPartition, 1}, noValidCells, validCells, [], []);
                 neighbours{numPartition} = neighboursBasal;
                 %figure; paint3D( imageOfSurfaceRatios{numPartition, 1}, [], colours);
-                h = figure('Visible', 'off');
-                paint3D( ismember(imageOfSurfaceRatios{numPartition, 3}, validCells) .* imageOfSurfaceRatios{numPartition, 3}, [], colours, 2);
-                mkdir(fullfile(selpath, 'dividedGland'));
-                savefig(h, fullfile(selpath, 'dividedGland' , ['gland_SR' num2str(meanSurfaceRatio(numPartition)), '.fig']))
-                print(h, fullfile(selpath, 'dividedGland' , ['gland_SR' num2str(meanSurfaceRatio(numPartition)), '.jpeg']),'-djpeg','-r300')
+                if ~exist('testing', 'var')
+                    h = figure('Visible', 'off');
+                    paint3D( ismember(imageOfSurfaceRatios{numPartition, 3}, validCells) .* imageOfSurfaceRatios{numPartition, 3}, [], colours, 2);
+                    mkdir(fullfile(selpath, 'dividedGland'));
+                    savefig(h, fullfile(selpath, 'dividedGland' , ['gland_SR' num2str(meanSurfaceRatio(numPartition)), '.fig']))
+                    print(h, fullfile(selpath, 'dividedGland' , ['gland_SR' num2str(meanSurfaceRatio(numPartition)), '.jpeg']),'-djpeg','-r300')
+                end
             end
             close all
 
             infoPerSurfaceRatio = imageOfSurfaceRatios;
-            save(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'), 'infoPerSurfaceRatio', 'neighbours');
+            if ~exist('testing', 'var')
+                save(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'), 'infoPerSurfaceRatio', 'neighbours');
+            end
         end
     catch 
         disp(['ERROR IN ', selpath]);
