@@ -66,9 +66,9 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         img3dComplete_Cropped = img3dComplete(min(allX):max(allX),min(allY):max(allY),min(allZ):max(allZ));
         
         % Check which side is the longest
-        img3d_closed = fill0sWithCells(img3d_original, img3dComplete, (img3dComplete & imclose(img3d_original>0, strel('sphere', closingPxAreas))) == 0);
-        neighbours = getNeighboursFromFourProjectedPlanesFrom3Dgland(img3d_closed, colours);
-        neighbours = checkPairPointCloudDistanceCurateNeighbours(img3d_closed, neighbours);
+        %img3d_closed = fill0sWithCells(img3d_original, img3dComplete, (img3dComplete & imclose(img3d_original>0, strel('sphere', closingPxAreas))) == 0);
+        %neighbours = getNeighboursFromFourProjectedPlanesFrom3Dgland(img3d_closed, colours);
+        %neighbours = checkPairPointCloudDistanceCurateNeighbours(img3d_closed, neighbours);
 
         sizeImg3d = size(img3d_originalCropped);
         [~, indices] = sort(sizeImg3d);
@@ -77,8 +77,8 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         tipValue = 21;
         img3d_original = addTipsImg3D(tipValue, img3d_original);
         img3dComplete = addTipsImg3D(tipValue, img3dComplete);
-        [verticesInfo] = getVertices3D(img3d_original, neighbours);
-        vertices3D = vertcat(verticesInfo.verticesPerCell{:});
+        %[verticesInfo] = getVertices3D(img3d_original, neighbours);
+        %vertices3D = vertcat(verticesInfo.verticesPerCell{:});
 
 %         [colours] = exportAsImageSequence_WithVertices(img3d, outputDir, colours, -1, vertices3D);
 %         figure; paint3D(img3d_original, [], colours);
@@ -86,9 +86,9 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
 %             hold on; plot3(vertices3D(numVertex, 1), vertices3D(numVertex, 2), vertices3D(numVertex, 3), 'rx')
 %         end
 
-        vertices3D_Neighbours = verticesInfo.verticesConnectCells;
-        vertices3D_Neighbours(cellfun(@isempty, verticesInfo.verticesPerCell), :) = [];
-        cellNumNeighbours = cellfun(@length, neighbours);
+        %vertices3D_Neighbours = verticesInfo.verticesConnectCells;
+        %vertices3D_Neighbours(cellfun(@isempty, verticesInfo.verticesPerCell), :) = [];
+        %cellNumNeighbours = cellfun(@length, neighbours);
         
         img3d = double(img3d_original);
         img3dComplete = double(img3dComplete);
@@ -101,12 +101,11 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         
         [validRegion] = imclose(validRegion>0, strel('sphere', closingPxAreas));
                     
-%         validRegion_filled = imfill(imfill(imfill(validRegion_all)));
-%         validRegion = (validRegion_filled>0) - imerode(validRegion_filled, strel('sphere', 1));
         img3d = fill0sWithCells(img3d .* double(validRegion), img3dComplete, (img3dComplete & validRegion)==0);
-        vertices3D = round(vertices3D / resizeImg);
+        %vertices3D = round(vertices3D / resizeImg);
         mkdir(outputDir);
-        save(fullfile(outputDir, 'final3DImg.mat'), 'img3d', 'img3dComplete', 'vertices3D_Neighbours', 'vertices3D', 'cellNumNeighbours', 'neighbours', '-v7.3');
+        %save(fullfile(outputDir, 'final3DImg.mat'), 'img3d', 'img3dComplete', 'vertices3D_Neighbours', 'vertices3D', 'cellNumNeighbours', 'neighbours', '-v7.3');
+        save(fullfile(outputDir, 'final3DImg.mat'), 'img3d', 'img3dComplete', '-v7.3');
     end
 
     %% Step 2: Get each 3D spherical line to a 2D line
