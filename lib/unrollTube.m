@@ -24,8 +24,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
     end
     outputDir
     
-    pixelSizeThreshold = 10;
-    previousSizeLabels = -1;
+
     if exist(fullfile(outputDir, 'final3DImg.mat'), 'file')
         load(fullfile(outputDir, 'final3DImg.mat'));
         if exist('apicalRotationsOriginal', 'var') ~= 0
@@ -114,7 +113,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, ...
             validCellsFinal, borderCells, surfaceRatio, nameOfSimulation, ...
             areaOfValidCells, deployedImg, deployedImg3x, wholeImage, ...
-            polygon_distribution, newNeighbours2D, newNeighbours2D_Checked] = mappCylindricalCoordinatesInto2D(img3d, img3dComplete);
+            polygon_distribution, newNeighbours2D, newNeighbours2D_Checked] = mappCylindricalCoordinatesInto2D(img3d, img3dComplete, closingPxAreas2D);
         
     else
         load(fullfile(outputDir, 'allInfo.mat'));

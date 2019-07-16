@@ -1,6 +1,8 @@
-function [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validCellsFinal, borderCells, surfaceRatio, nameOfSimulation, areaOfValidCells, deployedImg, deployedImg3x, wholeImage, polygon_distribution, newNeighbours2D, newNeighbours2D_Checked] = mappCylindricalCoordinatesInto2D(img3d, img3dComplete, testing)
+function [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validCellsFinal, borderCells, surfaceRatio, nameOfSimulation, areaOfValidCells, deployedImg, deployedImg3x, wholeImage, polygon_distribution, newNeighbours2D, newNeighbours2D_Checked] = mappCylindricalCoordinatesInto2D(img3d, img3dComplete, closingPxAreas2D, testing)
 %MAPPCYLINDRICALCOORDINATESINTO2D Summary of this function goes here
 %   Detailed explanation goes here
+
+    pixelSizeThreshold = 10;
 
     imgFinalCoordinates=cell(size(img3d,3),1);
     imgFinalCoordinates3x=cell(size(img3d,3),1);
@@ -18,7 +20,7 @@ function [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validC
         img3d(:, :, coordZ) = fill0sWithCells(img3d(:, :, coordZ), img3dComplete(:, :, coordZ), closedZFrame==0);
 
         %% Remove pixels surrounding the boundary
-        [filledImage] = createCompleteSection(img3d, coordZ, labelledImage_realSize);
+        [filledImage] = createCompleteSection(img3d, coordZ, img3dComplete);
 
         %% Create perim
         [orderedLabels] = perim2line(filledImage, img3d, img3dComplete, coordZ);
