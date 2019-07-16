@@ -2,13 +2,13 @@ function test_mapped3Dinto2D(testCase, selpath, surfaceName)
 %TEST_MAPPED3DINTO2D_APICAL Summary of this function goes here
 %   Detailed explanation goes here
     warning('off','all')
-    outputDir = fullfile(selpath, 'unrolledGlands\gland_SR_', surfaceName,'\');
+    outputDir = fullfile(selpath, strcat('unrolledGlands\gland_SR_', surfaceName,'\'));
     
     
     %% Actual solution
     load(fullfile(outputDir, 'final3DImg.mat'));
     
-    if sum(size(img3d) > 1000) >= 2 %Real size imagev
+    if sum(size(img3d) > 1000) >= 2 %Real size image
         closingPxAreas2D = 1;
         closingPxAreas3D = 0;
     else %Reduced image
@@ -45,7 +45,7 @@ function test_mapped3Dinto2D(testCase, selpath, surfaceName)
     
     disp('%----- Checking neighbours -----%')
     expectedNeighbours = {newVerticesNeighs2D, newVertices2D};
-    veryfyEqual(testCase, actualNeighbours, expectedNeighbours);
+    verifyEqual(testCase, actualNeighbours, expectedNeighbours);
 
     warning('on','all')
 end

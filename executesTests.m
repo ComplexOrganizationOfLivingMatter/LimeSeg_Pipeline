@@ -9,7 +9,7 @@ function tests = executesTests
     
     %% Testing function 'mappCylindricalCoordinatesInto2D' from 'unrollTube'
     % Apical
-    test_mapped3Dinto2D_apical(mode, perfectSample, '1')
-    test_mapped3Dinto2D_apical(mode, perfectSample, 'basal')
+    test_mapped3Dinto2D(mode, perfectSample, '1')
+    test_mapped3Dinto2D(mode, perfectSample, 'basal')
     
 end
