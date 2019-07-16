@@ -1,4 +1,4 @@
-function [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validCellsFinal, borderCells, surfaceRatio, nameOfSimulation, areaOfValidCells, deployedImg, deployedImg3x, wholeImage, polygon_distribution, newNeighbours2D, newNeighbours2D_Checked] = mappCylindricalCoordinatesInto2D(img3d, img3dComplete, closingPxAreas2D, testing)
+function [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validCellsFinal, borderCells, surfaceRatio, nameOfSimulation, areaOfValidCells, deployedImg, deployedImg3x, wholeImage, polygon_distribution, newNeighbours2D, newNeighbours2D_Checked] = mappCylindricalCoordinatesInto2D(img3d, img3dComplete, closingPxAreas2D, noValidCells, colours, testing)
 %MAPPCYLINDRICALCOORDINATESINTO2D Summary of this function goes here
 %   Detailed explanation goes here
 

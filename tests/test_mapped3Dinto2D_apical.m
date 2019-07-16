@@ -1,8 +1,8 @@
-function test_mapped3Dinto2D_apical(testCase)
+function test_mapped3Dinto2D_apical(testCase, selpath)
 %TEST_MAPPED3DINTO2D_APICAL Summary of this function goes here
 %   Detailed explanation goes here
     warning('off','all')
-    outputDir = 'D:\Pablo\LimeSeg_Pipeline\data\Salivary gland_ExtractedVertices_Correct\Wildtype\2017-12-04\1a\Results\unrolledGlands\gland_SR_1\';
+    outputDir = fullfile(selpath, 'unrolledGlands\gland_SR_1\');
     
     
     %% Actual solution
@@ -16,13 +16,16 @@ function test_mapped3Dinto2D_apical(testCase)
         closingPxAreas2D = closingPxAreas3D;
     end
     
-    [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, ...
+    load(fullfile(selpath, 'valid_cells.mat'));
+    load(fullfile(selpath, '3d_layers_info.mat'), 'colours');
+    
+    [cylindre2DImage, newVerticesNeighs2D, newVertices2D, ~, ...
         validCellsFinal, borderCells, surfaceRatio, nameOfSimulation, ...
         areaOfValidCells, deployedImg, deployedImg3x, wholeImage, ...
-        polygon_distribution, newNeighbours2D, newNeighbours2D_Checked] = mappCylindricalCoordinatesInto2D(img3d, img3dComplete, closingPxAreas2D, 1);
+        polygon_distribution, newNeighbours2D, newNeighbours2D_Checked] = mappCylindricalCoordinatesInto2D(img3d, img3dComplete, closingPxAreas2D, noValidCells, colours, 1);
     
 
-    actSolution = {cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, ...
+    actSolution = {cylindre2DImage, newVerticesNeighs2D, newVertices2D, ...
         validCellsFinal, borderCells, surfaceRatio, nameOfSimulation, ...
         areaOfValidCells, deployedImg, deployedImg3x, wholeImage, ...
         polygon_distribution, newNeighbours2D, newNeighbours2D_Checked};
@@ -32,7 +35,7 @@ function test_mapped3Dinto2D_apical(testCase)
     load(fullfile(outputDir, 'allInfo.mat'));
     load(fullfile(outputDir, 'verticesInfo.mat'));
     
-    expSolution = {cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, ...
+    expSolution = {cylindre2DImage, newVerticesNeighs2D, newVertices2D, ...
         validCellsFinal, borderCells, surfaceRatio, nameOfSimulation, ...
         areaOfValidCells, deployedImg, deployedImg3x, wholeImage, ...
         polygon_distribution, newNeighbours2D, newNeighbours2D_Checked};
