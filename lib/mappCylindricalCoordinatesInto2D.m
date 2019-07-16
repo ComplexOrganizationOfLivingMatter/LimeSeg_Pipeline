@@ -107,6 +107,8 @@ function [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validC
         imwrite(finalImageWithValidCells+1, colours, fullfile(outputDir, 'img_MidSection_ValidCells.tif'));
         imwrite(wholeImage+1, colours, fullfile(outputDir, 'img_WholeImage.tif'));
         imwrite(deployedImg+1, colours, fullfile(outputDir, 'img_original.tif'));
+    else
+        centroids = [];
     end
 
     %% Calculating surface ratio

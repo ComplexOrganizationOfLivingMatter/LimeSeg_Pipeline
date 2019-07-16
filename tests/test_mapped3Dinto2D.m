@@ -1,8 +1,8 @@
-function test_mapped3Dinto2D_apical(testCase, selpath)
+function test_mapped3Dinto2D(testCase, selpath, surfaceName)
 %TEST_MAPPED3DINTO2D_APICAL Summary of this function goes here
 %   Detailed explanation goes here
     warning('off','all')
-    outputDir = fullfile(selpath, 'unrolledGlands\gland_SR_1\');
+    outputDir = fullfile(selpath, 'unrolledGlands\gland_SR_', surfaceName,'\');
     
     
     %% Actual solution
@@ -19,7 +19,7 @@ function test_mapped3Dinto2D_apical(testCase, selpath)
     load(fullfile(selpath, 'valid_cells.mat'));
     load(fullfile(selpath, '3d_layers_info.mat'), 'colours');
     
-    [cylindre2DImage, newVerticesNeighs2D, newVertices2D, ~, ...
+    [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, ...
         validCellsFinal, borderCells, surfaceRatio, nameOfSimulation, ...
         areaOfValidCells, deployedImg, deployedImg3x, wholeImage, ...
         polygon_distribution, newNeighbours2D, newNeighbours2D_Checked] = mappCylindricalCoordinatesInto2D(img3d, img3dComplete, closingPxAreas2D, noValidCells, colours, 1);
@@ -30,6 +30,7 @@ function test_mapped3Dinto2D_apical(testCase, selpath)
         areaOfValidCells, deployedImg, deployedImg3x, wholeImage, ...
         polygon_distribution, newNeighbours2D, newNeighbours2D_Checked};
     
+    actualNeighbours = {newVerticesNeighs2D, newVertices2D};
     
     %% Expected solution
     load(fullfile(outputDir, 'allInfo.mat'));
@@ -41,6 +42,10 @@ function test_mapped3Dinto2D_apical(testCase, selpath)
         polygon_distribution, newNeighbours2D, newNeighbours2D_Checked};
     
     verifyEqual(testCase,actSolution,expSolution);
+    
+    disp('%----- Checking neighbours -----%')
+    expectedNeighbours = {newVerticesNeighs2D, newVertices2D};
+    veryfyEqual(testCase, actualNeighbours, expectedNeighbours);
 
     warning('on','all')
 end

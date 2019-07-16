@@ -7,6 +7,9 @@ function tests = executesTests
     %Testing function 'divideObjectInSurfaceRatios'
     %test_divideObjectInSurfaceRatios(mode);
     
-    %Testing function 'mappCylindricalCoordinatesInto2D' from 'unrollTube'
-    test_mapped3Dinto2D_apical(mode, perfectSample)
+    %% Testing function 'mappCylindricalCoordinatesInto2D' from 'unrollTube'
+    % Apical
+    test_mapped3Dinto2D_apical(mode, perfectSample, '1')
+    test_mapped3Dinto2D_apical(mode, perfectSample, 'basal')
+    
 end
