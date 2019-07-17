@@ -32,7 +32,7 @@ Extracted from:
 
 2. Select "ellipse" and put an ellipsoidal ROI near to the basal region of the cell*. Press 'T'.*1
 
-3. Plugins -> Limeseg -> Sphere Seg (advanced).
+3. Plugins -> LimeSeg -> Sphere Seg (advanced).
 
 4. Change parameters (D_0 is optional and Z_Scale is mandatory). To calculate Z_Scale you should divide 'Voxel depth'/'Pixel width': in    our case 4.06. Also you should select a color. Tick 'ClearOptimizer'.
 
@@ -42,16 +42,16 @@ Extracted from:
 
 7. Repeat 2-6 by groups *2 (until all the cells have an assigned ROI), adding each time more cells and save the ROIs as a zip:             'Roi Manager -> More -> Save...'
 
-8. When all the cells have a ROI,you have to save their data:
+8. When all the cells have a ROI, you have to save their data:
 	1. Plugins -> Limeseg -> Show GUI
-	2. Click on 'WriteTo:' and select where you want to export the results. Tipically on: 'YOURPATH/Cells/OutputLimeSeg/'
+	2. Click on 'WriteTo:' and select where you want to export the results. Typically on: 'YOURPATH/Cells/OutputLimeSeg/'
 	3. Press 'SaveStateToXmlPly'. A directory will be created for each cell. Don't care about the ids of the cell.
 	
 	
 	
  *Note 1:Don't save the image or the ImageSequence after adding the ROIs because you will also save the ROIs and not only the image or images, and it is no possible to remove these regions from the image.
  
- *Note 2:if the cell's shapes were not correct, you could try to improve the shape by changing the positions of the seeds and positioning them not only in the basal region, for instance in the middle of the cell.
+ *Note 2: if the cell's shapes were not correct, you could try to improve the shape by changing the positions of the seeds and positioning them not only in the basal region, for instance in the middle of the cell.
  
  
 ### Refining the cells
@@ -65,7 +65,7 @@ If the error persists and it is unimprovable, you can always refine the cell bou
 
 ### Load results
 
-If you have to leave and you have not finish the salivary gland, you can always save your work and start over the next day. You only need to load the ROI you previously saved:
+If you have to leave and you have not finish processing the salivary gland, you can always save your work and start over the next day. You only need to load the ROI you previously saved:
 1. Open a ROI Manager.
 2. 'Roi Manager -> More -> Open...'
 
@@ -90,38 +90,20 @@ If you have to leave and you have not finish the salivary gland, you can always 
 	
 	1. Select the pencil at the left screen with the black color (color: 0,0,0) and white color (color: 255,255,255).
 	
-	1. With this function you can select the lumen point to point by typing shift key+left click.Segment the lumen like a black                region, you have to use the black color now.
+	1. With this function you can select the lumen point to point by typing shift key+left click.
 	
-	1. After segmenting the lumen, you have to paint the lumen like a black region.To make it easy select the area contained by the            black borders with the magic wand in the left screen.Now increase the scale of the pencil and paint the area selected with              the  magic wand, ensure that the whole lumen is black, you can colour pixels which are not black with the pencil.*
+	1. Once, the interior boundaries of the lumen is painted, you have to paint the inside of the lumen to form a black region without hollows.To make it easy select the area contained by the            black borders with the magic wand in the left screen.Now increase the scale of the pencil and paint the area selected with              the  magic wand (This tool allows you to choose specific regions of an image by typing left click inside them), ensure that the whole lumen is black, you can colour pixels which are not black with the pencil.*
 	
-	1. Copy the lumen's layer (right click in the lumen's layer and copy) and select the copy select with the magic wand (this tool            allows you to choose specific regions of an image) by typing left click in the region, and change the color to white(type x              if you selected it in the previous steps).
+	1. Later, we have to paint the exterior boundaries of the lumen. Select the lumen with the magic wand and change the color to white(type x              if you selected it in the previous steps).Select the option "selection->modify->expand", and type 5 pixels.A new border should have appeared with the thickness                    indicated previously, colour the whole layer with the white colour.
 	
-	1. Select the option "selection->modify->expand", and type 5 pixels.A new border should have appeared with the thickness                    indicated previosuly, colour the whole layer with the white colour.
-	
-	1. Move the black layer above the background layer and the white layer.
+	1. Move the black layer above the background layer and the white layer below the black layer.
 
 	*note: If the lumen is divided in different pieces, you ´will have to segment each lumen's piece one by one in the same image 		as"islands".
 	
 
-3. Afterwards, you are going to segment the correspondig image in the images of SegmentedLumen's folder:
+3. Afterwards, you are going to save the segmented lumen region  in the corresponding images of SegmentedLumen's folder. 
 
-	1. Open the image that contains the lumen in SegmentedLumen, which is the correspondig to the one that you have processed                  previously.
-	
-	1. Copy the black lumen region of the ImageSequence image in the lumen image of SegmentedLumen.You can do this by clicking in              the layer:"duplicate" and select the other image.
-	
-	1. Add a new layer in the image of SegmentedLumen, and painted as white.
-	
-	1. Move the layer of the lumen above the white layer of the image of SegmentedLumen.
-	
-	1. Type right click in the layers of both images and select the option merging layers (combine layers) to decrease the final                length of the images.
-	
-	1. Save the changes done in both images.
-	
-	1. Keep doing this process with the remaining  lumen images.
-	
-	
-	
-4. Finally you have to paint the images which don't contain the lumen as white images, you can do this automatically 	                    creating an action in photoshop (actions->new action), from this moment photoshop will capture all the things that                      you do,therefore you have to do these steps:
+	i. First, copy all the images from ImageSequence in SegmentedLumen and you have to create a white background for each image. You can do this automatically creating an action in photoshop (actions->new action), from this moment photoshop will capture all the things that                      you do, therefore you have to do these steps:
 	
 	   Add a new layer-> paint it as white.
 	   
@@ -129,29 +111,35 @@ If you have to leave and you have not finish the salivary gland, you can always 
 	   
 	   Close image
 	
-	  Later, click in file->automate->bundle , select the action that you have created and selected a folder which only contains the 	   images that don't contain the lumen because this action is applied to all the images in the folder.After this copy them to the	   lumen's folder
+	ii. Later, click in file->automate->bundle , select the action that you have created and selected the folder SegmentedLumen. This action is applied to all the images in the folder. After this copy them to the lumen's folder
+
+	iii. Now, copy the black lumen region of the ImageSequence image in the lumen image of SegmentedLumen.You can do this by clicking in              the layer:"duplicate" and select the other image.
 	
-	  Thus, copy the images which don´t contain the lumen in a separated folder and do that action for that folder.After that, copy 	  that images to the lumen's folder.
-
-
-
+	iv. Type right click in the layers of both images and select the option merging layers (combine layers) to decrease the final                length of the images.
+	
+	v. Save the changes done in both images.
+	
+	vi. Keep doing this process with the remaining  lumen images.
+	
+	
 ## Step 3: Matlab's refining process
 0. Beware that this process aim to modify only LimeSeg's output.
 1. Execute 'Epithelia3D/Salivary Glands/LimeSeg_3DSegmentation/main.m' in Matlab. It is prepared for R2018a.
 2. Select the folder where you have your images and where the output of LimeSeg is ('YOURPATH/Cells/OutputLimeSeg/'). Remember to have all the directories as explained in the [Directories hierarchy](#directories-hierarchy).
-3. Go to 'Cells/labelledSequence', where you will find the labelled image for each Z plane.
-4. Find the invalid cells (i.e. cells that does not have the correct neighbours), which will be at the tips of the salivary gland.
-5. When the pop-up dialog shown 'Insert the non-valid cells', insert the IDs of the no valid cells (**comma-separated**, e.g. '1, 30, 3, 95') and click 'ok!'.
-6. A plot showing from the basal layer (left) and apical (right):
+3. When the pop-up dialog shown 'Insert z-scale of Gland’, introduce the Z-scale establish during step 1 and click ‘OK’.
+4. Go to 'Cells/labelledSequence', where you will find the labelled image for each Z plane.
+5. Find the invalid cells (i.e. cells that does not have the correct neighbours), which will be at the tips of the salivary gland.
+6. When the pop-up dialog shown 'Insert the non-valid cells', insert the IDs of the no valid cells (**comma-separated**, e.g. '1, 30, 3, 95') and click 'ok!'.
+7. A plot showing from the basal layer (left) and apical (right):
 	1. At top: The layer with all the cells that forms the tube.
 	2. At bottom: The tube in black and the layer with the missing cells. Also, in the title there are the ids of the cells.
-7. If there is any missing cell, that means that it does not touch that layer. Therefore, you should change any of the cell's area in its Z planes. For this purpose, you should click on 'Yes' when the dialog 'Do you want to change anything' appears.
-8. Seek for a missing cell and see where it should be touching the lumen or basal layer. This would be the Z plane where the cell is ought to be changed. Select either the whole cell or the new region it should be covering. All the pixels that are in this region, now belong to the selected cell. In addition, Z planes near the actual Z ([-3, +3]), may be changed due to this operation, on the behalf of the smoothness of the 3D cell shape.
-9. Close the window.
-10. If you don't want the new changes, you can discard by clicking in 'No, don't save the changes'. Otherwise, press 'Yes'.
-11. After saving the changes an excel should have appeared with characteristics of the cells and a message could have appeared which states the IDs of the cells whose TotalNeighbours and Apicobasal neighbhours differ, in this case you have to revise the neighbours of the cells whose IDs were displayed in the message and you have to see which parameter (TotalNeighbours or Apicobasal) is true or not in the labelled images.
+8. If there is any missing cell, that means that it does not touch that layer. Therefore, you should change any of the cell's area in its Z planes. For this purpose, you should click on 'Yes' when the dialog 'Do you want to change anything' appears.
+9. Seek for a missing cell and see where it should be touching the lumen or basal layer. This would be the Z plane where the cell is ought to be changed. Select either the whole cell or the new region it should be covering. All the pixels that are in this region, now belong to the selected cell. 
+10. Close the window.
+11. If you don't want the new changes, you can discard by clicking in 'No, don't save the changes'. Otherwise, press 'Yes'.
+12. After saving the changes an excel should have appeared with characteristics of the cells and a message could have appeared which states the IDs of the cells whose TotalNeighbours and Apicobasal neighbours differ, in this case you have to revise the neighbours of the cells whose IDs were displayed in the message and you have to see which parameter (TotalNeighbours or Apicobasal) is true or not in the labelled images.
 
-The gland will be correctly segmented,if it doesn't appear any message or missing cell in Matlab and the characteristics of cells are normal in the excel
+The gland will be correctly segmented, if it doesn't appear any message or missing cell in Matlab and the characteristics of cells are normal in the excel
 
 From step to step, it could take some time.
 
@@ -169,7 +157,7 @@ From step to step, it could take some time.
 
 'ImageSequence' -> Original image sequence without modifying
 
-'Lumen' -> Save here all the information related to the lumen (segmented images of the lumen, ROIs, etc).
+'Lumen/SegmentedLumen’ -> Save here all the information related to the lumen (segmented images of the lumen, ROIs, etc).
 
 ## TROUBLESHOOTING
 
@@ -181,7 +169,7 @@ From step to step, it could take some time.
 
 **Solution**: LimeSeg only admits oval ROIs.
 
-- Error: You created a ROI and it is not displayed in the 3D viewer. You can see if it has not created correctly by inspecting the 'Number of Surefels' is equal to 0 and/or 'Centers' is not a number (NaN).
+- Error: You created a ROI and it is not displayed in the 3D viewer. You can see if it has not created correctly by inspecting the 'Number of Surfels' is equal to 0 and/or 'Centers' is not a number (NaN).
 
 **Solution 1**: Is the ROI too small? Create a bigger ROI. Smaller ROIs are not captured.
 
@@ -189,15 +177,15 @@ From step to step, it could take some time.
 
 - Error: You see different colours for the same cells.
 
-**Solution**: Clear the 3D viewer. 'Plugins -> Limeseg -> Clear all'
+**Solution**: Clear the 3D viewer. 'Plugins -> LimeSeg -> Clear all'
 
 - Error: The 3D viewer does not finish (you are seeing pixels moving and holes in the cells)
 
-**Solution**: 'Plugins -> Limeseg -> Stop optimisation'
+**Solution**: 'Plugins -> LimeSeg -> Stop Optimisation'
 
 - Error: 'There is an empty cell. Please, check if that cell is correct or remove the directory: cell_NumberOfCell'
 
-**Solution**: First, you have to check why that cell appears to have no points. This is probably because you have created the ROI of the cell, but it has disappear throughout the execution of LimeSeg. If that's the case, put that cell correctly and export all the cells again. Otherwise, remove the directory and run the matlab function.
+**Solution**: First, you have to check why that cell appears to have no points. This is probably because you have created the ROI of the cell, but it has disappear throughout the execution of LimeSeg. If that's the case, put that cell correctly and export all the cells again. Otherwise, remove the directory and run the Matlab function.
 
 ### Shortcuts
 
@@ -207,5 +195,6 @@ We advise to put shortcuts instead of performing all the clicking. To do this, y
 - F2 -> 'Sphere Seg (advanced)'
 - F3 -> 'Show Overlay'
 - F4 -> 'Hide Overlay'
+- F5 -> ’Stop Optimisation’
 
 where the first thing is the key we want to assign and the second is the command.
