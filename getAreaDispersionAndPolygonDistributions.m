@@ -178,8 +178,8 @@ lewisApical_tube = lewis_NormArea;
 
 
 %% tube basal - 1.75
-folderTube = ['..\Pedro\Epithelia3D\InSilicoModels\TubularModel\data\tubularVoronoiModel\expansion\512x4096_200seeds\diagram' num2str(VorN) '\'];
-load([folderTube 'polygonDistribution_diag_' num2str(VorN) 'sr1.8.mat']);
+folderTube = ['..\Pedro\Epithelia3D\InSilicoModels\TubularModel\data\tubularVoronoiModel\expansion\512x4096_200seeds\diagram' num2str(VorN) '_Markov\'];
+load([folderTube 'polygonDistribution_diag_' num2str(VorN) 'sr1.75.mat']);
 apicalSidesCellsTube175 = apicalSidesCells;
 totalSidesCellsTube175 = totalSidesCells;
 lewisBasal_tube_175 = lewis_NormArea; 
