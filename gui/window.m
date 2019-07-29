@@ -22,7 +22,7 @@ function varargout = window(varargin)
 
 % Edit the above text to modify the response to help window
 
-% Last Modified by GUIDE v2.5 11-Sep-2018 10:37:57
+% Last Modified by GUIDE v2.5 29-Jul-2019 14:43:01
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -126,7 +126,11 @@ if roiMask ~= -1
     lumenImage = getappdata(0, 'lumenImage');
 
     if sum(newCellRegion(:)) > 0
-        insideGland = labelledImage(:,:,selectedZ) > 0;
+        if getappdata(0, 'canModifyOutsideGland') == 0
+            insideGland = labelledImage(:,:,selectedZ) > 0;
+        else
+            insideGland = newCellRegion>-1;
+        end
         if selectCellId > 0
             [y, x] = find(newCellRegion & insideGland');
             newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
@@ -134,7 +138,6 @@ if roiMask ~= -1
             labelledImage(lumenImage>0) = 0;
             %Smooth surface of next and previos Z
             labelledImage = smoothCellContour3D(labelledImage, selectCellId, (selectedZ-3):(selectedZ+3), lumenImage);
-            
         else
             [y, x] = find(newCellRegion);
             newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
@@ -272,3 +275,15 @@ if newValue >= (tipValue+2)
     set(handles.tbZFrame,'string',num2str(newValue-(tipValue+1)));
     showSelectedCell();
 end
+
+
+% --- Executes on button press in modifyOutside.
+function modifyOutside_Callback(hObject, eventdata, handles)
+% hObject    handle to modifyOutside (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of modifyOutside
+toggleValue = get(hObject,'Value') == 1;
+
+setappdata(0, 'canModifyOutsideGland', toggleValue)

@@ -9,7 +9,11 @@ function [labelledImage] = smoothCellContour3D(labelledImage, idCell, zToSmooth,
     cellShape.Alpha = newAlpha;
     %zToSmooth = unique(z);
     
-    [x,y,z] = ind2sub(size(labelledImage),find(labelledImage ~= idCell & labelledImage ~= 0 & lumenImage == 0));
+    if getappdata(0, 'canModifyOutsideGland') == 1
+        [x,y,z] = ind2sub(size(labelledImage),find(labelledImage ~= idCell));
+    else
+        [x,y,z] = ind2sub(size(labelledImage),find(labelledImage ~= idCell & labelledImage ~= 0 & lumenImage == 0));
+    end
     pixelsToCheck = ismember(z, zToSmooth);
 
     xToCheck = x(pixelsToCheck);

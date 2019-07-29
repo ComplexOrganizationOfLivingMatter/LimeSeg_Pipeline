@@ -62,6 +62,7 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
     setappdata(0,'resizeImg',resizeImg);
     setappdata(0,'tipValue', tipValue);
     setappdata(0, 'glandOrientation', glandOrientation);
+    setappdata(0, 'canModifyOutsideGland', 0);
 
     if exist(fullfile(outputDir, 'Results', 'valid_cells.mat'), 'file')
         load(fullfile(outputDir, 'Results', 'valid_cells.mat'))
