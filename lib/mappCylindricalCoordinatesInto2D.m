@@ -1,4 +1,4 @@
-function [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validCellsFinal, borderCells, surfaceRatio, nameOfSimulation, areaOfValidCells, deployedImg, deployedImg3x, wholeImage, polygon_distribution, newNeighbours2D, newNeighbours2D_Checked] = mappCylindricalCoordinatesInto2D(img3d, img3dComplete, closingPxAreas2D, noValidCells, colours, testing)
+function [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validCellsFinal, borderCells, surfaceRatio, nameOfSimulation, areaOfValidCells, deployedImg, deployedImg3x, wholeImage, polygon_distribution, newNeighbours2D, newNeighbours2D_Checked] = mappCylindricalCoordinatesInto2D(img3d, img3dComplete, closingPxAreas2D, noValidCells, colours, outputDir)
 %MAPPCYLINDRICALCOORDINATESINTO2D Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -82,7 +82,7 @@ function [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validC
     finalImageWithValidCells = ismember(cylindre2DImage, validCellsFinal).*cylindre2DImage;
     %     figure;imshow(finalImageWithValidCells,colours)
 
-    if ~exist('testing', 'var')
+    if exist('outputDir', 'var')
         h = figure ('units','normalized','outerposition',[0 0 1 1], 'visible', 'off');
         imshow(midSectionImage+1, colours);
         hold on;
@@ -149,7 +149,7 @@ function [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validC
     polygon_distribution_T = cell2table(polygon_distribution(2:end, :));
     polygon_distribution_T.Properties.VariableNames = polygon_distribution(1, :);
     
-    if ~exist('testing', 'var')
+    if ~exist('outputDir', 'var')
         writetable(polygon_distribution_T, fullfile(outputDir, 'polygon_distribution.xls'))
 
         save(fullfile(outputDir,  'verticesInfo.mat'), 'cylindre2DImage', 'newVerticesNeighs2D', 'newVertices2D', 'centroids', 'validCellsFinal', 'borderCells', 'surfaceRatio', 'outputDir', 'nameOfSimulation', 'areaOfValidCells');
