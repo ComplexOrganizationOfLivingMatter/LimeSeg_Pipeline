@@ -32,7 +32,7 @@ function unroll_OnlyApicalAndBasal(selpath, testing)
     %     insideGland = insideGland>0.75;
     %     labelledImage_realSize(insideGland == 0) = 0;
         
-        save(fullfile(selpath, '3d_layers_info.mat'), 'labelledImage_realSize', 'lumenImage_realSize', '-append', '-v7.3');
+        save(fullfile(selpath, '3d_layers_info.mat'), 'labelledImage_realSize', 'lumenImage_realSize', '-append');
     end
     
     %% Obtain layers on its real 3D size
