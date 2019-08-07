@@ -1,4 +1,4 @@
-function [apicalLayer,basalLayer,labelledImageRealSR, lumenImageRealSR] = flattenMutantGland(apicalLayer, basalLayer, labelledImage)
+function [labelledImageRealSR, lumenImageRealSR] = flattenMutantGland(apicalLayer, basalLayer, labelledImage)
 %FLATTENMUTANTGLAND Obtain the gland
 %   Detailed explanation goes here
 
@@ -28,9 +28,6 @@ function [apicalLayer,basalLayer,labelledImageRealSR, lumenImageRealSR] = flatte
     lumenImageRealSR = bwlabeln(labelledImageRealSR==0 & (filledGland>0));
     volumeLumenImage = regionprops3(lumenImageRealSR,'Volume');
     [~,indexLumenImage] = max(volumeLumenImage.Volume);
-    [apicalLayer] = getApicalFrom3DImage(lumenImageRealSR==indexLumenImage, labelledImageRealSR);
-    [basalLayer] = getBasalFrom3DImage(labelledImage, lumenImageRealSR==indexLumenImage, tipValue, filledGland==0);
-    
     lumenImageRealSR = lumenImageRealSR==indexLumenImage;
 end
 

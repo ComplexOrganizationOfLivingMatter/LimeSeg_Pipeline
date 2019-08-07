@@ -8,7 +8,7 @@ function unroll_OnlyApicalAndBasal(selpath, testing)
     if any(cellfun(@(x) isequal('labelledImage_realSize', x), variablesOfFile))
         load(fullfile(selpath, '3d_layers_info.mat'), 'lumenImage_realSize', 'labelledImage_realSize');
     else
-        load(fullfile(selpath, '3d_layers_info.mat'), 'lumenImage', 'labelledImage');
+        load(fullfile(selpath, '3d_layers_info.mat'), 'lumenImage', 'labelledImage', 'apicalLayer', 'basalLayer');
         %% Creating image with a real size
         outputDirResults = strsplit(selpath, 'Results');
         zScaleFile = fullfile(outputDirResults{1}, 'Results', 'zScaleOfGland.mat');
@@ -20,25 +20,25 @@ function unroll_OnlyApicalAndBasal(selpath, testing)
             save(zScaleFile, 'zScale');
         end
         resizeImg = zScale;
-        labelledImage_realSize = imresize3(labelledImage, resizeImg, 'nearest');
-        lumenImage_realSize = imresize3(double(lumenImage), resizeImg, 'nearest');
+        
+            
+        if contains(lower(selpath), 'e-cadh')
+            [labelledImage_realSR, lumenImage_realSR] = flattenMutantGland(apicalLayer, basalLayer, labelledImage);
+        end
+        
+        labelledImage_realSize = imresize3(labelledImage_realSR, resizeImg, 'nearest');
+        lumenImage_realSize = imresize3(double(lumenImage_realSR), resizeImg, 'nearest');
     %     insideGland = imresize3(double(labelledImage>0), resizeImg, 'nearest');
     %     insideGland = insideGland>0.75;
     %     labelledImage_realSize(insideGland == 0) = 0;
-
-        save(fullfile(selpath, '3d_layers_info.mat'), 'labelledImage_realSize', 'lumenImage_realSize', '-append');
+        
+        save(fullfile(selpath, '3d_layers_info.mat'), 'labelledImage_realSize', 'lumenImage_realSize', '-append', '-v7.3');
     end
     
     %% Obtain layers on its real 3D size
     basalLayer = getBasalFrom3DImage(labelledImage_realSize, lumenImage_realSize, 0, labelledImage_realSize == 0 & lumenImage_realSize == 0);
     [apicalLayer] = getApicalFrom3DImage(lumenImage_realSize, labelledImage_realSize);
-    
-    if contains(selpath, 'ecadh')
-        [apicalLayer_realSR,basalLayer_realSR,labelledImage_realSR, lumenImage_realSR] = flattenMutantGland(apicalLayer, basalLayer, labelledImage);
-        save(fullfile(selpath, '3d_layers_info.mat'), 'apicalLayer_realSR', 'basalLayer_realSR', 'labelledImage_realSR', 'lumenImage_realSR', '-append');
-        apicalLayer = apicalLayer_realSR;
-        basalLayer = basalLayer_realSR;
-    end
+
 % 
 %     figure; paint3D(apicalLayer)
 %     figure; paint3D(basalLayer)
