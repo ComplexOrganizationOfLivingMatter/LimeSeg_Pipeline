@@ -149,7 +149,7 @@ function [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validC
     polygon_distribution_T = cell2table(polygon_distribution(2:end, :));
     polygon_distribution_T.Properties.VariableNames = polygon_distribution(1, :);
     
-    if ~exist('outputDir', 'var')
+    if exist('outputDir', 'var')
         writetable(polygon_distribution_T, fullfile(outputDir, 'polygon_distribution.xls'))
 
         save(fullfile(outputDir,  'verticesInfo.mat'), 'cylindre2DImage', 'newVerticesNeighs2D', 'newVertices2D', 'centroids', 'validCellsFinal', 'borderCells', 'surfaceRatio', 'outputDir', 'nameOfSimulation', 'areaOfValidCells');
