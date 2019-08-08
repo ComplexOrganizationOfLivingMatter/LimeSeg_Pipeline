@@ -11,8 +11,8 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
     %% Step 1: Creating image with its real size, in case it is necessary
     if exist('labelledImage_realSize', 'var')
         img3dComplete = labelledImage_realSize;
-        closingPxAreas2D = 1;
-        closingPxAreas3D = 0;
+        closingPxAreas2D = 2;
+        closingPxAreas3D = 1;
     else
         img3dComplete = labelledImage;
         closingPxAreas3D = 10;
@@ -96,7 +96,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         
         [validRegion] = imclose(validRegion>0, strel('sphere', closingPxAreas3D));
                     
-        img3d = fill0sWithCells(img3d .* double(validRegion), img3dComplete, (img3dComplete & validRegion)==0);
+        img3d = fill0sWithCells(img3d .* double(validRegion), img3dComplete, (img3dComplete>0 & validRegion)==0);
         %vertices3D = round(vertices3D / resizeImg);
         mkdir(outputDir);
         %save(fullfile(outputDir, 'final3DImg.mat'), 'img3d', 'img3dComplete', 'vertices3D_Neighbours', 'vertices3D', 'cellNumNeighbours', 'neighbours', '-v7.3');
