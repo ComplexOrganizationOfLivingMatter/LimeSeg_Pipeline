@@ -9,11 +9,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
     colours = vertcat([1 1 1], colours);
     
     %% Step 1: Creating image with its real size, in case it is necessary
-    if exist('labelledImage_realSR', 'var')
-        img3dComplete = labelledImage_realSR;
-        closingPxAreas2D = 1;
-        closingPxAreas3D = 0;
-    elseif exist('labelledImage_realSize', 'var')
+    if exist('labelledImage_realSize', 'var')
         img3dComplete = labelledImage_realSize;
         closingPxAreas2D = 1;
         closingPxAreas3D = 0;

@@ -23,11 +23,11 @@ function unroll_OnlyApicalAndBasal(selpath, testing)
         
             
         if contains(lower(selpath), 'e-cadh')
-            [labelledImage_realSR, lumenImage_realSR] = flattenMutantGland(apicalLayer, basalLayer, labelledImage);
+            [labelledImage, lumenImage] = flattenMutantGland(apicalLayer, basalLayer, labelledImage);
         end
         
         labelledImage_realSize = imresize3(labelledImage_realSR, resizeImg, 'nearest');
-        lumenImage_realSize = imresize3(double(lumenImage_realSR), resizeImg, 'nearest');
+        lumenImage_realSize = imresize3(double(lumenImage), resizeImg, 'nearest');
     %     insideGland = imresize3(double(labelledImage>0), resizeImg, 'nearest');
     %     insideGland = insideGland>0.75;
     %     labelledImage_realSize(insideGland == 0) = 0;
