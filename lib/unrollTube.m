@@ -11,13 +11,13 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
     %% Step 1: Creating image with its real size, in case it is necessary
     if exist('labelledImage_realSize', 'var')
         img3dComplete = labelledImage_realSize;
-        closingPxAreas2D = 2;
-        closingPxAreas3D = 1;
     else
         img3dComplete = labelledImage;
-        closingPxAreas3D = 10;
-        closingPxAreas2D = closingPxAreas3D;
     end
+    
+    closingPxAreas3D = 10;
+    closingPxAreas2D = closingPxAreas3D;
+    
     outputDir
     
 

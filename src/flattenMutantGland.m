@@ -1,4 +1,4 @@
-function [labelledImageRealSR, lumenImageRealSR] = flattenMutantGland(apicalLayer, basalLayer, labelledImage)
+function [labelledImageRealSR] = flattenMutantGland(apicalLayer, basalLayer, labelledImage)
 %FLATTENMUTANTGLAND Obtain the gland
 %   Detailed explanation goes here
 
@@ -20,14 +20,7 @@ function [labelledImageRealSR, lumenImageRealSR] = flattenMutantGland(apicalLaye
         pixelsIn = inShape(plotCell, possibleIndicesX, possibleIndicesY, possibleIndicesZ);
         labelledImageToCalculateSR(indicesCell(pixelsIn)) = numCell;
     end 
-    
-    tipValue = 4;
     labelledImageRealSR = double(imclose(labelledImageToCalculateSR > 0,strel('sphere',2)));
-    filledGland = imfill(labelledImageRealSR);
     labelledImageRealSR = labelledImageRealSR .* labelledImage;
-    lumenImageRealSR = bwlabeln(labelledImageRealSR==0 & (filledGland>0));
-    volumeLumenImage = regionprops3(lumenImageRealSR,'Volume');
-    [~,indexLumenImage] = max(volumeLumenImage.Volume);
-    lumenImageRealSR = lumenImageRealSR==indexLumenImage;
 end
 
