@@ -23,7 +23,7 @@ function unroll_OnlyApicalAndBasal(selpath, testing)
         
             
         if contains(lower(selpath), 'e-cadh')
-            [labelledImage] = flattenMutantGland(apicalLayer, basalLayer, labelledImage);
+            [labelledImage] = flattenMutantGland(apicalLayer, basalLayer, labelledImage, lumenImage);
         end
         
         labelledImage_realSize = imresize3(labelledImage, resizeImg, 'nearest');

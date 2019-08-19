@@ -1,4 +1,4 @@
-function [labelledImageRealSR] = flattenMutantGland(apicalLayer, basalLayer, labelledImage)
+function [labelledImageRealSR] = flattenMutantGland(apicalLayer, basalLayer, labelledImage, lumenImage)
 %FLATTENMUTANTGLAND Obtain the gland
 %   Detailed explanation goes here
 
@@ -22,5 +22,6 @@ function [labelledImageRealSR] = flattenMutantGland(apicalLayer, basalLayer, lab
     end 
     labelledImageRealSR = double(imclose(labelledImageToCalculateSR > 0,strel('sphere',2)));
     labelledImageRealSR = labelledImageRealSR .* labelledImage;
+    labelledImageRealSR(lumenImage>0) = 0;
 end
 
