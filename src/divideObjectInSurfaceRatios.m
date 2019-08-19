@@ -21,7 +21,7 @@ function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
         %% Obtain layers on its real 3D size
         basalLayer = getBasalFrom3DImage(labelledImage_realSize, lumenImage_realSize, 0, labelledImage_realSize == 0 & lumenImage_realSize == 0);
         [apicalLayer] = getApicalFrom3DImage(lumenImage_realSize, labelledImage_realSize);
-        lumenImage = lumenImage_realSize;
+        lumenImage = lumenImage_realSize>0;
         startingSurface = basalLayer;
         endSurface = apicalLayer;
         
