@@ -14,15 +14,9 @@ disp('----------- DIVIDING GLANDS -------------')
 for numFile = 4%1:length(files)
     files(numFile).folder
     selpath = files(numFile).folder;
+    
     unroll_OnlyApicalAndBasal(selpath)
     divideObjectInSurfaceRatios(selpath);
-end
-
-disp('----------- UNROLLING TUBES -------------')
-parfor numFile = 1:length(files)
-    files(numFile).folder
-    selpath = files(numFile).folder;
-    
     unrollTube_parallel(selpath);
 end
 

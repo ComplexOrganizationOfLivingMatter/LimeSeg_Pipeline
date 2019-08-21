@@ -18,9 +18,7 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
     closingPxAreas3D = 10;
     closingPxAreas2D = closingPxAreas3D;
     
-    outputDir
-    
-
+    mkdir(outputDir)
     if exist(fullfile(outputDir, 'final3DImg.mat'), 'file')
         load(fullfile(outputDir, 'final3DImg.mat'));
         if exist('apicalRotationsOriginal', 'var') ~= 0
