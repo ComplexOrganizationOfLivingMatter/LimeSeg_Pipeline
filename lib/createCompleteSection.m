@@ -28,18 +28,19 @@ function [filledImage] = createCompleteSection(img3d, coordZ, labelledImage_real
 %                 end
         [x, y] = find(img3d(:, :, coordZ)>0);
         coordinates = [x, y];
+        newOrderBoundary = boundary(coordinates);
+        coordinates = coordinates(newOrderBoundary, :);
 
         userConfig = struct('xy',coordinates, 'showProg',false,'showResult',false);
         resultStruct = tspo_ga(userConfig);
-        orderBoundary = [resultStruct.optRoute resultStruct.optRoute(1)];
-        newVertSalesman = coordinates(orderBoundary(1:end-1), :);
+        newVertSalesman = coordinates(resultStruct.optRoute, :);
         newVertSalesman = [newVertSalesman; newVertSalesman(1,:)];
 
-        %                 for numCoord = 1:(size(newVertSalesman, 1)-1)
-        %                     plot(newVertSalesman(numCoord:numCoord+1, 2), newVertSalesman(numCoord:numCoord+1, 1))
-        %                 end
+        for numCoord = 1:(size(newVertSalesman, 1)-1)
+            plot(newVertSalesman(numCoord:numCoord+1, 2), newVertSalesman(numCoord:numCoord+1, 1))
+        end
 
-        [distancePxs] = pdist2(coordinates, coordinates, 'euclidean', 'Smallest', 4);
+        [distancePxs, idsClosest] = pdist2(coordinates, coordinates, 'euclidean', 'Smallest', 4);
         coordinatesToUnify = coordinates(distancePxs(4, :) > 1.5, :);
 
         %                 figure; imshow(filledImage)
