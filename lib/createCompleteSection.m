@@ -36,9 +36,9 @@ function [filledImage] = createCompleteSection(img3d, coordZ, labelledImage_real
         newVertSalesman = coordinates(resultStruct.optRoute, :);
         newVertSalesman = [newVertSalesman; newVertSalesman(1,:)];
 
-        for numCoord = 1:(size(newVertSalesman, 1)-1)
-            plot(newVertSalesman(numCoord:numCoord+1, 2), newVertSalesman(numCoord:numCoord+1, 1))
-        end
+%         for numCoord = 1:(size(newVertSalesman, 1)-1)
+%             plot(newVertSalesman(numCoord:numCoord+1, 2), newVertSalesman(numCoord:numCoord+1, 1))
+%         end
 
         [distancePxs, idsClosest] = pdist2(coordinates, coordinates, 'euclidean', 'Smallest', 4);
         coordinatesToUnify = coordinates(distancePxs(4, :) > 1.5, :);
