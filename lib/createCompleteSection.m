@@ -28,7 +28,7 @@ function [filledImage] = createCompleteSection(img3d, coordZ, labelledImage_real
 %                 end
         [x, y] = find(img3d(:, :, coordZ)>0);
         coordinates = [x, y];
-        newOrderBoundary = boundary(coordinates);
+        newOrderBoundary = boundary(coordinates, 1);
         coordinates = coordinates(newOrderBoundary, :);
 
         userConfig = struct('xy',coordinates, 'showProg',false,'showResult',false);
