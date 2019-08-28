@@ -7,9 +7,11 @@ addpath(genpath('src'))
 addpath(genpath('lib'))
 addpath(genpath(fullfile('..','Epithelia3D', 'InSilicoModels', 'TubularModel', 'src')));
 
-files = dir('**/data/Salivary gland_ExtractedVertices_Correct/**/Results/3d_layers_info.mat');
+files_WT = dir('**/data/Salivary gland_ExtractedVertices_Correct/**/Results/3d_layers_info.mat');
+files_Ecadhi = dir('**/data/Salivary gland/E-cadh Inhibited/**/Results/3d_layers_info.mat');
 
-nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0 && contains(lower(x), 'wildtype'), {files.folder});
+files = files_Ecadhi;
+nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0, {files.folder});
 files = files(nonDiscardedFiles);
 
 %resultsFileName = '3d_layers_info.mat';
@@ -17,12 +19,12 @@ files = files(nonDiscardedFiles);
 %resultsFileName = 'glandDividedInSurfaceRatios_PredefinedSR.mat';
 resultsFileName = 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat';
 
-minNumberOfSurfaceRatios = 7;
+minNumberOfSurfaceRatios = 5; %7WT; 5Ecadhi
 %namesSR = arrayfun(@(x) ['sr' strrep(num2str(x),'.','_')],1:numberOfSurfaceRatios,'UniformOutput', false);
 %namesSR = {'sr1' 'sr2'};
 
-steps = 2.5/(minNumberOfSurfaceRatios-1);
-surfaceRatiosExtrapolatedFrom3D = 1:steps:((steps*(minNumberOfSurfaceRatios-1))+1);
+steps = 2.5/(7-1);
+surfaceRatiosExtrapolatedFrom3D = 1:steps:((steps*(7-1))+1);
 
 totalDataBasal = [];
 totalDataAccum = [];
@@ -43,80 +45,61 @@ meanVolumeMicronsPerGland = zeros(length(files),2);
             load(fullfile(files(numFile).folder, resultsFileName))
         else
             continue
-            %divideObjectInSurfaceRatios(files(numFile).folder);
         end
         load([files(numFile).folder '\unrolledGlands\gland_SR_basal\final3DImg.mat'],'img3dComplete')
         
+        %% Calculate final variables
+        %Volume
         volume3d = regionprops3(img3dComplete,'Volume');
         volume3d = cat(1,volume3d.Volume);
         meanVolumeMicronsPerGland(numFile,1) = mean(volume3d(validCells)); 
-        meanVolumeMicronsPerGland(numFile,2) = std(volume3d(validCells)); 
-        if exist('infoPerSurfaceRatio', 'var')
-            numberOfSurfaceRatios = size(infoPerSurfaceRatio, 1);
-        else
-            numberOfSurfaceRatios = 2;
-        end
-
+        meanVolumeMicronsPerGland(numFile,2) = std(volume3d(validCells));
+        
+        %Surface ratio: final 3D, final 2D, selectedSR 3D, selectedSR 2D
         meanSR(numFile, 1) = infoPerSurfaceRatio{end, 2};
         meanSR(numFile, 2) = infoPerSurfaceRatio{end, 7};
         meanSR(numFile, 3) = infoPerSurfaceRatio{minNumberOfSurfaceRatios, 2};
         meanSR(numFile, 4) = infoPerSurfaceRatio{minNumberOfSurfaceRatios, 7};
-        if exist('neighboursOfAllSurfaces', 'var') == 0
-            neighboursOfAllSurfaces = cell(numberOfSurfaceRatios, 1);
-            filesOf2DUnroll = dir(fullfile(files(numFile).folder, '**', 'verticesInfo.mat'));
-            for numSR = 1:numberOfSurfaceRatios
-                load(fullfile(filesOf2DUnroll(numSR).folder, 'verticesInfo.mat'), 'newVerticesNeighs2D');
-
-                if numSR == 1
-                    idToSave = 1;
-                elseif numSR == 2
-                    idToSave = size(infoPerSurfaceRatio, 1);
-                else
-                    idToSave = numSR - 1;
-                end
-
-                neighboursOfAllSurfaces{idToSave} = getNeighboursFromVertices(newVerticesNeighs2D);
-            end
-        end
-
+        
+        %% Calculate variables per surface
+        %Initialize all variables
+        numberOfSurfaceRatios = size(infoPerSurfaceRatio, 1);
         neighsSurface = cell(numberOfSurfaceRatios,1);
         neighsAccumSurfaces = cell(numberOfSurfaceRatios,1);
         percentageScutoids = cell(numberOfSurfaceRatios, 1);
         apicoBasalTransitions = cell(numberOfSurfaceRatios, 1);
         areaCells = cell(numberOfSurfaceRatios,1);
         volumes = cell(numberOfSurfaceRatios,1);
-
+        
+        infoOfCells = infoPerSurfaceRatio{1, 4};
+        infoOfCells = infoOfCells{:};
+        
+        %Apical sides
         neighsSurface{1} = neighboursOfAllSurfaces{1};
         neighsAccumSurfaces{1} = neighboursOfAllSurfaces{1};
         percentageScutoids{1} = cellfun(@(x, y) ~isequal(x,y), neighsSurface{1}, neighsAccumSurfaces{1});
         numLostNeighsAccum{1} = cell(size(neighboursOfAllSurfaces{1}));
         numWonNeighsAccum{1} = cell(size(neighboursOfAllSurfaces{1}));
-
-        infoOfCells = infoPerSurfaceRatio{1, 4};
-        infoOfCells = infoOfCells{:};
-
         areaCells(1) = {infoOfCells.Basal_area};
         volumes(1) = {infoOfCells.Volume};
-        numberOfSurfaceRatios
-        for idSR = 2:numberOfSurfaceRatios
-            neighsSurface{idSR} = neighboursOfAllSurfaces{idSR};
-            neighsAccumSurfaces{idSR} = cellfun(@(x,y) unique([x;y]),neighsAccumSurfaces{idSR-1},neighsSurface{idSR},'UniformOutput',false);
-            percentageScutoids{idSR} = cellfun(@(x, y) ~isempty(setxor(x,y)), neighsSurface{1}, neighsSurface{idSR});
+        
+        for numberSR = 2:numberOfSurfaceRatios
+            neighsSurface{numberSR} = neighboursOfAllSurfaces{numberSR};
+            neighsAccumSurfaces{numberSR} = cellfun(@(x,y) unique([x;y]),neighsAccumSurfaces{numberSR-1},neighsSurface{numberSR},'UniformOutput',false);
+            percentageScutoids{numberSR} = cellfun(@(x, y) ~isempty(setxor(x,y)), neighsSurface{1}, neighsSurface{numberSR});
 
-            lostNeigh = cellfun(@(x, y) setdiff(x,y), neighsAccumSurfaces{idSR-1}, neighsSurface{idSR}, 'UniformOutput',false);
-            wonNeigh = cellfun(@(x, y) setdiff(y, x), neighsAccumSurfaces{idSR-1}, neighsAccumSurfaces{idSR}, 'UniformOutput',false);
+            lostNeigh = cellfun(@(x, y) setdiff(x,y), neighsAccumSurfaces{numberSR-1}, neighsSurface{numberSR}, 'UniformOutput',false);
+            wonNeigh = cellfun(@(x, y) setdiff(y, x), neighsAccumSurfaces{numberSR-1}, neighsAccumSurfaces{numberSR}, 'UniformOutput',false);
 
-            numLostNeighsAccum{idSR} = cellfun(@(x,y) unique([x;y]),lostNeigh,numLostNeighsAccum{idSR-1},'UniformOutput',false);
-            numWonNeighsAccum{idSR} = cellfun(@(x,y) unique([x;y]),wonNeigh,numWonNeighsAccum{idSR-1},'UniformOutput',false);
+            numLostNeighsAccum{numberSR} = cellfun(@(x,y) unique([x;y]),lostNeigh,numLostNeighsAccum{numberSR-1},'UniformOutput',false);
+            numWonNeighsAccum{numberSR} = cellfun(@(x,y) unique([x;y]),wonNeigh,numWonNeighsAccum{numberSR-1},'UniformOutput',false);
 
-    %         apicoBasalTransitions{idSR} = cellfun(@(x, y) length(setxor(x,y)), neighsSurface{1}, neighsSurface{idSR});
-            apicoBasalTransitions{idSR} = cellfun(@(x,y) length(([x;y])),numLostNeighsAccum{idSR},numWonNeighsAccum{idSR});  
-    %         apicoBasalTransitions{idSR} = cellfun(@(x, y) length([x;y]), apicoBasalWinnings{1}, apicoBasalLoosings{idSR});
+            apicoBasalTransitions{numberSR} = cellfun(@(x,y) length(([x;y])),numLostNeighsAccum{numberSR},numWonNeighsAccum{numberSR});  
 
-            infoOfCells = infoPerSurfaceRatio{idSR, 4};
+            infoOfCells = infoPerSurfaceRatio{numberSR, 4};
             infoOfCells = infoOfCells{:};
-            areaCells(idSR) = {infoOfCells.Basal_area};
-            volumes(idSR) = {infoOfCells.Volume};
+            areaCells(numberSR) = {infoOfCells.Basal_area};
+            volumes(numberSR) = {infoOfCells.Volume};
         end
 
         areaCellsPerSurfaceRealization = cat(2,areaCells{:});
@@ -125,6 +108,8 @@ meanVolumeMicronsPerGland = zeros(length(files),2);
         neighsAccumSurfaces = cat(1,neighsAccumSurfaces{:})';
         percentageScutoids = cat(1,percentageScutoids{:})';
         apicoBasalTransitions = cat(1,apicoBasalTransitions{:})';
+        numLostNeighsAccum = cat(1, numLostNeighsAccum{:})';
+        numWonNeighsAccum = cat(1, numWonNeighsAccum{:})';
 
         numNeighPerSurfaceRealization = cellfun(@(x) length(x),neighsSurface);
         numNeighAccumPerSurfacesRealization = cellfun(@(x) length(x),neighsAccumSurfaces);
