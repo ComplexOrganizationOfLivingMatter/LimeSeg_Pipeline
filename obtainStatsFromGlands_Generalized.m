@@ -111,15 +111,8 @@ meanVolumeMicronsPerGland = zeros(length(files),2);
         numLostNeighsAccum = cat(1, numLostNeighsAccum{:})';
         numWonNeighsAccum = cat(1, numWonNeighsAccum{:})';
 
-        numNeighPerSurfaceRealization = cellfun(@(x) length(x),neighsSurface);
-        numNeighAccumPerSurfacesRealization = cellfun(@(x) length(x),neighsAccumSurfaces);
-
-        numNeighOfNeighPerSurfacesRealization = zeros(size(neighsSurface));
-        numNeighOfNeighAccumPerSurfacesRealization = zeros(size(neighsSurface));
-        for nSR = 1:numberOfSurfaceRatios
-            numNeighOfNeighPerSurfacesRealization(:,nSR) = cellfun(@(x) sum(vertcat(numNeighPerSurfaceRealization(x,nSR)))/length(x),neighsSurface(:,nSR));
-            numNeighOfNeighAccumPerSurfacesRealization(:,nSR) = cellfun(@(x) sum(vertcat(numNeighAccumPerSurfacesRealization(x,nSR)))/length(x),neighsAccumSurfaces(:,nSR));
-        end
+        numNeighOfNeighPerSurfacesRealization = getNumNeighsOfNeighs(neighsSurface);
+        numNeighOfNeighAccumPerSurfacesRealization = getNumNeighsOfNeighs(neighsAccumSurfaces);
 
         %%
         meanNumNeighPerSurfaceRealization = mean(numNeighAccumPerSurfacesRealization(validCells, :), 1);
