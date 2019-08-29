@@ -61,56 +61,8 @@ meanVolumeMicronsPerGland = zeros(length(files),2);
         meanSR(numFile, 3) = infoPerSurfaceRatio{minNumberOfSurfaceRatios, 2};
         meanSR(numFile, 4) = infoPerSurfaceRatio{minNumberOfSurfaceRatios, 7};
         
-        %% Calculate variables per surface
-        %Initialize all variables
-        numberOfSurfaceRatios = size(infoPerSurfaceRatio, 1);
-        neighsSurface = cell(numberOfSurfaceRatios,1);
-        neighsAccumSurfaces = cell(numberOfSurfaceRatios,1);
-        percentageScutoids = cell(numberOfSurfaceRatios, 1);
-        apicoBasalTransitions = cell(numberOfSurfaceRatios, 1);
-        areaCells = cell(numberOfSurfaceRatios,1);
-        volumes = cell(numberOfSurfaceRatios,1);
+        [areaCellsPerSurfaceRealization, volumePerSurfaceRealization, neighsSurface, neighsAccumSurfaces, percentageScutoids, apicoBasalTransitions, numLostNeighsAccum, numWonNeighsAccum] = getBasicInformationToPlot(infoPerSurfaceRatio, neighboursOfAllSurfaces);
         
-        infoOfCells = infoPerSurfaceRatio{1, 4};
-        infoOfCells = infoOfCells{:};
-        
-        %Apical sides
-        neighsSurface{1} = neighboursOfAllSurfaces{1};
-        neighsAccumSurfaces{1} = neighboursOfAllSurfaces{1};
-        percentageScutoids{1} = cellfun(@(x, y) ~isequal(x,y), neighsSurface{1}, neighsAccumSurfaces{1});
-        numLostNeighsAccum{1} = cell(size(neighboursOfAllSurfaces{1}));
-        numWonNeighsAccum{1} = cell(size(neighboursOfAllSurfaces{1}));
-        areaCells(1) = {infoOfCells.Basal_area};
-        volumes(1) = {infoOfCells.Volume};
-        
-        for numberSR = 2:numberOfSurfaceRatios
-            neighsSurface{numberSR} = neighboursOfAllSurfaces{numberSR};
-            neighsAccumSurfaces{numberSR} = cellfun(@(x,y) unique([x;y]),neighsAccumSurfaces{numberSR-1},neighsSurface{numberSR},'UniformOutput',false);
-            percentageScutoids{numberSR} = cellfun(@(x, y) ~isempty(setxor(x,y)), neighsSurface{1}, neighsSurface{numberSR});
-
-            lostNeigh = cellfun(@(x, y) setdiff(x,y), neighsAccumSurfaces{numberSR-1}, neighsSurface{numberSR}, 'UniformOutput',false);
-            wonNeigh = cellfun(@(x, y) setdiff(y, x), neighsAccumSurfaces{numberSR-1}, neighsAccumSurfaces{numberSR}, 'UniformOutput',false);
-
-            numLostNeighsAccum{numberSR} = cellfun(@(x,y) unique([x;y]),lostNeigh,numLostNeighsAccum{numberSR-1},'UniformOutput',false);
-            numWonNeighsAccum{numberSR} = cellfun(@(x,y) unique([x;y]),wonNeigh,numWonNeighsAccum{numberSR-1},'UniformOutput',false);
-
-            apicoBasalTransitions{numberSR} = cellfun(@(x,y) length(([x;y])),numLostNeighsAccum{numberSR},numWonNeighsAccum{numberSR});  
-
-            infoOfCells = infoPerSurfaceRatio{numberSR, 4};
-            infoOfCells = infoOfCells{:};
-            areaCells(numberSR) = {infoOfCells.Basal_area};
-            volumes(numberSR) = {infoOfCells.Volume};
-        end
-
-        areaCellsPerSurfaceRealization = cat(2,areaCells{:});
-        volumePerSurfaceRealization = cat(2,volumes{:});
-        neighsSurface = cat(1,neighsSurface{:})';
-        neighsAccumSurfaces = cat(1,neighsAccumSurfaces{:})';
-        percentageScutoids = cat(1,percentageScutoids{:})';
-        apicoBasalTransitions = cat(1,apicoBasalTransitions{:})';
-        numLostNeighsAccum = cat(1, numLostNeighsAccum{:})';
-        numWonNeighsAccum = cat(1, numWonNeighsAccum{:})';
-
         numNeighOfNeighPerSurfacesRealization = getNumNeighsOfNeighs(neighsSurface);
         numNeighOfNeighAccumPerSurfacesRealization = getNumNeighsOfNeighs(neighsAccumSurfaces);
 
