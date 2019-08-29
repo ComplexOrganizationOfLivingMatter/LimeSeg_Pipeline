@@ -68,8 +68,9 @@ for numFile = 1:length(files)
     [numNeighOfNeighAccumPerSurfacesRealization, numNeighAccumPerSurfacesRealization] = getNumNeighsOfNeighs(neighsAccumSurfaces, numberOfSurfaceRatios);
     
     %namesSR = surfaceRatioOfGland(1:minNumberOfSurfaceRatios);
-    namesSR = surfaceRatiosExtrapolatedFrom3D;
+    namesSR = infoPerSurfaceRatio.SR3D;
     namesSR = arrayfun(@(x) ['sr' strrep(num2str(x),'.','_')], namesSR, 'UniformOutput', false);
+    namesSR = namesSR(1:minNumberOfSurfaceRatios);
     
     %Save Initial information
     numNeighPerSurface{numFile, 1} = array2table(numNeighPerSurfaceRealization(validCells, 1:minNumberOfSurfaceRatios),'VariableNames',namesSR);
@@ -94,23 +95,14 @@ for numFile = 1:length(files)
     mean_Scutoids{numFile, 1} = mean_PercScutoids;
     surfaceRatiosPerFile{numFile, 1} = infoPerSurfaceRatio.SR2D';
     
-    mean_PercScutoids_basal(numFile, 1) = mean_PercScutoids(end);
-    mean_PercScutoids_basal(numFile, 2) = std_PercScutoids(end);
-    mean_PercScutoids_basal(numFile, 3) = infoPerSurfaceRatio{end, 7};
     mean_apicoBasalTransitions_final(numFile, 1) = mean_apicoBasalTransitions(end);
     mean_apicoBasalTransitions_final(numFile, 2) = std_apicoBasalTransitions(end);
-    
-    neighbours_apical(numFile, 1) = meanNumNeighPerSurfaceRealization(1);
-    neighbours_apical(numFile, 2) = stdNumNeighPerSurfaceRealization(1);
-    neighbours_basal(numFile, 1) = mean(numNeighPerSurfaceRealization(validCells, end));
-    neighbours_basal(numFile, 2) = std(numNeighPerSurfaceRealization(validCells, end));
-    neighbours_total(numFile, 1) = meanNumNeighPerSurfaceRealization(end);
-    neighbours_total(numFile, 2) = stdNumNeighPerSurfaceRealization(end);
     
     %Scutoids per number of sides
     [meanWinningPerSidePerFile{numFile, 1}, cellsPerSide{numFile}] = calculateMeanWinning3DNeighbours(numNeighAccumPerSurfacesRealization(:, 1:minNumberOfSurfaceRatios), validCells, minNumberOfSurfaceRatios);
     
-    averageGlandInfo = table();
+    averageGlandInfo = table(infoPerSurfaceRatio.SR3D(end), infoPerSurfaceRatio.SR2D(end), meanNumNeighPerSurfaceRealization(1), stdNumNeighPerSurfaceRealization(1), mean(numNeighPerSurfaceRealization(validCells, end)), std(numNeighPerSurfaceRealization(validCells, end)), meanNumNeighPerSurfaceRealization(end), stdNumNeighPerSurfaceRealization(end), mean_PercScutoids(end), std_PercScutoids(end), mean_apicoBasalTransitions(end), std_apicoBasalTransitions(end), ...
+        'VariableNames', {'SurfaceRatio_3D', 'SurfaceRatio_2D', 'neighbours_apical_avg', 'neighbours_apical_std', 'neighbours_basal_avg', 'neighbours_basal_std', 'neighbours_total_avg', 'neighbours_total_std', 'scutoids_avg', 'scutoids_std', 'apicoBasalTransitions_avg', 'apicoBasalTransitions_std'});
 end
 
 getStatsAndRepresentationsEulerLewis3D(numNeighOfNeighPerSurface,numNeighOfNeighAccumPerSurface,numNeighPerSurface,numNeighAccumPerSurfaces,areaCellsPerSurface,volumePerSurface,'Results\SalivaryGlands\', surfaceRatiosExtrapolatedFrom3D, 0);
