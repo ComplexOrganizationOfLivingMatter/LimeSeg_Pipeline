@@ -25,6 +25,7 @@ minNumberOfSurfaceRatios = 5; %7WT; 5Ecadhi
 
 steps = 2.5/(7-1);
 surfaceRatiosExtrapolatedFrom3D = 1:steps:((steps*(7-1))+1);
+surfaceRatiosExtrapolatedFrom3D = surfaceRatiosExtrapolatedFrom3D(1:minNumberOfSurfaceRatios);
 
 totalDataBasal = [];
 totalDataAccum = [];
@@ -32,8 +33,6 @@ totalDataAccum = [];
 realSRBasal = [];
 realSRAccum = [];
 meanVolumeMicronsPerGland = zeros(length(files),2);
-
-
 
 for numFile = 1:length(files)
     files(numFile).folder
@@ -67,10 +66,9 @@ for numFile = 1:length(files)
     [numNeighOfNeighPerSurfacesRealization, numNeighPerSurfaceRealization] = getNumNeighsOfNeighs(neighsSurface, numberOfSurfaceRatios);
     [numNeighOfNeighAccumPerSurfacesRealization, numNeighAccumPerSurfacesRealization] = getNumNeighsOfNeighs(neighsAccumSurfaces, numberOfSurfaceRatios);
     
-    %namesSR = surfaceRatioOfGland(1:minNumberOfSurfaceRatios);
-    namesSR = infoPerSurfaceRatio.SR3D;
+    namesSR = surfaceRatiosExtrapolatedFrom3D;
     namesSR = arrayfun(@(x) ['sr' strrep(num2str(x),'.','_')], namesSR, 'UniformOutput', false);
-    namesSR = namesSR(1:minNumberOfSurfaceRatios);
+    %namesSR = namesSR(1:minNumberOfSurfaceRatios);
     
     %Save Initial information
     numNeighPerSurface{numFile, 1} = array2table(numNeighPerSurfaceRealization(validCells, 1:minNumberOfSurfaceRatios),'VariableNames',namesSR);
@@ -104,6 +102,8 @@ for numFile = 1:length(files)
         mean_PercScutoids(end), std_PercScutoids(end), mean_apicoBasalTransitions(end), std_apicoBasalTransitions(end), ...
         'VariableNames', {'SurfaceRatio_3D', 'SurfaceRatio_2D', 'nCells', 'neighbours_apical_avg', 'neighbours_apical_std', 'neighbours_basal_avg', 'neighbours_basal_std', 'neighbours_total_avg', 'neighbours_total_std', ...
         'scutoids_avg', 'scutoids_std', 'apicoBasalTransitions_avg', 'apicoBasalTransitions_std'});
+    
+    clearvars 'meanNeighsScutoidsPerSF_ValidCells' 'neighbours'
 end
-
-getStatsAndRepresentationsEulerLewis3D(numNeighOfNeighPerSurface,numNeighOfNeighAccumPerSurface,numNeighPerSurface,numNeighAccumPerSurfaces,areaCellsPerSurface,volumePerSurface,'Results\SalivaryGlands\', surfaceRatiosExtrapolatedFrom3D, 0);
+averageGlandInfo = vertcat(averageGlandInfo{:});
+getStatsAndRepresentationsEulerLewis3D(numNeighOfNeighPerSurface,numNeighOfNeighAccumPerSurface,numNeighPerSurface,numNeighAccumPerSurfaces,areaCellsPerSurface,volumePerSurface,'Results\SalivaryGlands_Ecadhi_Flatten\', surfaceRatiosExtrapolatedFrom3D, 0);
