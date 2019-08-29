@@ -1,9 +1,8 @@
-function [areaCellsPerSurfaceRealization, volumePerSurfaceRealization, neighsSurface, neighsAccumSurfaces, percentageScutoids, apicoBasalTransitions, numLostNeighsAccum, numWonNeighsAccum] = getBasicInformationToPlot(infoPerSurfaceRatio, neighboursOfAllSurfaces)
+function [areaCellsPerSurfaceRealization, volumePerSurfaceRealization, neighsSurface, neighsAccumSurfaces, percentageScutoids, apicoBasalTransitions, numLostNeighsAccum, numWonNeighsAccum] = getBasicInformationToPlot(infoPerSurfaceRatio, neighboursOfAllSurfaces, numberOfSurfaceRatios)
 %GETBASICINFORMATIONTOPLOT Summary of this function goes here
 %   Detailed explanation goes here
         %% Calculate variables per surface
         %Initialize all variables
-        numberOfSurfaceRatios = size(infoPerSurfaceRatio, 1);
         neighsSurface = cell(numberOfSurfaceRatios,1);
         neighsAccumSurfaces = cell(numberOfSurfaceRatios,1);
         percentageScutoids = cell(numberOfSurfaceRatios, 1);

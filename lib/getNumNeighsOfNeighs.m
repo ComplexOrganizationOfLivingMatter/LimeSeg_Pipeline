@@ -1,4 +1,4 @@
-function [numNeighOfNeighPerSurfacesRealization] = getNumNeighsOfNeighs(neighsSurface)
+function [numNeighOfNeighPerSurfacesRealization, numNeighPerSurfaceRealization] = getNumNeighsOfNeighs(neighsSurface, numberOfSurfaceRatios)
 %GETNUMNEIGHSOFNEIGHS Summary of this function goes here
 %   Detailed explanation goes here
     numNeighPerSurfaceRealization = cellfun(@(x) length(x),neighsSurface);

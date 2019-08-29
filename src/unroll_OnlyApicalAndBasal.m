@@ -20,9 +20,8 @@ function unroll_OnlyApicalAndBasal(selpath, testing)
             save(zScaleFile, 'zScale');
         end
         resizeImg = zScale;
-        
-            
-        if contains(lower(selpath), 'e-cadh')
+
+        if contains(lower(selpath), 'flatten')
             [labelledImage] = flattenMutantGland(apicalLayer, basalLayer, labelledImage, lumenImage);
         end
         
