@@ -17,6 +17,8 @@ for numFile = 1:length(files)
     
     unroll_OnlyApicalAndBasal(selpath)
     divideObjectInSurfaceRatios(selpath);
-    unrollTube_parallel(selpath);
+    if contains(lower(files(numFile).folder), 'e-cadh') == 0 || contains(lower(files(numFile).folder), 'flatten')
+        unrollTube_parallel(selpath);
+    end
 end
 
