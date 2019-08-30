@@ -73,8 +73,8 @@ for numFile = 1:length(files)
     xlswrite(fullfile(files(numFile).folder, 'stats'), horzcat(validCells', numNeighAccumPerSurfacesRealization(validCells, :)), 'numNeighAccumPerSR');
     xlswrite(fullfile(files(numFile).folder, 'stats'), horzcat(validCells', numNeighOfNeighPerSurfacesRealization(validCells, :)), 'numNeighOfNeighPerSR');
     xlswrite(fullfile(files(numFile).folder, 'stats'), horzcat(validCells', numNeighOfNeighAccumPerSurfacesRealization(validCells, :)), 'numNeighOfNeighAccumPerSR');
-    xlswrite(fullfile(files(numFile).folder, 'stats'), horzcat(validCells', areaCellsPerSurfaceRealization(validCells, :) ./ mean(areaCellsPerSurfaceRealization(validCells, :))), 'volumePerSurface');
-    xlswrite(fullfile(files(numFile).folder, 'stats'), horzcat(validCells', volumePerSurfaceRealization(validCells, :) ./ mean(volumePerSurfaceRealization(validCells, :))), 'volumePerSurface');
+    xlswrite(fullfile(files(numFile).folder, 'stats'), horzcat(validCells', areaCellsPerSurfaceRealization(validCells, :)), 'areaCellsPerSurfaceRealization');
+    xlswrite(fullfile(files(numFile).folder, 'stats'), horzcat(validCells', volumePerSurfaceRealization(validCells, :)), 'volumePerSurface');
     
     %% Additional average info
     meanNumNeighPerSurfaceRealization = mean(numNeighAccumPerSurfacesRealization(validCells, :), 1);
