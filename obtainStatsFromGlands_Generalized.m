@@ -18,5 +18,5 @@ minNumberOfSurfaceRatios = 5; %7WT; 5Ecadhi
 % WT = 0
 % Ecadhi Flatten = 2
 colourSample = 2;
-outputFolderName = 'EcadhiFlatten';
+outputFolderName = 'EcadhiFlatten/';
 [averageGlandInfo_Ecadhi] = obtainBasicStatsPipelineFromGlands(files_Ecadhi, minNumberOfSurfaceRatios, colourSample, outputFolderName);
