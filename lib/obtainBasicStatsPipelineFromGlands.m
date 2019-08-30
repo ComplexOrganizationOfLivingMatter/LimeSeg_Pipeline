@@ -5,13 +5,7 @@ function [averageGlandInfo] = obtainBasicStatsPipelineFromGlands(files, minNumbe
 nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0, {files.folder});
 files = files(nonDiscardedFiles);
 
-%resultsFileName = '3d_layers_info.mat';
-%resultsFileName = 'glandDividedInSurfaceRatios.mat';
-%resultsFileName = 'glandDividedInSurfaceRatios_PredefinedSR.mat';
 resultsFileName = 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat';
-
-%namesSR = arrayfun(@(x) ['sr' strrep(num2str(x),'.','_')],1:numberOfSurfaceRatios,'UniformOutput', false);
-%namesSR = {'sr1' 'sr2'};
 
 WTMinNumberOfSurfaceRatios = 7;
 steps = 2.5/(WTMinNumberOfSurfaceRatios-1);
@@ -59,7 +53,6 @@ for numFile = 1:length(files)
     
     namesSR = surfaceRatiosExtrapolatedFrom3D;
     namesSR = arrayfun(@(x) ['sr' strrep(num2str(x),'.','_')], namesSR, 'UniformOutput', false);
-    %namesSR = namesSR(1:minNumberOfSurfaceRatios);
     
     %Save Initial information
     numNeighPerSurface{numFile, 1} = array2table(numNeighPerSurfaceRealization(validCells, 1:minNumberOfSurfaceRatios),'VariableNames',namesSR);
