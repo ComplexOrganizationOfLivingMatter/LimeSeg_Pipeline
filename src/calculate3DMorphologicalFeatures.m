@@ -21,6 +21,9 @@ allFilesName = [];
 for numFiles=1:length(files)
     files(numFiles).folder
     if exist(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'), 'file') == 0
+        if exist(fullfile(files(numFiles).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'file') == 0
+            continue
+        end
         load(fullfile(files(numFiles).folder, '3d_layers_info.mat'), 'labelledImage_realSize', 'lumenImage_realSize');
         load(fullfile(files(numFiles).folder, 'valid_cells.mat'), 'validCells');
         
@@ -98,15 +101,16 @@ for numFiles=1:length(files)
     allFilesName = [allFilesName ; fileName];
 end
 
+if contains(folderName, '/data/Salivary gland/') == 0
+    allFilesName = table(allFilesName, 'VariableNames', {'ID_Glands'});
 
-allFilesName = table(allFilesName, 'VariableNames', {'ID_Glands'});
+    allGlands.Properties.VariableNames = cellfun(@(x) strcat('Gland_', x), allGlands.Properties.VariableNames, 'UniformOutput', false);
+    allLumens.Properties.VariableNames = cellfun(@(x) strcat('Lumen_', x), allLumens.Properties.VariableNames, 'UniformOutput', false);
+    totalMeanFeatures.Properties.VariableNames = cellfun(@(x) strcat('AverageCell_', x(5:end)), totalMeanFeatures.Properties.VariableNames, 'UniformOutput', false);
+    totalStdFeatures.Properties.VariableNames = cellfun(@(x) strcat('STDCell_', x(5:end)), totalStdFeatures.Properties.VariableNames, 'UniformOutput', false);
 
-allGlands.Properties.VariableNames = cellfun(@(x) strcat('Gland_', x), allGlands.Properties.VariableNames, 'UniformOutput', false);
-allLumens.Properties.VariableNames = cellfun(@(x) strcat('Lumen_', x), allLumens.Properties.VariableNames, 'UniformOutput', false);
-totalMeanFeatures.Properties.VariableNames = cellfun(@(x) strcat('AverageCell_', x(5:end)), totalMeanFeatures.Properties.VariableNames, 'UniformOutput', false);
-totalStdFeatures.Properties.VariableNames = cellfun(@(x) strcat('STDCell_', x(5:end)), totalStdFeatures.Properties.VariableNames, 'UniformOutput', false);
-
-save(fullfile(selpath(1).folder, 'global_3dFeatures.mat'), 'totalMeanFeatures','totalStdFeatures', 'allLumens', 'allGlands')
-writetable([allFilesName,totalMeanFeatures,totalStdFeatures, allGlands, allLumens], fullfile(selpath(1).folder,'global_3dFeatures.xls'),'Range','B2');
+    save(fullfile(selpath(1).folder, 'global_3dFeatures.mat'), 'totalMeanFeatures','totalStdFeatures', 'allLumens', 'allGlands')
+    writetable([allFilesName,totalMeanFeatures,totalStdFeatures, allGlands, allLumens], fullfile(selpath(1).folder,'global_3dFeatures.xls'),'Range','B2');
+end
 end
 
