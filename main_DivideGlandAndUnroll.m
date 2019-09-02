@@ -15,7 +15,8 @@ for numFile = 1:length(files)
     files(numFile).folder
     selpath = files(numFile).folder;
     
-    unroll_OnlyApicalAndBasal(selpath)
+    unroll_OnlyApicalAndBasal(selpath);
+    calculate3DMorphologicalFeatures(files(numFile).folder);
     if contains(lower(files(numFile).folder), 'e-cadh') == 0 || contains(lower(files(numFile).folder), 'flatten')
         divideObjectInSurfaceRatios(selpath);
         unrollTube_parallel(selpath);

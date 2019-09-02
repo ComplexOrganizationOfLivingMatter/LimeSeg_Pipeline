@@ -2,7 +2,11 @@ function [] = calculate3DMorphologicalFeatures(folderName)
 %CALCULATE3DMORPHOLOGICALFEATURES Summary of this function goes here
 %   Detailed explanation goes here
 
-files = dir(fullfile('**/data/Salivary gland/', folderName, '/**/Results/3d_layers_info.mat'));
+if contains(folderName, '/data/Salivary gland/')
+    files = dir(fullfile(folderName, '/**/Results/3d_layers_info.mat'));
+else
+    files = dir(fullfile('**/data/Salivary gland/', folderName, '/**/Results/3d_layers_info.mat'));
+end
 nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0, {files.folder});
 files = files(nonDiscardedFiles);
 
@@ -75,7 +79,7 @@ for numFiles=1:length(files)
         allFeatures = vertcat(cells3dFeatures, gland3dFeatures, lumen3dFeatures);
         %% Save variables and export to excel
         writetable(allFeatures,fullfile(files(numFiles).folder,'3dFeatures_LimeSeg3DSegmentation.xls'), 'Range','B2');
-        save(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'), 'cells3dFeatures', 'gland3dFeatures', 'lumen3dFeatures');
+        save(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'), 'cells3dFeatures', 'gland3dFeatures', 'lumen3dFeatures', 'polygon_distribution_apical', 'polygon_distribution_basal');
     else
         load(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'));
     end
