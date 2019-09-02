@@ -15,6 +15,7 @@ allLumens = [];
 allFilesName = [];
 
 for numFiles=1:length(files)
+    files(numFiles).folder
     if exist(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'), 'file') == 0
         load(fullfile(files(numFiles).folder, '3d_layers_info.mat'), 'labelledImage_realSize', 'lumenImage_realSize');
         load(fullfile(files(numFiles).folder, 'valid_cells.mat'), 'validCells');
