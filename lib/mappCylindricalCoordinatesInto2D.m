@@ -10,12 +10,7 @@ function [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validC
         if sum(sum(img3d(:, :, coordZ) > 0)) < pixelSizeThreshold || sum(sum(img3d(:, :, coordZ))) < pixelSizeThreshold
             continue
         end
-        %figure; imshow(img3d(:, :, coordZ)+2, colorcube)
-
-        %             unifyingZFrame = bwmorph(img3d(:, :, coordZ)>0, 'bridge', Inf);
-        %             dilatedUnified = imdilate(unifyingZFrame, strel('disk', closingPxAreas2D));
-        %             unifyingZFrame = bwmorph(dilatedUnified, 'majority', Inf);
-        %             closedZFrame = imerode(unifyingZFrame, strel('disk', closingPxAreas2D));
+        
         closedZFrame = imclose(img3d(:, :, coordZ)>0, strel('disk', round(closingPxAreas2D)));
         img3d(:, :, coordZ) = fill0sWithCells(img3d(:, :, coordZ), img3dComplete(:, :, coordZ), closedZFrame==0);
 
@@ -24,13 +19,6 @@ function [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validC
 
         %% Create perim
         [orderedLabels] = perim2line(filledImage, img3d, img3dComplete, coordZ);
-
-        %             if abs(previousSizeLabels - length(angleLabelCoordSort)) > 150 && previousSizeLabels ~= -1
-        %                 orderedLabels = imresize(orderedLabels, [1 0.1*length(orderedLabels) + 0.9*previousSizeLabels], 'nearest');
-        %             end
-        %             previousSizeLabels = length(orderedLabels);
-        %
-        %hold off;
 
         imgFinalCoordinates3x{coordZ} = repmat(orderedLabels, 1, 3);
 
