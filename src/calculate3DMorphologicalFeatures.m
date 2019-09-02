@@ -19,20 +19,59 @@ for numFiles=1:length(files)
     if exist(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'), 'file') == 0
         load(fullfile(files(numFiles).folder, '3d_layers_info.mat'), 'labelledImage_realSize', 'lumenImage_realSize');
         load(fullfile(files(numFiles).folder, 'valid_cells.mat'), 'validCells');
-
+        
+        %% Basal features
+        load(fullfile(files(numFiles).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'newVerticesNeighs2D', 'cylindre2DImage');
+        basalNeighs = getNeighboursFromVertices(newVerticesNeighs2D);
+        basalNumNeighs = cellfun(@(x) length(x), basalNeighs)';
+        [polygon_distribution_basal] = calculate_polygon_distribution(basalNumNeighs, validCells);
+        basalNumNeighs = basalNumNeighs(validCells);
+        basal_area_cells=cell2mat(struct2cell(regionprops(cylindre2DImage,'Area'))).';
+        basal_area_cells = basal_area_cells(validCells);
+        
+        basalInfo = table(basalNumNeighs, basal_area_cells);
+        
+        %% Apical features
+        load(fullfile(files(numFiles).folder, 'unrolledGlands/gland_SR_1/verticesInfo.mat'), 'newVerticesNeighs2D', 'cylindre2DImage');
+        apicalNeighs = getNeighboursFromVertices(newVerticesNeighs2D);
+        apicalNumNeighs = cellfun(@(x) length(x), apicalNeighs)';
+        [polygon_distribution_apical] = calculate_polygon_distribution(apicalNumNeighs, validCells);
+        apicalNumNeighs = apicalNumNeighs(validCells);
+        apical_area_cells=cell2mat(struct2cell(regionprops(cylindre2DImage,'Area'))).';
+        apical_area_cells = apical_area_cells(validCells);
+        
+        apicalInfo = table(apicalNumNeighs, apical_area_cells);
+        
+        %% Total features
+        percentageScutoids = cellfun(@(x, y) ~isempty(setxor(x,y)), apicalNeighs(validCells), basalNeighs(validCells))';
+        totalNeighs = cellfun(@(x,y) length(unique([x;y])), apicalNeighs(validCells), basalNeighs(validCells))';
+        
         %% Extract each cell and calculate 3D features
         [cells3dFeatures] = extract3dDescriptors(labelledImage_realSize, validCells');
+        cells3dFeatures = horzcat(cells3dFeatures, apicalInfo, basalInfo, table(percentageScutoids, totalNeighs));
 
         %% Lumen features
         [lumen3dFeatures] = extract3dDescriptors(lumenImage_realSize, 1);
         lumen3dFeatures.ID_Cell = 'Lumen';
+        lumen3dFeatures.basalNumNeighs = -1;
+        lumen3dFeatures.basal_area_cells = -1;
+        lumen3dFeatures.apicalNumNeighs = -1;
+        lumen3dFeatures.apical_area_cells = -1;
+        lumen3dFeatures.percentageScutoids = -1;
+        lumen3dFeatures.totalNeighs = -1;
 
         %% Global Gland
         % We need calculate thickness of the glands or number of cell in
         % transversal axis
         [gland3dFeatures] = extract3dDescriptors(labelledImage_realSize>0, 1);
         gland3dFeatures.ID_Cell = 'Gland';
-
+        gland3dFeatures.basalNumNeighs = -1;
+        gland3dFeatures.basal_area_cells = -1;
+        gland3dFeatures.apicalNumNeighs = -1;
+        gland3dFeatures.apical_area_cells = -1;
+        gland3dFeatures.percentageScutoids = -1;
+        gland3dFeatures.totalNeighs = -1;
+        
         allFeatures = vertcat(cells3dFeatures, gland3dFeatures, lumen3dFeatures);
         %% Save variables and export to excel
         writetable(allFeatures,fullfile(files(numFiles).folder,'3dFeatures_LimeSeg3DSegmentation.xls'), 'Range','B2');
@@ -47,7 +86,7 @@ for numFiles=1:length(files)
     
     totalMeanFeatures = vertcat(totalMeanFeatures, meanFeatures);
     totalStdFeatures = vertcat(totalStdFeatures, stdFeatures);
-    allGlands = vertcat(allGlands, gland3dFeatures);
+    allGlands = vertcat(allGlands, [gland3dFeatures, cell2table(polygon_distribution_apical(2, :), 'VariableNames', strcat('apical_', polygon_distribution_apical(1, :))), cell2table(polygon_distribution_basal(2, :), 'VariableNames', strcat('basal_', polygon_distribution_basal(1, :)))]);
     allLumens = vertcat(allLumens, lumen3dFeatures);
     
     fileName = strsplit(files(numFiles).folder, {'/','\'});
