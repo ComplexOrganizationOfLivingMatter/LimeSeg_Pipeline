@@ -5,9 +5,7 @@ function unroll_OnlyApicalAndBasal(selpath, testing)
 
     variablesOfFile = who('-file', fullfile(selpath, '3d_layers_info.mat'));
     
-    if any(cellfun(@(x) isequal('labelledImage_realSize', x), variablesOfFile))
-        load(fullfile(selpath, '3d_layers_info.mat'), 'lumenImage_realSize', 'labelledImage_realSize');
-    else
+    if any(cellfun(@(x) isequal('labelledImage_realSize', x), variablesOfFile)) == 0 || ~contains(lower(selpath), 'flatten')
         load(fullfile(selpath, '3d_layers_info.mat'), 'lumenImage', 'labelledImage', 'apicalLayer', 'basalLayer');
         %% Creating image with a real size
         outputDirResults = strsplit(selpath, 'Results');
@@ -32,6 +30,8 @@ function unroll_OnlyApicalAndBasal(selpath, testing)
     %     labelledImage_realSize(insideGland == 0) = 0;
         
         save(fullfile(selpath, '3d_layers_info.mat'), 'labelledImage_realSize', 'lumenImage_realSize', '-append');
+    else 
+        load(fullfile(selpath, '3d_layers_info.mat'), 'lumenImage_realSize', 'labelledImage_realSize');
     end
     
     %% Obtain layers on its real 3D size
