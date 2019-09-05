@@ -36,6 +36,10 @@ function [filledImage] = createCompleteSection(img3d, coordZ, labelledImage_real
             coordinates = [x, y];
             if count == 0
                 newOrderBoundary = boundary(coordinates, 1);
+                if isempty(newOrderBoundary)
+                    count = count + 1;
+                    continue
+                end
                 coordinates = coordinates(newOrderBoundary, :);
             end
 

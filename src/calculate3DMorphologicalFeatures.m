@@ -101,7 +101,7 @@ for numFiles=1:length(files)
     allFilesName = [allFilesName ; fileName];
 end
 
-if contains(folderName, '/data/Salivary gland/') == 0
+if contains(folderName, 'Salivary gland') == 0
     allFilesName = table(allFilesName, 'VariableNames', {'ID_Glands'});
 
     allGlands.Properties.VariableNames = cellfun(@(x) strcat('Gland_', x), allGlands.Properties.VariableNames, 'UniformOutput', false);

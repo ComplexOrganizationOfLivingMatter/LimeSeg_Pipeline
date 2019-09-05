@@ -22,4 +22,7 @@ for numFile = 1:length(files)
         unrollTube_parallel(selpath);
     end
 end
+% calculate3DMorphologicalFeatures('E-cadh Inhibited')
+% calculate3DMorphologicalFeatures('Wildtype')
+% calculate3DMorphologicalFeatures('E-cadh Inhibited (flatten)')
 
