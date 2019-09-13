@@ -50,6 +50,10 @@ function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
         
         imageOfSurfaceRatios = cell(totalPartitions, 1);
         imageOfSurfaceRatios(:) = {zeros(size(obj_img))};
+        
+        
+        clearvars labelledImage_realSize lumenImage_realSize
+        
         for numCell = unique([validCells, noValidCells])
             % First, We calculated the cell height by estimating the
             % distance between the average voxel positions of the
@@ -63,7 +67,7 @@ function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
             allPixels = [allXs, allYs, allZs];
             startingPixels = [xStarting, yStarting, zStarting];
             endPixels = [xEnd, yEnd, zEnd];
-            [distanceEndingStarting] = pdist2(endPixels, startingPixels);
+            %[distanceEndingStarting] = pdist2(endPixels, startingPixels);
             %[distanceStartingAllPixels] = pdist2(allPixels, startingPixels);
             [distanceEndingAllPixels] = pdist2(allPixels, endPixels);
             
@@ -73,6 +77,7 @@ function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
             
             partitions = surfaceRatioDistance * initialPartitions;
             
+            clearvars endPixels startingPixels allXs allYs allZs xStarting yStarting zStarting
             
             imageOfSurfaceRatios{1, 1} = endSurface;
             imageOfSurfaceRatios{1, 2} = 1;
@@ -113,6 +118,8 @@ function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
                 end
             end
         end
+        
+        clearvars allPixels
         
         imageOfSurfaceRatios(:, 2) = num2cell(realSurfaceRatio);
         imageOfSurfaceRatios{totalPartitions+1, 1} = obj_img;
