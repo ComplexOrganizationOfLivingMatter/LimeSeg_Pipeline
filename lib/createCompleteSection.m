@@ -43,11 +43,11 @@ function [filledImage] = createCompleteSection(img3d, coordZ, labelledImage_real
                 coordinates = coordinates(newOrderBoundary, :);
             end
 
-            userConfig = struct('xy',coordinates, 'showProg',false,'showResult',false);
+            userConfig = struct('xy',coordinates, 'showProg',false,'showResult',false, 'numIter', 500);
             resultStruct = tspo_ga(userConfig);
             newVertSalesman = coordinates(resultStruct.optRoute, :);
             newVertSalesman = [newVertSalesman; newVertSalesman(1,:)];
-% 
+
 %             for numCoord = 1:(size(newVertSalesman, 1)-1)
 %                 plot(newVertSalesman(numCoord:numCoord+1, 2), newVertSalesman(numCoord:numCoord+1, 1))
 %             end
