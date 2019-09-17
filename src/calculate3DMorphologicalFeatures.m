@@ -2,8 +2,8 @@ function [] = calculate3DMorphologicalFeatures(folderName)
 %CALCULATE3DMORPHOLOGICALFEATURES Summary of this function goes here
 %   Detailed explanation goes here
 
-if contains(folderName, '/data/Salivary gland/')
-    files = dir(fullfile(folderName, '/**/Results/3d_layers_info.mat'));
+if contains(folderName, '\data\Salivary gland\')
+    files = dir(fullfile(folderName, '/3d_layers_info.mat'));
 else
     files = dir(fullfile('**/data/Salivary gland/', folderName, '/**/Results/3d_layers_info.mat'));
 end
