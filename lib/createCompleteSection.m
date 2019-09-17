@@ -31,17 +31,14 @@ function [filledImage] = createCompleteSection(img3d, coordZ, labelledImage_real
         filledImagenew = imfill(filledImageAux | filledImage, 'holes');
         count = 0;
         boolean = 1;
-        while boolean && count < 2
-            [x, y] = find(img3d(:, :, coordZ)>0);
-            coordinates = [x, y];
-            if count == 0
-                newOrderBoundary = boundary(coordinates, 1);
-                if isempty(newOrderBoundary)
-                    count = count + 1;
-                    continue
-                end
-                coordinates = coordinates(newOrderBoundary, :);
-            end
+        [x, y] = find(img3d(:, :, coordZ)>0);
+        coordinates = [x, y];
+        newOrderBoundary = boundary(coordinates, 1);
+        if isempty(newOrderBoundary) == 0
+            coordinates = coordinates(newOrderBoundary, :);
+        end
+        
+        while boolean && count < 30
 
             userConfig = struct('xy',coordinates, 'showProg',false,'showResult',false, 'numIter', 500);
             resultStruct = tspo_ga(userConfig);

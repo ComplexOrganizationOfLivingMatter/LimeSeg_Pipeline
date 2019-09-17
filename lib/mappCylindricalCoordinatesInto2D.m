@@ -15,6 +15,7 @@ function [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validC
         img3d(:, :, coordZ) = fill0sWithCells(img3d(:, :, coordZ), img3dComplete(:, :, coordZ), closedZFrame==0);
 
         %% Remove pixels surrounding the boundary
+        rng(1);
         [filledImage] = createCompleteSection(img3d, coordZ, img3dComplete);
 
         %% Create perim
