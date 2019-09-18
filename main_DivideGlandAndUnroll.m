@@ -7,22 +7,23 @@ close all
 clear all
 
 files = dir('**/data/Salivary gland/**/Results/3d_layers_info.mat');
-nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0 && contains(lower(x), 'e-cadh'), {files.folder});
+nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0 && (contains(lower(x), 'e-cadh') || contains(lower(x), 'e-cadh')), {files.folder}); %% contains(lower(x), 'echnoid')
 files = files(nonDiscardedFiles);
 
 disp('----------- UNROLLING TUBES DIVIDING GLANDS -------------')
-for numFile = 1:length(files)
+parfor numFile = 1:length(files)
     files(numFile).folder
     selpath = files(numFile).folder;
     
     unroll_OnlyApicalAndBasal(selpath);
     calculate3DMorphologicalFeatures(files(numFile).folder);
-    if contains(lower(files(numFile).folder), 'e-cadh') == 0 || contains(lower(files(numFile).folder), 'flatten')
+    if contains(lower(files(numFile).folder), 'echnoid') || contains(lower(files(numFile).folder), 'e-cadh') == 0 || contains(lower(files(numFile).folder), 'flatten')
         divideObjectInSurfaceRatios(selpath);
         unrollTube_parallel(selpath);
     end
 end
-% calculate3DMorphologicalFeatures('E-cadh Inhibited')
+calculate3DMorphologicalFeatures('E-cadh Inhibited')
 % calculate3DMorphologicalFeatures('Wildtype')
-% calculate3DMorphologicalFeatures('E-cadh Inhibited (flatten)')
+calculate3DMorphologicalFeatures('E-cadh Inhibited (flatten)')
+calculate3DMorphologicalFeatures('Echnoid')
 

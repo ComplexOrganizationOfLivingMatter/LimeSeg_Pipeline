@@ -19,8 +19,8 @@ allLumens = [];
 allFilesName = [];
 
 for numFiles=1:length(files)
-    files(numFiles).folder
     if exist(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'), 'file') == 0
+        files(numFiles).folder
         if exist(fullfile(files(numFiles).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'file') == 0
             continue
         end

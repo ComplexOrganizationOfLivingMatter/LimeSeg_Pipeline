@@ -17,7 +17,7 @@ function unrollTube_parallel(selpath)
             %% Apical and basal and all the artificial surface ratios
             load(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'));
             
-            mkdir(fullfile(selpath, 'unrolledGlands', 'gland_SR_1'));
+            %%mkdir(fullfile(selpath, 'unrolledGlands', 'gland_SR_1'));
             [samiraTablePerSR{1}, apicalAreaValidCells, rotationsOriginal] = unrollTube(infoPerSurfaceRatio{1, 3}, fullfile(selpath, 'unrolledGlands', 'gland_SR_1'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info.mat'));
             areaValidCells{1} = apicalAreaValidCells;
             %addAttachedFiles(gcp, fullfile(selpath, 'valid_cells.mat'))
@@ -79,12 +79,8 @@ function unrollTube_parallel(selpath)
         
         neighboursOfAllSurfaces = cell(nSR, 1);
         for numSR = 1:nSR
-            load(fullfile(filesOf2DUnroll(numSR).folder, 'final3DImg.mat'), 'img3d', 'neighbours');
-            load(fullfile(filesOf2DUnroll(numSR).folder, 'verticesInfo.mat'), 'cylindre2DImage', 'newVerticesNeighs2D');
-            %                 if isempty(newVerticesNeighs2D)
-            %                     neighbours = calculateNeighbours3D(img3d, 2);
-            %                     neighbours = checkPairPointCloudDistanceCurateNeighbours(img3d, neighbours.neighbourhood', 1);
-            %                 end
+            load(fullfile(filesOf2DUnroll(numSR).folder, 'final3DImg.mat'), 'img3d');
+            load(fullfile(filesOf2DUnroll(numSR).folder, 'verticesInfo.mat'), 'cylindre2DImage', 'newVerticesNeighs2D')
             [total_neighbours3D] = getNeighboursFromVertices(newVerticesNeighs2D);
             midLayer = cylindre2DImage;
             

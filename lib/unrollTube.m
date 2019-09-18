@@ -96,7 +96,6 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
                     
         img3d = fill0sWithCells(img3d .* double(validRegion), img3dComplete, (img3dComplete>0 & validRegion)==0);
         %vertices3D = round(vertices3D / resizeImg);
-        mkdir(outputDir);
         %save(fullfile(outputDir, 'final3DImg.mat'), 'img3d', 'img3dComplete', 'vertices3D_Neighbours', 'vertices3D', 'cellNumNeighbours', 'neighbours', '-v7.3');
         save(fullfile(outputDir, 'final3DImg.mat'), 'img3d', 'img3dComplete', '-v7.3');
     end
