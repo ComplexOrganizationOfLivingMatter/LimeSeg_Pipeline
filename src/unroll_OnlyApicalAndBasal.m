@@ -30,6 +30,12 @@ function unroll_OnlyApicalAndBasal(selpath, testing)
         %     labelledImage_realSize(insideGland == 0) = 0;
 
             save(fullfile(selpath, '3d_layers_info.mat'), 'labelledImage_realSize', 'lumenImage_realSize', '-append');
+            [msgstr] = lastwarn;
+            if contains(msgstr, 'was not saved')
+                ME = MException('MyComponent:noVariableSaved', ...
+                'A variable was not saved. Please use -v7.3');
+                throw(ME)
+            end
         else 
             load(fullfile(selpath, '3d_layers_info.mat'), 'lumenImage_realSize', 'labelledImage_realSize');
         end
