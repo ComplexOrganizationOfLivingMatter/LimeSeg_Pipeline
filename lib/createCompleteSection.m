@@ -77,7 +77,7 @@ function [filledImage] = createCompleteSection(img3d, coordZ, labelledImage_real
             end
             filledImagenew = imfill(filledImageAux | filledImage, 'holes');
             count = count + 1;
-            boolean = max(max(bwlabel(filledImagenew - filledImage))) > 2 || sum(sum(filledImage ~= filledImagenew)) < 30;
+            boolean = sum(sum(filledImage ~= filledImagenew))/sum(filledImage(:)) < 0.5;
         end
         
         if isequal(filledImage, filledImagenew) == 0
