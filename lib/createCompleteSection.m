@@ -3,7 +3,11 @@ function [filledImage] = createCompleteSection(img3d, coordZ, labelledImage_real
 %   Detailed explanation goes here
     filledImage = imfill(double(img3d(:, :, coordZ)>0), 'holes');
     %             imshow(img3d(:, :, coordZ), colours)
-    if exist('labelledImage_realSize', 'var') == 0
+    
+    perimImage = bwperim(double(img3d(:, :, coordZ)>0));
+    
+    
+    if exist('labelledImage_realSize', 'var') == 0 || sum(sum(filledImage ~= perimImage))/sum(perimImage(:)) > 2
         filledImage = bwareafilt(filledImage>0, 1, 4);
     elseif isequal(filledImage, double(img3d(:, :, coordZ)>0)) || length(unique(bwlabel(filledImage)))>2
 %                 imageLabelled = bwlabel(filledImage);
