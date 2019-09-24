@@ -93,8 +93,15 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         validRegion = double(imresize3(img3d_original, imgSize)>0);
         
         [validRegion] = imclose(validRegion>0, strel('sphere', closingPxAreas3D));
-                    
-        img3d = fill0sWithCells(img3d .* double(validRegion), img3dComplete, (img3dComplete>0 & validRegion)==0);
+        
+        % In e-cadhi salivary glands the lumen is too irregular, so we
+        % can't use img3dComplete to empty spaces. We will use the image
+        % itself.
+        if contains(outputDir, 'E-cadh') && contains(outputDir, 'SR_1')
+            img3d = fill0sWithCells(img3d .* double(validRegion), img3d, (img3dComplete>0 & validRegion)==0);
+        else
+            img3d = fill0sWithCells(img3d .* double(validRegion), img3dComplete, (img3dComplete>0 & validRegion)==0);
+        end
         %vertices3D = round(vertices3D / resizeImg);
         %save(fullfile(outputDir, 'final3DImg.mat'), 'img3d', 'img3dComplete', 'vertices3D_Neighbours', 'vertices3D', 'cellNumNeighbours', 'neighbours', '-v7.3');
         save(fullfile(outputDir, 'final3DImg.mat'), 'img3d', 'img3dComplete', '-v7.3');
