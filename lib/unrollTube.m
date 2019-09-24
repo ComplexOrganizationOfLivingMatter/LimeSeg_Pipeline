@@ -15,17 +15,20 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         img3dComplete = labelledImage;
     end
     
+    if exist('apicalRotationsOriginal', 'var') ~= 0
+        rotationsOriginal = apicalRotationsOriginal;
+    else
+        if exist(fullfile(outputDir, 'apicalRotationsOriginal.mat'), 'file') ~= 0
+            load(fullfile(outputDir, 'apicalRotationsOriginal.mat'));
+        end
+    end
+    
     closingPxAreas3D = 10;
     closingPxAreas2D = closingPxAreas3D;
     
     mkdir(outputDir)
     if exist(fullfile(outputDir, 'final3DImg.mat'), 'file')
         load(fullfile(outputDir, 'final3DImg.mat'));
-        if exist('apicalRotationsOriginal', 'var') ~= 0
-            rotationsOriginal = apicalRotationsOriginal;
-        else
-            load(fullfile(outputDir, 'apicalRotationsOriginal.mat'));
-        end
     else
         outputDirResults = strsplit(outputDir, 'Results');
         zScaleFile = fullfile(outputDirResults{1}, 'Results', 'zScaleOfGland.mat');

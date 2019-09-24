@@ -6,7 +6,6 @@ function [filledImage] = createCompleteSection(img3d, coordZ, labelledImage_real
     
     perimImage = bwperim(double(img3d(:, :, coordZ)>0));
     
-    
     if exist('labelledImage_realSize', 'var') == 0 || sum(sum(filledImage ~= perimImage))/sum(perimImage(:)) > 2
         filledImage = bwareafilt(filledImage>0, 1, 4);
     elseif isequal(filledImage, double(img3d(:, :, coordZ)>0)) || length(unique(bwlabel(filledImage)))>2
