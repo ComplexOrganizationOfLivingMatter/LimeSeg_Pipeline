@@ -3,20 +3,22 @@ function [CellularFeaturesWithNoValidCells, meanSurfaceRatio] = calculate_Cellul
 %   Detailed explanation goes here
 
 %% Check if there is any atypical cell.
-%  if exist(fullfile(outputDir, 'Results', 'atypicalCells.mat'), 'file')
-%         load(fullfile(outputDir, 'Results', 'atypicalCells.mat'))
-%  else
-%     prompt = {'Enter atypical cells:'};
-%     dlgtitle = 'Input';
-%     dims = [1 35];
-%     definput = {'20','hsv'};
-%     atypicalCells = inputdlg(prompt,dlgtitle,dims,definput);
-%     atypicalCells = str2num(atypicalCells{1});
-%     save(fullfile(outputDir, 'Results', 'atypicalCells.mat'), 'atypicalCells')
-%  end
-%  
-% [basal3dInfo] = checkAtypicalCells(atypicalCells,basal3dInfo);
-% [apical3dInfo] = checkAtypicalCells(atypicalCells,apical3dInfo);
+if contains(lower(outputDir), 'echnoid')
+    if exist(fullfile(outputDir, 'Results', 'atypicalCells.mat'), 'file')
+        load(fullfile(outputDir, 'Results', 'atypicalCells.mat'))
+    else
+        prompt = {'Enter atypical cells:'};
+        dlgtitle = 'Input';
+        dims = [1 35];
+        definput = {'20','hsv'};
+        atypicalCells = inputdlg(prompt,dlgtitle,dims,definput);
+        atypicalCells = str2num(atypicalCells{1});
+        save(fullfile(outputDir, 'Results', 'atypicalCells.mat'), 'atypicalCells')
+    end
+    
+    [basal3dInfo] = checkAtypicalCells(atypicalCells,basal3dInfo);
+    [apical3dInfo] = checkAtypicalCells(atypicalCells,apical3dInfo);
+end
 
 %%  Calculate number of neighbours of each cell
 number_neighbours = table(cellfun(@length,(apical3dInfo)),cellfun(@length,(basal3dInfo)));
@@ -25,6 +27,11 @@ if exist('total_neighbours3D', 'var') == 0
     total_neighbours3D = checkPairPointCloudDistanceCurateNeighbours(labelledImage, total_neighbours3D.neighbourhood', 1);
 end
 total_neighbours3DRecount=cellfun(@(x) length(x), total_neighbours3D, 'UniformOutput',false);
+if length(apical3dInfo) > length(basal3dInfo)
+    basal3dInfo(length(apical3dInfo)) = {[]};
+elseif length(apical3dInfo) < length(basal3dInfo)
+    apical3dInfo(length(basal3dInfo)) = {[]};
+end
 apicobasal_neighbours=cellfun(@(x,y)(unique(vertcat(x,y))), apical3dInfo, basal3dInfo, 'UniformOutput',false);
 apicobasal_neighboursRecount=cellfun(@(x) length(x),apicobasal_neighbours,'UniformOutput',false);
 
