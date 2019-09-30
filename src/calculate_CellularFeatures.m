@@ -3,7 +3,17 @@ function [CellularFeaturesWithNoValidCells, meanSurfaceRatio] = calculate_Cellul
 %   Detailed explanation goes here
 
 %% Check if there is any atypical cell.
-if contains(lower(outputDir), 'echnoid')
+if isempty(outputDir)==0
+    if contains(lower(outputDir), 'echnoid')
+        loadEchnoidAtypicalCells = 1;
+    else
+        loadEchnoidAtypicalCells = 0;
+    end
+else
+    loadEchnoidAtypicalCells = 0;
+end
+
+if loadEchnoidAtypicalCells
     if exist(fullfile(outputDir, 'Results', 'atypicalCells.mat'), 'file')
         load(fullfile(outputDir, 'Results', 'atypicalCells.mat'))
     else
@@ -33,11 +43,25 @@ elseif length(apical3dInfo) < length(basal3dInfo)
     apical3dInfo(length(basal3dInfo)) = {[]};
 end
 apicobasal_neighbours=cellfun(@(x,y)(unique(vertcat(x,y))), apical3dInfo, basal3dInfo, 'UniformOutput',false);
+
+if length(total_neighbours3D) < length(apicobasal_neighbours)
+    total_neighbours3D(length(apicobasal_neighbours)) = {[]};
+end
+
 apicobasal_neighboursRecount=cellfun(@(x) length(x),apicobasal_neighbours,'UniformOutput',false);
+
+
 
 %%  Calculate area cells
 apical_area_cells=cell2mat(struct2cell(regionprops(apicalLayer,'Area'))).';
 basal_area_cells=cell2mat(struct2cell(regionprops(basalLayer,'Area'))).';
+if length(apical_area_cells) > length(basal_area_cells)
+    basal_area_cells(length(apical3dInfo)) = 0;
+    neighbours_data.Basal(length(apical3dInfo)) = {[]};
+elseif length(apical_area_cells) < length(basal_area_cells)
+    apical_area_cells(length(basal3dInfo)) = 0;
+    neighbours_data.Apical(length(basal3dInfo)) = {[]};
+end
 surfaceRatio = basal_area_cells ./ apical_area_cells;
 %meanSurfaceRatio = mean(surfaceRatioValidCells);
 meanSurfaceRatio = sum(basal_area_cells(validCells)) / sum(apical_area_cells(validCells));
