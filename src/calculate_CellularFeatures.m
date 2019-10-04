@@ -31,26 +31,23 @@ if loadEchnoidAtypicalCells
 end
 
 %%  Calculate number of neighbours of each cell
-number_neighbours = table(cellfun(@length,(apical3dInfo)),cellfun(@length,(basal3dInfo)));
 if exist('total_neighbours3D', 'var') == 0
     total_neighbours3D = calculateNeighbours3D(labelledImage, 2);
     total_neighbours3D = checkPairPointCloudDistanceCurateNeighbours(labelledImage, total_neighbours3D.neighbourhood', 1);
 end
-total_neighbours3DRecount=cellfun(@(x) length(x), total_neighbours3D, 'UniformOutput',false);
 if length(apical3dInfo) > length(basal3dInfo)
     basal3dInfo(length(apical3dInfo)) = {[]};
 elseif length(apical3dInfo) < length(basal3dInfo)
     apical3dInfo(length(basal3dInfo)) = {[]};
 end
+number_neighbours = table(cellfun(@length,(apical3dInfo)),cellfun(@length,(basal3dInfo)));
 apicobasal_neighbours=cellfun(@(x,y)(unique(vertcat(x,y))), apical3dInfo, basal3dInfo, 'UniformOutput',false);
 
 if length(total_neighbours3D) < length(apicobasal_neighbours)
     total_neighbours3D(length(apicobasal_neighbours)) = {[]};
 end
-
+total_neighbours3DRecount=cellfun(@(x) length(x), total_neighbours3D, 'UniformOutput',false);
 apicobasal_neighboursRecount=cellfun(@(x) length(x),apicobasal_neighbours,'UniformOutput',false);
-
-
 
 %%  Calculate area cells
 apical_area_cells=cell2mat(struct2cell(regionprops(apicalLayer,'Area'))).';
