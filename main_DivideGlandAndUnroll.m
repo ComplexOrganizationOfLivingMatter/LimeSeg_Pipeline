@@ -11,19 +11,19 @@ nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0 && (contai
 files = files(nonDiscardedFiles);
 
 disp('----------- UNROLLING TUBES DIVIDING GLANDS -------------')
-parfor numFile = 1:length(files)
+for numFile = 1:length(files)
     files(numFile).folder
     selpath = files(numFile).folder;
     
     unroll_OnlyApicalAndBasal(selpath);
     calculate3DMorphologicalFeatures(files(numFile).folder);
-    if contains(lower(files(numFile).folder), 'echnoid') == 0 && (contains(lower(files(numFile).folder), 'e-cadh') == 0 || contains(lower(files(numFile).folder), 'flatten'))
+    if contains(lower(files(numFile).folder), 'e-cadh') == 0 || contains(lower(files(numFile).folder), 'flatten')
         divideObjectInSurfaceRatios(selpath);
         unrollTube_parallel(selpath);
     end
 end
-calculate3DMorphologicalFeatures('E-cadh Inhibited')
-% calculate3DMorphologicalFeatures('Wildtype')
-calculate3DMorphologicalFeatures('E-cadh Inhibited (flatten)')
-calculate3DMorphologicalFeatures('Echnoid')
+% calculate3DMorphologicalFeatures('E-cadh Inhibited')
+% % calculate3DMorphologicalFeatures('Wildtype')
+% calculate3DMorphologicalFeatures('E-cadh Inhibited (flatten)')
+% calculate3DMorphologicalFeatures('Echnoid')
 
