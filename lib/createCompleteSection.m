@@ -36,10 +36,10 @@ function [filledImage] = createCompleteSection(img3d, coordZ, labelledImage_real
         boolean = 1;
         [x, y] = find(img3d(:, :, coordZ)>0);
         coordinates = [x, y];
-        newOrderBoundary = boundary(coordinates, 1);
-        if isempty(newOrderBoundary) == 0
-            coordinates = coordinates(newOrderBoundary, :);
-        end
+%         newOrderBoundary = boundary(coordinates, 1);
+%         if isempty(newOrderBoundary) == 0
+%             coordinates = coordinates(newOrderBoundary, :);
+%         end
         
         while boolean && count < 30
 
