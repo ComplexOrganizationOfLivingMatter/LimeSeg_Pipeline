@@ -62,7 +62,7 @@ for numFile = 1:length(files)
     areaCellsPerSurface{numFile, 1} = array2table(areaCellsPerSurfaceRealization(validCells,1:minNumberOfSurfaceRatios) ./ mean(areaCellsPerSurfaceRealization(validCells,1:minNumberOfSurfaceRatios)),'VariableNames',namesSR);
     volumePerSurface{numFile, 1} = array2table(volumePerSurfaceRealization(validCells,1:minNumberOfSurfaceRatios) ./ mean(volumePerSurfaceRealization(validCells,1:minNumberOfSurfaceRatios)),'VariableNames',namesSR);
     
-    xlswrite(fullfile(files(numFile).folder, 'stats'), horzcat(validCells', numNeighPerSurfaceRealization(validCells, :)), 'numNeighPerSR');
+    xlswrite(fullfile(files(numFile).folder, 'stats.xls'), horzcat(validCells', numNeighPerSurfaceRealization(validCells, :)), 'numNeighPerSR');
     xlswrite(fullfile(files(numFile).folder, 'stats'), horzcat(validCells', numNeighAccumPerSurfacesRealization(validCells, :)), 'numNeighAccumPerSR');
     xlswrite(fullfile(files(numFile).folder, 'stats'), horzcat(validCells', numNeighOfNeighPerSurfacesRealization(validCells, :)), 'numNeighOfNeighPerSR');
     xlswrite(fullfile(files(numFile).folder, 'stats'), horzcat(validCells', numNeighOfNeighAccumPerSurfacesRealization(validCells, :)), 'numNeighOfNeighAccumPerSR');
