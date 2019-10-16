@@ -7,7 +7,6 @@ function unrollTube_parallel(selpath)
     idName_splitted = strsplit(selpath, filesep);
     idName = strjoin(idName_splitted(end-3:end-1), '_');
     
-    load(fullfile(selpath, '3d_layers_info.mat'), 'labelledImage', 'apicalLayer', 'basalLayer', 'colours', 'glandOrientation', 'lumenImage');
     load(fullfile(selpath, 'valid_cells.mat'), 'validCells', 'noValidCells');
     
     if exist(strcat(selpath, '\', idName ,'_samirasFormat.xls'), 'file') == 0
@@ -60,7 +59,10 @@ function unrollTube_parallel(selpath)
         writetable(samiraTableT, strcat(selpath, '\', idName ,'_samirasFormat.xls'));
         writetable(newCrossesTable, strcat(selpath, '\', idName ,'_VertCrosses.xls'));
     end
-        
+    if exist('infoPerSurfaceRatio', 'var') 
+        clearvars infoPerSurfaceRatio
+    end
+    close all
     %% Saving final information with the right order
     filesOf2DUnroll = dir(fullfile(selpath, '**', 'verticesInfo.mat'));
     if exist(fullfile(selpath, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'file') == 0
