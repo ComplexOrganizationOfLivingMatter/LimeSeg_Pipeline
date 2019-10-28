@@ -51,6 +51,9 @@ for numFile = 1:length(files)
     [numNeighOfNeighPerSurfacesRealization, numNeighPerSurfaceRealization] = getNumNeighsOfNeighs(neighsSurface, numberOfSurfaceRatios);
     [numNeighOfNeighAccumPerSurfacesRealization, numNeighAccumPerSurfacesRealization] = getNumNeighsOfNeighs(neighsAccumSurfaces, numberOfSurfaceRatios);
     
+    [polygonDistribution_total] = calculate_polygon_distribution(numNeighAccumPerSurfacesRealization(:, end), validCells);
+    
+    polygonDistribution_total = cell2table(polygonDistribution_total(2, 1:15), 'VariableNames', strcat('total_', polygonDistribution_total(1, 1:15)));
     namesSR = surfaceRatiosExtrapolatedFrom3D;
     namesSR = arrayfun(@(x) ['sr' strrep(num2str(x),'.','_')], namesSR, 'UniformOutput', false);
     
@@ -87,9 +90,12 @@ for numFile = 1:length(files)
         'VariableNames', {'SurfaceRatio_3D', 'SurfaceRatio_2D', 'nCells', 'neighbours_apical_avg', 'neighbours_apical_std', 'neighbours_basal_avg', 'neighbours_basal_std', 'neighbours_total_avg', 'neighbours_total_std', ...
         'scutoids_avg', 'scutoids_std', 'apicoBasalTransitions_avg', 'apicoBasalTransitions_std'});
     
+    averageGlandInfo{numFile} = [averageGlandInfo{numFile}, polygonDistribution_total];
+    
     clearvars 'meanNeighsScutoidsPerSF_ValidCells' 'neighbours'
 end
 averageGlandInfo = vertcat(averageGlandInfo{:});
+save(fullfile(files(numFile).folder, 'averageGlandInfo'), 'averageGlandInfo');
 getStatsAndRepresentationsEulerLewis3D(numNeighOfNeighPerSurface,numNeighOfNeighAccumPerSurface,numNeighPerSurface,numNeighAccumPerSurfaces,areaCellsPerSurface,volumePerSurface, fullfile('Results/SalivaryGlands', outputFolderName), surfaceRatiosExtrapolatedFrom3D, colourSample);
 end
 
