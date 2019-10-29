@@ -29,31 +29,33 @@ for numFile = 1:length(files)
     else
         continue
     end
-    load([files(numFile).folder '\unrolledGlands\gland_SR_basal\final3DImg.mat'],'img3dComplete')
     
-    %% Calculate final variables
-    %Volume
-    volume3d = regionprops3(img3dComplete,'Volume');
-    volume3d = cat(1,volume3d.Volume);
-    meanVolumeMicronsPerGland(numFile,1) = mean(volume3d(validCells));
-    meanVolumeMicronsPerGland(numFile,2) = std(volume3d(validCells));
+    if exist(fullfile(files(numFile).folder, 'stats.mat'), 'file') == 0
+        %% Calculate final variables
+        %Surface ratio: final 3D, final 2D, selectedSR 3D, selectedSR 2D
+        meanSR(numFile, 1) = infoPerSurfaceRatio{end, 2};
+        meanSR(numFile, 2) = infoPerSurfaceRatio{end, 7};
+        meanSR(numFile, 3) = infoPerSurfaceRatio{minNumberOfSurfaceRatios, 2};
+        meanSR(numFile, 4) = infoPerSurfaceRatio{minNumberOfSurfaceRatios, 7};
+
+        %Calculate initial parameters
+        numberOfSurfaceRatios = size(infoPerSurfaceRatio, 1);
+        [areaCellsPerSurfaceRealization, volumePerSurfaceRealization, neighsSurface, neighsAccumSurfaces, percentageScutoids, apicoBasalTransitions, numLostNeighsAccum, numWonNeighsAccum] = getBasicInformationToPlot(infoPerSurfaceRatio, neighboursOfAllSurfaces, numberOfSurfaceRatios);
+
+        [numNeighOfNeighPerSurfacesRealization, numNeighPerSurfaceRealization] = getNumNeighsOfNeighs(neighsSurface, numberOfSurfaceRatios);
+        [numNeighOfNeighAccumPerSurfacesRealization, numNeighAccumPerSurfacesRealization] = getNumNeighsOfNeighs(neighsAccumSurfaces, numberOfSurfaceRatios);
+
+        [polygonDistribution_total] = calculate_polygon_distribution(numNeighAccumPerSurfacesRealization(:, end), validCells);
+
+        polygonDistribution_total = cell2table(polygonDistribution_total(2, 1:15), 'VariableNames', strcat('total_', polygonDistribution_total(1, 1:15)));
+        
+        save(fullfile(files(numFile).folder, 'stats'), 'numNeighPerSurfaceRealization', 'numNeighAccumPerSurfacesRealization', 'numNeighOfNeighPerSurfacesRealization', ...
+            'percentageScutoids', 'numNeighOfNeighAccumPerSurfacesRealization', 'areaCellsPerSurfaceRealization', ...
+            'volumePerSurfaceRealization', 'polygonDistribution_total', 'apicoBasalTransitions');
+    else
+        load(fullfile(files(numFile).folder, 'stats'))
+    end
     
-    %Surface ratio: final 3D, final 2D, selectedSR 3D, selectedSR 2D
-    meanSR(numFile, 1) = infoPerSurfaceRatio{end, 2};
-    meanSR(numFile, 2) = infoPerSurfaceRatio{end, 7};
-    meanSR(numFile, 3) = infoPerSurfaceRatio{minNumberOfSurfaceRatios, 2};
-    meanSR(numFile, 4) = infoPerSurfaceRatio{minNumberOfSurfaceRatios, 7};
-    
-    %Calculate initial parameters
-    numberOfSurfaceRatios = size(infoPerSurfaceRatio, 1);
-    [areaCellsPerSurfaceRealization, volumePerSurfaceRealization, neighsSurface, neighsAccumSurfaces, percentageScutoids, apicoBasalTransitions, numLostNeighsAccum, numWonNeighsAccum] = getBasicInformationToPlot(infoPerSurfaceRatio, neighboursOfAllSurfaces, numberOfSurfaceRatios);
-    
-    [numNeighOfNeighPerSurfacesRealization, numNeighPerSurfaceRealization] = getNumNeighsOfNeighs(neighsSurface, numberOfSurfaceRatios);
-    [numNeighOfNeighAccumPerSurfacesRealization, numNeighAccumPerSurfacesRealization] = getNumNeighsOfNeighs(neighsAccumSurfaces, numberOfSurfaceRatios);
-    
-    [polygonDistribution_total] = calculate_polygon_distribution(numNeighAccumPerSurfacesRealization(:, end), validCells);
-    
-    polygonDistribution_total = cell2table(polygonDistribution_total(2, 1:15), 'VariableNames', strcat('total_', polygonDistribution_total(1, 1:15)));
     namesSR = surfaceRatiosExtrapolatedFrom3D;
     namesSR = arrayfun(@(x) ['sr' strrep(num2str(x),'.','_')], namesSR, 'UniformOutput', false);
     
@@ -75,7 +77,6 @@ for numFile = 1:length(files)
     %% Additional average info
     meanNumNeighPerSurfaceRealization = mean(numNeighAccumPerSurfacesRealization(validCells, :), 1);
     stdNumNeighPerSurfaceRealization = std(numNeighAccumPerSurfacesRealization(validCells, :), 1);
-    totalAreaPerSR = sum(areaCellsPerSurfaceRealization(validCells, :)) / sum(areaCellsPerSurfaceRealization(validCells, end));
     mean_PercScutoids = mean(percentageScutoids(validCells, :), 1);
     std_PercScutoids = std(percentageScutoids(validCells, :), 1);
     mean_apicoBasalTransitions = [0, mean(apicoBasalTransitions(validCells, :), 1)];
@@ -83,7 +84,7 @@ for numFile = 1:length(files)
     
     %Scutoids per number of sides
     [meanWinningPerSidePerFile{numFile, 1}, cellsPerSide{numFile}] = calculateMeanWinning3DNeighbours(numNeighAccumPerSurfacesRealization(:, 1:minNumberOfSurfaceRatios), validCells, minNumberOfSurfaceRatios);
-    
+
     averageGlandInfo{numFile} = table(infoPerSurfaceRatio.SR3D(end), infoPerSurfaceRatio.SR2D(end), length(validCells), meanNumNeighPerSurfaceRealization(1), stdNumNeighPerSurfaceRealization(1), ...
         mean(numNeighPerSurfaceRealization(validCells, end)), std(numNeighPerSurfaceRealization(validCells, end)), meanNumNeighPerSurfaceRealization(end), stdNumNeighPerSurfaceRealization(end), ...
         mean_PercScutoids(end), std_PercScutoids(end), mean_apicoBasalTransitions(end), std_apicoBasalTransitions(end), ...
