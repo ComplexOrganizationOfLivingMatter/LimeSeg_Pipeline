@@ -204,7 +204,7 @@ function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
         
         infoPerSurfaceRatio = imageOfSurfaceRatios;
         if ~exist('testing', 'var')
-            save(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'), 'infoPerSurfaceRatio', 'neighbours', '-v7.3');
+            save(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'), 'infoPerSurfaceRatio', '-v7.3');
         end
     end
 end
