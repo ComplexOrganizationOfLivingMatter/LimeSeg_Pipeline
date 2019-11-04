@@ -131,7 +131,11 @@ function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
                 initialImage = imageOfSurfaceRatios{numPartition, 1};
                 %initialBasalImage = getBasalFrom3DImage(initialImage, lumenImage>0, 4);
                 
-                basalImage_closed_initial = imclose(initialImage>0, strel('sphere', 2));
+                if numPartition > 2 || contains(selpath, 'e-cadh')==0
+                    basalImage_closed_initial = imclose(initialImage>0, strel('sphere', 2));
+                else
+                    basalImage_closed_initial = imclose(imdilate(initialImage>0, strel('sphere', 1)), strel('sphere', 5));
+                end
                 
                 basalImage_closed = basalImage_closed_initial;
                 [~, y, ~] = ind2sub(size(initialImage),find(initialImage>0));
