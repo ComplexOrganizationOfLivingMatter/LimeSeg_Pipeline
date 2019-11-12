@@ -34,9 +34,14 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
     else
         colours = [];
         [labelledImage, outsideGland] = processCells(fullfile(outputDir, 'Cells', filesep), resizeImg, imgSize, tipValue);
-
-        [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
         
+     if size(dir(fullfile(outputDir, 'Lumen/SegmentedLumen', '*.tif')),1) > 0
+        [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
+     else
+        [labelledImage, lumenImage] = inferLumen(labelledImage, tipValue);
+         exportLumen(lumenImage,outputDir, tipValue);
+     end
+     
         %It add pixels and remove some
         validRegion = imfill(bwmorph3(labelledImage>0 | imdilate(lumenImage, strel('sphere', 5)), 'majority'), 'holes');
         %outsideGland = validRegion == 0;
