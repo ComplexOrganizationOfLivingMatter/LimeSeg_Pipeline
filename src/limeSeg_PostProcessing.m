@@ -39,7 +39,6 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
         [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
      else
         [labelledImage, lumenImage] = inferLumen(labelledImage, tipValue);
-         exportLumen(lumenImage,outputDir, tipValue);
      end
      
         %It add pixels and remove some

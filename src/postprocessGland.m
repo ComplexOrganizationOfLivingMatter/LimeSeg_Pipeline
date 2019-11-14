@@ -18,5 +18,6 @@ function [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(la
 
     %% Export image sequence
     [colours] = exportAsImageSequence(labelledImage, fullfile(outputDir, 'Cells', 'labelledSequence', filesep), colours, tipValue);
+    exportLumen(lumenImage,outputDir, tipValue);
 end
 
