@@ -15,6 +15,8 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         img3dComplete = labelledImage;
     end
     
+    clearvars basalLayer apicalLayer labelledImage lumenImage
+    
     if exist('apicalRotationsOriginal', 'var') ~= 0
         rotationsOriginal = apicalRotationsOriginal;
     else
@@ -41,9 +43,11 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         end
         
         if exist('labelledImage_realSize', 'var')
+            clearvars labelledImage_realSize
             resizeImg = 1;
         else
             resizeImg = 1/zScale;
+            clearvars labelledImage
         end
         
         %% Rotate the image to obtain all the glands with the same orientation
@@ -85,6 +89,8 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         %vertices3D_Neighbours = verticesInfo.verticesConnectCells;
         %vertices3D_Neighbours(cellfun(@isempty, verticesInfo.verticesPerCell), :) = [];
         %cellNumNeighbours = cellfun(@length, neighbours);
+        
+        clearvars img3d_originalCropped img3dComplete_Cropped
         
         img3d = double(img3d_original);
         img3dComplete = double(img3dComplete);

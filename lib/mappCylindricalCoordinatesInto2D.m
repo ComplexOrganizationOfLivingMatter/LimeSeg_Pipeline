@@ -41,11 +41,8 @@ function [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validC
         rowOfCoord3x = imgFinalCoordinates3x{coordZ};
         rowOfCoord = imgFinalCoordinates{coordZ};
 
-        nEmptyPixels3x = 0;
-        if length(rowOfCoord3x) < ySize
-            nEmptyPixels3x = floor((ySize - length(rowOfCoord3x)) / 2);
-            nEmptyPixels = floor((ySize - length(rowOfCoord)) / 2);
-        end
+        nEmptyPixels3x = floor((ySize - length(rowOfCoord3x)) / 2);
+        nEmptyPixels = floor((ySize - length(rowOfCoord)) / 2);
         deployedImg3x(coordZ, 1 + nEmptyPixels3x : length(rowOfCoord3x) + nEmptyPixels3x) = rowOfCoord3x;
         deployedImg(coordZ, 1 + nEmptyPixels : length(rowOfCoord) + nEmptyPixels) = rowOfCoord;
     end
