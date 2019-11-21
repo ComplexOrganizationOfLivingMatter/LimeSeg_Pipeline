@@ -89,7 +89,10 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
             lumenImage = getappdata(0, 'lumenImage');
             close all
             [labelledImage, basalLayer, apicalLayer] = postprocessGland(labelledImage,labelledImage==0, lumenImage, outputDir, colours, tipValue);
-
+           
+            %% Save apical and basal 3d information
+            save(fullfile(outputDir, 'Results', '3d_layers_info.mat'), 'labelledImage', 'basalLayer', 'apicalLayer', 'apical3dInfo', 'basal3dInfo', 'colours', 'lumenImage','glandOrientation', '-v7.3')
+    
             [answer, apical3dInfo, notFoundCellsApical, basal3dInfo, notFoundCellsBasal] = calculateMissingCells(labelledImage, lumenImage, apicalLayer, basalLayer, colours, noValidCells);
         else
             [answer] = isEverythingCorrect();
