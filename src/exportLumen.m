@@ -6,7 +6,8 @@ function exportLumen(lumenImage, outputDir, tipValue)
   
     for numZ = 1+tipValue+1:(size(lumenImage, 3)-(tipValue+1))
         actualImg = imcomplement(imresize(lumenImage(:, :, numZ)',[1024,1024], 'nearest'));
-        imwrite(double(actualImg), fullfile(outputDir,'Lumen\inferLumen\', strcat('lumenImage_', num2str(numZ-(tipValue+1)), '.tif')))
+        outputPath = fullfile(outputDir,'Lumen/inferLumen', strcat('/lumenImage_', num2str(numZ-(tipValue+1)), '.tif'));
+        imwrite(double(actualImg), outputPath, 'tif')
     end
     
 end
