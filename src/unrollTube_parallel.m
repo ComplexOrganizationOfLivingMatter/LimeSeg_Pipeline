@@ -20,10 +20,11 @@ function unrollTube_parallel(selpath)
             
             [samiraTablePerSR{1}, apicalAreaValidCells, rotationsOriginal] = unrollTube(infoPerSurfaceRatio{1, 3}, fullfile(selpath, 'unrolledGlands', 'gland_SR_1'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info.mat'));
             areaValidCells{1} = apicalAreaValidCells;
-            infoPerSurfaceRatio(1, :) = {[]};
             %addAttachedFiles(gcp, fullfile(selpath, 'valid_cells.mat'))
             
             surfaceRatioOfGland = vertcat(infoPerSurfaceRatio{:,2})';
+            
+            infoPerSurfaceRatio(1, :) = {[]};
             nSR = length(surfaceRatioOfGland);
             
             for numPartition = 2:nSR
