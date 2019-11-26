@@ -1,6 +1,14 @@
-function [CellularFeaturesWithNoValidCells, meanSurfaceRatio] = calculate_CellularFeatures(neighbours_data,apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,polygon_distribution,outputDir, total_neighbours3D)
+function [CellularFeaturesWithNoValidCells, meanSurfaceRatio] = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,outputDir, total_neighbours3D)
 %CALCULATE_CELLULARFEATURES Summary of this function goes here
 %   Detailed explanation goes here
+
+%% Calculate poligon distribution
+[polygon_distribution_Apical] = calculate_polygon_distribution(cellfun(@length, apical3dInfo), validCells);
+[polygon_distribution_Basal] = calculate_polygon_distribution(cellfun(@length, basal3dInfo), validCells);
+neighbours_data = table(apical3dInfo, basal3dInfo);
+polygon_distribution = table(polygon_distribution_Apical, polygon_distribution_Basal);
+neighbours_data.Properties.VariableNames = {'Apical','Basal'};
+polygon_distribution.Properties.VariableNames = {'Apical','Basal'};
 
 %% Check if there is any atypical cell.
 if isempty(outputDir)==0
