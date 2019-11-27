@@ -8,7 +8,7 @@ function exportLumen(lumenImage, outputDir, tipValue)
         ImgWithoutTips =  lumenImage((tipValue+2):end-(tipValue+1), (tipValue+2):end-(tipValue+1), numZ);
         actualImg = imcomplement(imresize(ImgWithoutTips',[1024,1024], 'nearest'));
         
-        imwrite(double(actualImg), fullfile(outputDir,'Lumen\inferLumen\', strcat('lumenImage_', num2str([numZ-(tipValue+1)].','%03d'), '.tif')))
+        imwrite(double(actualImg), fullfile(outputDir,'Lumen/inferLumen', strcat('/lumenImage_', num2str([numZ-(tipValue+1)].','%03d'), '.tif')))
     end
     
 end
