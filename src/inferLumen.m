@@ -1,4 +1,4 @@
-function [labelledImage, lumenImage, glandOrientation] = inferLumen(labelledImage, tipValue)
+function [labelledImage, lumenImage] = inferLumen(labelledImage)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -20,7 +20,7 @@ lumenImage = filledImage- imclose(labelledImage,strel('sphere', 8));
     lumenImageLabel = bwlabeln(lumenImage,26);
     volume = regionprops3(lumenImageLabel,'Volume');
     [~,indMax] = max(cat(1,volume.Volume));
-    lumenImage = lumenImageLabel==indMax;
+    lumenImage = lumenImageLabel >= indMax;
     
     labelledImage(lumenImage == 1) = 0;
     
