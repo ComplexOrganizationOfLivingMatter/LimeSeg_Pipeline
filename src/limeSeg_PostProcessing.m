@@ -38,7 +38,7 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
      if size(dir(fullfile(outputDir, 'Lumen/SegmentedLumen', '*.tif')),1) > 0
         [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
      else
-        [labelledImage, lumenImage] = inferLumen(labelledImage, tipValue);
+        [labelledImage, lumenImage] = inferLumen(labelledImage);
      end
      
         %It add pixels and remove some
