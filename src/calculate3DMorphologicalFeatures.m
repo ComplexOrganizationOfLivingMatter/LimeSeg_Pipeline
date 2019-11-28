@@ -131,7 +131,7 @@ if contains(folderName, 'Salivary gland') == 0
     totalMean3DNeighsFeatures.Properties.VariableNames = cellfun(@(x) strcat('AverageCell_3D', x(5:end)), totalMean3DNeighsFeatures.Properties.VariableNames, 'UniformOutput', false);
     totalSTD3DNeighsFeatures.Properties.VariableNames = cellfun(@(x) strcat('STDCell_3D', x(5:end)), totalSTD3DNeighsFeatures.Properties.VariableNames, 'UniformOutput', false);
     
-    save(fullfile(selpath(1).folder, 'global_3dFeatures.mat'), 'allFilesName', 'totalMeanFeatures','totalStdFeatures', 'allLumens', 'allGlands')
+    save(fullfile(selpath(1).folder, 'global_3dFeatures.mat'), 'allGeneralInfo', 'totalMeanFeatures','totalStdFeatures', 'allLumens', 'allGlands')
     writetable([allGeneralInfo,totalMeanFeatures,totalStdFeatures, totalMean3DNeighsFeatures, totalSTD3DNeighsFeatures, allGlands, allLumens], fullfile(selpath(1).folder,'global_3dFeatures.xls'),'Range','B2');
 end
 end
