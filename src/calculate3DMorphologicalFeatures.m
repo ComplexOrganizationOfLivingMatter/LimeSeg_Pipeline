@@ -55,12 +55,13 @@ for numFiles=1:length(files)
         apicalInfo = table(apicalNumNeighs, apical_area_cells);
         
         %% Total features
-        percentageScutoids = cellfun(@(x, y) ~isempty(setxor(x,y)), apicalNeighs(validCells), basalNeighs(validCells))';
-        totalNeighs = cellfun(@(x,y) length(unique([x;y])), apicalNeighs(validCells), basalNeighs(validCells))';
+        percentageScutoids = cellfun(@(x, y) ~isempty(setxor(x,y)), apicalNeighs(validCells), basalNeighs(validCells));
+        totalNeighs = cellfun(@(x,y) length(unique([x;y])), apicalNeighs(validCells), basalNeighs(validCells));
+        apicoBasalTransitions = cellfun(@(x, y) length(unique(vertcat(setdiff(x, y), setdiff(y, x)))), apicalNeighs(validCells), basalNeighs(validCells));
         
         %% Extract each cell and calculate 3D features
         [cells3dFeatures] = extract3dDescriptors(labelledImage_realSize, validCells');
-        cells3dFeatures = horzcat(cells3dFeatures, apicalInfo, basalInfo, table(percentageScutoids, totalNeighs));
+        cells3dFeatures = horzcat(cells3dFeatures, apicalInfo, basalInfo, table(percentageScutoids', totalNeighs', apicoBasalTransitions'));
 
         %% Lumen features
         [lumen3dFeatures] = extract3dDescriptors(lumenImage_realSize, 1);
