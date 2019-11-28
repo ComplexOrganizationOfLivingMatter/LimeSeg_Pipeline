@@ -103,16 +103,8 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
     %% Save apical and basal 3d information
     save(fullfile(outputDir, 'Results', '3d_layers_info.mat'), 'labelledImage', 'basalLayer', 'apicalLayer', 'apical3dInfo', 'basal3dInfo', 'colours', 'lumenImage','glandOrientation', '-v7.3')
 
-    %% Calculate poligon distribution
-    [polygon_distribution_Apical] = calculate_polygon_distribution(cellfun(@length, apical3dInfo), validCells);
-    [polygon_distribution_Basal] = calculate_polygon_distribution(cellfun(@length, basal3dInfo), validCells);
-    neighbours_data = table(apical3dInfo, basal3dInfo);
-    polygon_distribution = table(polygon_distribution_Apical, polygon_distribution_Basal);
-    neighbours_data.Properties.VariableNames = {'Apical','Basal'};
-    polygon_distribution.Properties.VariableNames = {'Apical','Basal'};
-
 %     %% Export to excel cellular features
-%     cellularFeatures = calculate_CellularFeatures(neighbours_data,apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,polygon_distribution,outputDir);
+%     cellularFeatures = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,outputDir);
 %     
 %     save(fullfile(outputDir, 'Results', 'cellularFeaturesExcel.mat'), cellularFeatures); 
 end

@@ -16,7 +16,9 @@ totalMeanFeatures = [];
 totalStdFeatures = [];
 allGlands = [];
 allLumens = [];
-allFilesName = [];
+allGeneralInfo = [];
+totalSTD3DNeighsFeatures = [];
+totalMean3DNeighsFeatures = [];
 
 for numFiles=1:length(files)
     if exist(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'), 'file') == 0
@@ -24,8 +26,11 @@ for numFiles=1:length(files)
         if exist(fullfile(files(numFiles).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'file') == 0
             continue
         end
-        load(fullfile(files(numFiles).folder, '3d_layers_info.mat'), 'labelledImage_realSize', 'lumenImage_realSize');
-        load(fullfile(files(numFiles).folder, 'valid_cells.mat'), 'validCells');
+        load(fullfile(files(numFiles).folder, '3d_layers_info.mat'))%, 'labelledImage_realSize', 'lumenImage_realSize');
+        load(fullfile(files(numFiles).folder, 'valid_cells.mat'));
+        
+        cellularFeatures = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,[]);
+        
         
         %% Basal features
         load(fullfile(files(numFiles).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'newVerticesNeighs2D', 'cylindre2DImage');
@@ -52,10 +57,11 @@ for numFiles=1:length(files)
         %% Total features
         percentageScutoids = cellfun(@(x, y) ~isempty(setxor(x,y)), apicalNeighs(validCells), basalNeighs(validCells))';
         totalNeighs = cellfun(@(x,y) length(unique([x;y])), apicalNeighs(validCells), basalNeighs(validCells))';
+        apicoBasalTransitions = cellfun(@(x, y) length(unique(vertcat(setdiff(x, y), setdiff(y, x)))), apicalNeighs(validCells), basalNeighs(validCells))';
         
         %% Extract each cell and calculate 3D features
         [cells3dFeatures] = extract3dDescriptors(labelledImage_realSize, validCells');
-        cells3dFeatures = horzcat(cells3dFeatures, apicalInfo, basalInfo, table(percentageScutoids, totalNeighs));
+        cells3dFeatures = horzcat(cells3dFeatures, apicalInfo, basalInfo, table(percentageScutoids, totalNeighs, apicoBasalTransitions));
 
         %% Lumen features
         [lumen3dFeatures] = extract3dDescriptors(lumenImage_realSize, 1);
@@ -66,6 +72,7 @@ for numFiles=1:length(files)
         lumen3dFeatures.apical_area_cells = -1;
         lumen3dFeatures.percentageScutoids = -1;
         lumen3dFeatures.totalNeighs = -1;
+        lumen3dFeatures.apicoBasalTransitions = -1;
 
         %% Global Gland
         % We need calculate thickness of the glands or number of cell in
@@ -78,11 +85,15 @@ for numFiles=1:length(files)
         gland3dFeatures.apical_area_cells = -1;
         gland3dFeatures.percentageScutoids = -1;
         gland3dFeatures.totalNeighs = -1;
+        gland3dFeatures.apicoBasalTransitions = -1;
+        
+        numCells = length(validCells);
+        surfaceRatio = sum(basal_area_cells) / sum(apical_area_cells);
         
         allFeatures = vertcat(cells3dFeatures, gland3dFeatures, lumen3dFeatures);
         %% Save variables and export to excel
         writetable(allFeatures,fullfile(files(numFiles).folder,'3dFeatures_LimeSeg3DSegmentation.xls'), 'Range','B2');
-        save(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'), 'cells3dFeatures', 'gland3dFeatures', 'lumen3dFeatures', 'polygon_distribution_apical', 'polygon_distribution_basal');
+        save(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'), 'cells3dFeatures', 'gland3dFeatures', 'lumen3dFeatures', 'polygon_distribution_apical', 'polygon_distribution_basal', 'cellularFeatures', 'numCells', 'surfaceRatio');
     else
         load(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'));
     end
@@ -91,26 +102,37 @@ for numFiles=1:length(files)
     meanFeatures = varfun(@(x) mean(x),cells3dFeatures(:, 2:end));
     stdFeatures = varfun(@(x) std(x),cells3dFeatures(:, 2:end));
     
+    cellularFeaturesNoCells = varfun(@(x) cell2mat(x), cellularFeatures(:, 4:5));
+    cellularFeatures.Total_neighbours = cellularFeaturesNoCells.Fun_Total_neighbours;
+    cellularFeatures.Apicobasal_neighbours = cellularFeaturesNoCells.Fun_Apicobasal_neighbours;
+    mean3DNeighsFeatures = varfun(@(x) mean(x), cellularFeatures(validCells, 2:6));
+    std3DNeighsFeatures = varfun(@(x) std(x), cellularFeatures(validCells, 2:6));
+    
     totalMeanFeatures = vertcat(totalMeanFeatures, meanFeatures);
     totalStdFeatures = vertcat(totalStdFeatures, stdFeatures);
     allGlands = vertcat(allGlands, [gland3dFeatures, cell2table(polygon_distribution_apical(2, :), 'VariableNames', strcat('apical_', polygon_distribution_apical(1, :))), cell2table(polygon_distribution_basal(2, :), 'VariableNames', strcat('basal_', polygon_distribution_basal(1, :)))]);
     allLumens = vertcat(allLumens, lumen3dFeatures);
+    totalMean3DNeighsFeatures = vertcat(totalMean3DNeighsFeatures, mean3DNeighsFeatures);
+    totalSTD3DNeighsFeatures = vertcat(totalSTD3DNeighsFeatures, std3DNeighsFeatures);
     
     fileName = strsplit(files(numFiles).folder, {'/','\'});
     fileName = convertCharsToStrings(strjoin({fileName{1,end-2},fileName{1,end-1}}, ' '));
-    allFilesName = [allFilesName ; fileName];
+    allGeneralInfo = [allGeneralInfo ; fileName, surfaceRatio, numCells];
 end
 
 if contains(folderName, 'Salivary gland') == 0
-    allFilesName = table(allFilesName, 'VariableNames', {'ID_Glands'});
+    allGeneralInfo = table(allGeneralInfo, 'VariableNames', {'ID_Glands'});
 
     allGlands.Properties.VariableNames = cellfun(@(x) strcat('Gland_', x), allGlands.Properties.VariableNames, 'UniformOutput', false);
     allLumens.Properties.VariableNames = cellfun(@(x) strcat('Lumen_', x), allLumens.Properties.VariableNames, 'UniformOutput', false);
     totalMeanFeatures.Properties.VariableNames = cellfun(@(x) strcat('AverageCell_', x(5:end)), totalMeanFeatures.Properties.VariableNames, 'UniformOutput', false);
     totalStdFeatures.Properties.VariableNames = cellfun(@(x) strcat('STDCell_', x(5:end)), totalStdFeatures.Properties.VariableNames, 'UniformOutput', false);
 
-    save(fullfile(selpath(1).folder, 'global_3dFeatures.mat'), 'totalMeanFeatures','totalStdFeatures', 'allLumens', 'allGlands')
-    writetable([allFilesName,totalMeanFeatures,totalStdFeatures, allGlands, allLumens], fullfile(selpath(1).folder,'global_3dFeatures.xls'),'Range','B2');
+    totalMean3DNeighsFeatures.Properties.VariableNames = cellfun(@(x) strcat('AverageCell_3D', x(5:end)), totalMean3DNeighsFeatures.Properties.VariableNames, 'UniformOutput', false);
+    totalSTD3DNeighsFeatures.Properties.VariableNames = cellfun(@(x) strcat('STDCell_3D', x(5:end)), totalSTD3DNeighsFeatures.Properties.VariableNames, 'UniformOutput', false);
+    
+    save(fullfile(selpath(1).folder, 'global_3dFeatures.mat'), 'allFilesName', 'totalMeanFeatures','totalStdFeatures', 'allLumens', 'allGlands')
+    writetable([allGeneralInfo,totalMeanFeatures,totalStdFeatures, totalMean3DNeighsFeatures, totalSTD3DNeighsFeatures, allGlands, allLumens], fullfile(selpath(1).folder,'global_3dFeatures.xls'),'Range','B2');
 end
 end
 
