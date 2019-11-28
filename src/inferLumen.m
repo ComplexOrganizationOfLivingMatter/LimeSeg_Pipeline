@@ -2,8 +2,8 @@ function [labelledImage, lumenImage, glandOrientation] = inferLumen(labelledImag
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 
-filledImage = imfill(imclose(labelledImage,strel('sphere', 3)));
-lumenImage = filledImage- imclose(labelledImage,strel('sphere', 3));
+filledImage = imfill(imclose(labelledImage,strel('sphere', 8)));
+lumenImage = filledImage- imclose(labelledImage,strel('sphere', 8));
 
 % filledImage = zeros(size(labelledImage));
 % 
