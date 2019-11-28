@@ -55,13 +55,13 @@ for numFiles=1:length(files)
         apicalInfo = table(apicalNumNeighs, apical_area_cells);
         
         %% Total features
-        percentageScutoids = cellfun(@(x, y) ~isempty(setxor(x,y)), apicalNeighs(validCells), basalNeighs(validCells));
-        totalNeighs = cellfun(@(x,y) length(unique([x;y])), apicalNeighs(validCells), basalNeighs(validCells));
-        apicoBasalTransitions = cellfun(@(x, y) length(unique(vertcat(setdiff(x, y), setdiff(y, x)))), apicalNeighs(validCells), basalNeighs(validCells));
+        percentageScutoids = cellfun(@(x, y) ~isempty(setxor(x,y)), apicalNeighs(validCells), basalNeighs(validCells))';
+        totalNeighs = cellfun(@(x,y) length(unique([x;y])), apicalNeighs(validCells), basalNeighs(validCells))';
+        apicoBasalTransitions = cellfun(@(x, y) length(unique(vertcat(setdiff(x, y), setdiff(y, x)))), apicalNeighs(validCells), basalNeighs(validCells))';
         
         %% Extract each cell and calculate 3D features
         [cells3dFeatures] = extract3dDescriptors(labelledImage_realSize, validCells');
-        cells3dFeatures = horzcat(cells3dFeatures, apicalInfo, basalInfo, table(percentageScutoids', totalNeighs', apicoBasalTransitions'));
+        cells3dFeatures = horzcat(cells3dFeatures, apicalInfo, basalInfo, table(percentageScutoids, totalNeighs, apicoBasalTransitions));
 
         %% Lumen features
         [lumen3dFeatures] = extract3dDescriptors(lumenImage_realSize, 1);
@@ -72,6 +72,7 @@ for numFiles=1:length(files)
         lumen3dFeatures.apical_area_cells = -1;
         lumen3dFeatures.percentageScutoids = -1;
         lumen3dFeatures.totalNeighs = -1;
+        lumen3dFeatures.apicoBasalTransitions = -1;
 
         %% Global Gland
         % We need calculate thickness of the glands or number of cell in
@@ -84,9 +85,10 @@ for numFiles=1:length(files)
         gland3dFeatures.apical_area_cells = -1;
         gland3dFeatures.percentageScutoids = -1;
         gland3dFeatures.totalNeighs = -1;
+        gland3dFeatures.apicoBasalTransitions = -1;
         
         numCells = length(validCells);
-        surfaceRatio = sum(basal_area_cells) /sum(apical_area_cells);
+        surfaceRatio = sum(basal_area_cells) / sum(apical_area_cells);
         
         allFeatures = vertcat(cells3dFeatures, gland3dFeatures, lumen3dFeatures);
         %% Save variables and export to excel
