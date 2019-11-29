@@ -8,7 +8,10 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distributio
         
         cellularFeatures = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,[]);
         
-        surfaceRatio3D = sum(cellularFeatures.Basal_area(validCells)) / sum(cellularFeatures.Apical_area(validCells));
+        load(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_basal/final3DImg.mat'), 'img3d');
+        basalLayer = img3d;        
+        load(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_1/final3DImg.mat'), 'img3d');
+        surfaceRatio3D = sum(ismember(basalLayer(:), validCells)) / sum(ismember(img3d(:), validCells));
         
         %% Basal features
         load(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'newVerticesNeighs2D', 'cylindre2DImage');

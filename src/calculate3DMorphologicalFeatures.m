@@ -21,9 +21,10 @@ totalSTD3DNeighsFeatures = cell(length(files), 6);
 totalMean3DNeighsFeatures = cell(length(files), 6);
 
 parfor numFile=1:length(files)
-    if exist(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'file')
-        [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distribution_apical, polygon_distribution_basal, cellularFeatures, numCells, surfaceRatio2D, surfaceRatio3D, validCells] = obtainAllFeatures(files,numFile);
+    if exist(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'file') == 0
+        continue
     end
+    [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distribution_apical, polygon_distribution_basal, cellularFeatures, numCells, surfaceRatio2D, surfaceRatio3D, validCells] = obtainAllFeatures(files,numFile);
     %% Calculate mean and std of 3D features
     meanFeatures = varfun(@(x) mean(x),cells3dFeatures(:, 2:end));
     stdFeatures = varfun(@(x) std(x),cells3dFeatures(:, 2:end));
@@ -50,8 +51,8 @@ if contains(folderName, 'Salivary gland') == 0
     allGeneralInfo = cell2table(allGeneralInfo, 'VariableNames', {'ID_Glands', 'SurfaceRatio3D', 'SurfaceRatio2D', 'NCells'});
     allGlands = cell2table(allGlands, 'VariableNames', {'ID_Cell','Volume','EquivDiameter','PrincipalAxisLength','ConvexVolume','Solidity','SurfaceArea','aspectRatio','sphericity','normalizedVolume','basalNumNeighs','basal_area_cells2D','apicalNumNeighs','apical_area_cells2D','percentageScutoids','totalNeighs','apicoBasalTransitions','apical_triangles','apical_squares','apical_pentagons','apical_hexagons','apical_heptagons','apical_octogons','apical_nonagons','apical_decagons','basal_triangles','basal_squares','basal_pentagons','basal_hexagons','basal_heptagons','basal_octogons','basal_nonagons','basal_decagons'});
     allLumens = cell2table(allLumens, 'VariableNames', {'ID_Cell','Volume','EquivDiameter','PrincipalAxisLength','ConvexVolume','Solidity','SurfaceArea','aspectRatio','sphericity','normalizedVolume','basalNumNeighs','basal_area_cells2D','apicalNumNeighs','apical_area_cells2D','percentageScutoids','totalNeighs','apicoBasalTransitions'});
-    totalMeanFeatures = cell2table(totalMeanFeatures, 'VariableNames', {'Fun_ConvexVolume','Fun_Solidity','Fun_SurfaceArea','Fun_aspectRatio','Fun_sphericity','Fun_normalizedVolume','Fun_apicalNumNeighs','Fun_apical_area_cells2D','Fun_basalNumNeighs','Fun_basal_area_cells2D','Fun_percentageScutoids','Fun_totalNeighs','Fun_apicoBasalTransitions'});
-    totalStdFeatures = cell2table(totalStdFeatures, 'VariableNames', {'Fun_ConvexVolume','Fun_Solidity','Fun_SurfaceArea','Fun_aspectRatio','Fun_sphericity','Fun_normalizedVolume','Fun_apicalNumNeighs','Fun_apical_area_cells2D','Fun_basalNumNeighs','Fun_basal_area_cells2D','Fun_percentageScutoids','Fun_totalNeighs','Fun_apicoBasalTransitions'});
+    totalMeanFeatures = cell2table(totalMeanFeatures, 'VariableNames', {'Fun_Volume','Fun_EquivDiameter','Fun_PrincipalAxisLength','Fun_ConvexVolume','Fun_Solidity','Fun_SurfaceArea','Fun_aspectRatio','Fun_sphericity','Fun_normalizedVolume','Fun_apicalNumNeighs','Fun_apical_area_cells2D','Fun_basalNumNeighs','Fun_basal_area_cells2D','Fun_percentageScutoids','Fun_totalNeighs','Fun_apicoBasalTransitions'});
+    totalStdFeatures = cell2table(totalStdFeatures, 'VariableNames', {'Fun_Volume','Fun_EquivDiameter','Fun_PrincipalAxisLength','Fun_ConvexVolume','Fun_Solidity','Fun_SurfaceArea','Fun_aspectRatio','Fun_sphericity','Fun_normalizedVolume','Fun_apicalNumNeighs','Fun_apical_area_cells2D','Fun_basalNumNeighs','Fun_basal_area_cells2D','Fun_percentageScutoids','Fun_totalNeighs','Fun_apicoBasalTransitions'});
     totalMean3DNeighsFeatures = cell2table(totalMean3DNeighsFeatures, 'VariableNames', {'Fun_Apical_sides','Fun_Basal_sides','Fun_Total_neighbours','Fun_Apicobasal_neighbours','Fun_Scutoids','Fun_apicoBasalTransitions'});
     totalSTD3DNeighsFeatures = cell2table(totalSTD3DNeighsFeatures, 'VariableNames', {'Fun_Apical_sides','Fun_Basal_sides','Fun_Total_neighbours','Fun_Apicobasal_neighbours','Fun_Scutoids','Fun_apicoBasalTransitions'});
     
