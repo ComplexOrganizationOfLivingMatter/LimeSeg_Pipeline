@@ -22,7 +22,7 @@ totalMean3DNeighsFeatures = [];
 
 for numFiles=1:length(files)
     load(fullfile(files(numFiles).folder, 'valid_cells.mat'));
-    if exist(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'), 'file') == 0
+    if exist(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'), 'file') ~= 0
         files(numFiles).folder
         if exist(fullfile(files(numFiles).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'file') == 0
             continue
@@ -31,6 +31,7 @@ for numFiles=1:length(files)
         
         cellularFeatures = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,[]);
         
+        surfaceRatio3D = sum(basalLayer(:)) / sum(apicalLayer(:));
         
         %% Basal features
         load(fullfile(files(numFiles).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'newVerticesNeighs2D', 'cylindre2DImage');
@@ -38,10 +39,10 @@ for numFiles=1:length(files)
         basalNumNeighs = cellfun(@(x) length(x), basalNeighs)';
         [polygon_distribution_basal] = calculate_polygon_distribution(basalNumNeighs, validCells);
         basalNumNeighs = basalNumNeighs(validCells);
-        basal_area_cells=cell2mat(struct2cell(regionprops(cylindre2DImage,'Area'))).';
-        basal_area_cells = basal_area_cells(validCells);
+        basal_area_cells2D=cell2mat(struct2cell(regionprops(cylindre2DImage,'Area'))).';
+        basal_area_cells2D = basal_area_cells2D(validCells);
         
-        basalInfo = table(basalNumNeighs, basal_area_cells);
+        basalInfo = table(basalNumNeighs, basal_area_cells2D);
         
         %% Apical features
         load(fullfile(files(numFiles).folder, 'unrolledGlands/gland_SR_1/verticesInfo.mat'), 'newVerticesNeighs2D', 'cylindre2DImage');
@@ -49,10 +50,10 @@ for numFiles=1:length(files)
         apicalNumNeighs = cellfun(@(x) length(x), apicalNeighs)';
         [polygon_distribution_apical] = calculate_polygon_distribution(apicalNumNeighs, validCells);
         apicalNumNeighs = apicalNumNeighs(validCells);
-        apical_area_cells=cell2mat(struct2cell(regionprops(cylindre2DImage,'Area'))).';
-        apical_area_cells = apical_area_cells(validCells);
+        apical_area_cells2D=cell2mat(struct2cell(regionprops(cylindre2DImage,'Area'))).';
+        apical_area_cells2D = apical_area_cells2D(validCells);
         
-        apicalInfo = table(apicalNumNeighs, apical_area_cells);
+        apicalInfo = table(apicalNumNeighs, apical_area_cells2D);
         
         %% Total features
         percentageScutoids = cellfun(@(x, y) ~isempty(setxor(x,y)), apicalNeighs(validCells), basalNeighs(validCells))';
@@ -88,12 +89,12 @@ for numFiles=1:length(files)
         gland3dFeatures.apicoBasalTransitions = -1;
         
         numCells = length(validCells);
-        surfaceRatio = sum(basal_area_cells) / sum(apical_area_cells);
+        surfaceRatio2D = sum(basal_area_cells2D) / sum(apical_area_cells2D);
         
         allFeatures = vertcat(cells3dFeatures, gland3dFeatures, lumen3dFeatures);
         %% Save variables and export to excel
         writetable(allFeatures,fullfile(files(numFiles).folder,'3dFeatures_LimeSeg3DSegmentation.xls'), 'Range','B2');
-        save(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'), 'cells3dFeatures', 'gland3dFeatures', 'lumen3dFeatures', 'polygon_distribution_apical', 'polygon_distribution_basal', 'cellularFeatures', 'numCells', 'surfaceRatio');
+        save(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'), 'cells3dFeatures', 'gland3dFeatures', 'lumen3dFeatures', 'polygon_distribution_apical', 'polygon_distribution_basal', 'cellularFeatures', 'numCells', 'surfaceRatio2D', 'surfaceRatio3D');
     else
         load(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'));
     end
@@ -117,11 +118,11 @@ for numFiles=1:length(files)
     
     fileName = strsplit(files(numFiles).folder, {'/','\'});
     fileName = convertCharsToStrings(strjoin({fileName{1,end-2},fileName{1,end-1}}, ' '));
-    allGeneralInfo = [allGeneralInfo ; {fileName}, {surfaceRatio}, {numCells}];
+    allGeneralInfo = [allGeneralInfo ; {fileName}, {surfaceRatio3D}, {surfaceRatio2D}, {numCells}];
 end
 
 if contains(folderName, 'Salivary gland') == 0
-    allGeneralInfo = cell2table(allGeneralInfo, 'VariableNames', {'ID_Glands', 'SurfaceRatio', 'NCells'});
+    allGeneralInfo = cell2table(allGeneralInfo, 'VariableNames', {'ID_Glands', 'SurfaceRatio3D', 'SurfaceRatio2D', 'NCells'});
 
     allGlands.Properties.VariableNames = cellfun(@(x) strcat('Gland_', x), allGlands.Properties.VariableNames, 'UniformOutput', false);
     allLumens.Properties.VariableNames = cellfun(@(x) strcat('Lumen_', x), allLumens.Properties.VariableNames, 'UniformOutput', false);
