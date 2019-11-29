@@ -12,92 +12,18 @@ files = files(nonDiscardedFiles);
 
 selpath = dir(fullfile('**/data/Salivary gland/', folderName));
 
-totalMeanFeatures = [];
-totalStdFeatures = [];
-allGlands = [];
-allLumens = [];
-allGeneralInfo = [];
-totalSTD3DNeighsFeatures = [];
-totalMean3DNeighsFeatures = [];
+totalMeanFeatures = cell([length(files) 16]);
+totalStdFeatures = cell([length(files) 16]);
+allGlands = cell([length(files) 33]);
+allLumens = cell([length(files) 17]);
+allGeneralInfo = cell(length(files), 4);
+totalSTD3DNeighsFeatures = cell(length(files), 6);
+totalMean3DNeighsFeatures = cell(length(files), 6);
 
-for numFiles=1:length(files)
-    if exist(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'), 'file') == 0
-        files(numFiles).folder
-        if exist(fullfile(files(numFiles).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'file') == 0
-            continue
-        end
-        load(fullfile(files(numFiles).folder, '3d_layers_info.mat'))%, 'labelledImage_realSize', 'lumenImage_realSize');
-        load(fullfile(files(numFiles).folder, 'valid_cells.mat'));
-        
-        cellularFeatures = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,[]);
-        
-        
-        %% Basal features
-        load(fullfile(files(numFiles).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'newVerticesNeighs2D', 'cylindre2DImage');
-        basalNeighs = getNeighboursFromVertices(newVerticesNeighs2D);
-        basalNumNeighs = cellfun(@(x) length(x), basalNeighs)';
-        [polygon_distribution_basal] = calculate_polygon_distribution(basalNumNeighs, validCells);
-        basalNumNeighs = basalNumNeighs(validCells);
-        basal_area_cells=cell2mat(struct2cell(regionprops(cylindre2DImage,'Area'))).';
-        basal_area_cells = basal_area_cells(validCells);
-        
-        basalInfo = table(basalNumNeighs, basal_area_cells);
-        
-        %% Apical features
-        load(fullfile(files(numFiles).folder, 'unrolledGlands/gland_SR_1/verticesInfo.mat'), 'newVerticesNeighs2D', 'cylindre2DImage');
-        apicalNeighs = getNeighboursFromVertices(newVerticesNeighs2D);
-        apicalNumNeighs = cellfun(@(x) length(x), apicalNeighs)';
-        [polygon_distribution_apical] = calculate_polygon_distribution(apicalNumNeighs, validCells);
-        apicalNumNeighs = apicalNumNeighs(validCells);
-        apical_area_cells=cell2mat(struct2cell(regionprops(cylindre2DImage,'Area'))).';
-        apical_area_cells = apical_area_cells(validCells);
-        
-        apicalInfo = table(apicalNumNeighs, apical_area_cells);
-        
-        %% Total features
-        percentageScutoids = cellfun(@(x, y) ~isempty(setxor(x,y)), apicalNeighs(validCells), basalNeighs(validCells))';
-        totalNeighs = cellfun(@(x,y) length(unique([x;y])), apicalNeighs(validCells), basalNeighs(validCells))';
-        apicoBasalTransitions = cellfun(@(x, y) length(unique(vertcat(setdiff(x, y), setdiff(y, x)))), apicalNeighs(validCells), basalNeighs(validCells))';
-        
-        %% Extract each cell and calculate 3D features
-        [cells3dFeatures] = extract3dDescriptors(labelledImage_realSize, validCells');
-        cells3dFeatures = horzcat(cells3dFeatures, apicalInfo, basalInfo, table(percentageScutoids, totalNeighs, apicoBasalTransitions));
-
-        %% Lumen features
-        [lumen3dFeatures] = extract3dDescriptors(lumenImage_realSize, 1);
-        lumen3dFeatures.ID_Cell = 'Lumen';
-        lumen3dFeatures.basalNumNeighs = -1;
-        lumen3dFeatures.basal_area_cells = -1;
-        lumen3dFeatures.apicalNumNeighs = -1;
-        lumen3dFeatures.apical_area_cells = -1;
-        lumen3dFeatures.percentageScutoids = -1;
-        lumen3dFeatures.totalNeighs = -1;
-        lumen3dFeatures.apicoBasalTransitions = -1;
-
-        %% Global Gland
-        % We need calculate thickness of the glands or number of cell in
-        % transversal axis
-        [gland3dFeatures] = extract3dDescriptors(labelledImage_realSize>0, 1);
-        gland3dFeatures.ID_Cell = 'Gland';
-        gland3dFeatures.basalNumNeighs = -1;
-        gland3dFeatures.basal_area_cells = -1;
-        gland3dFeatures.apicalNumNeighs = -1;
-        gland3dFeatures.apical_area_cells = -1;
-        gland3dFeatures.percentageScutoids = -1;
-        gland3dFeatures.totalNeighs = -1;
-        gland3dFeatures.apicoBasalTransitions = -1;
-        
-        numCells = length(validCells);
-        surfaceRatio = sum(basal_area_cells) / sum(apical_area_cells);
-        
-        allFeatures = vertcat(cells3dFeatures, gland3dFeatures, lumen3dFeatures);
-        %% Save variables and export to excel
-        writetable(allFeatures,fullfile(files(numFiles).folder,'3dFeatures_LimeSeg3DSegmentation.xls'), 'Range','B2');
-        save(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'), 'cells3dFeatures', 'gland3dFeatures', 'lumen3dFeatures', 'polygon_distribution_apical', 'polygon_distribution_basal', 'cellularFeatures', 'numCells', 'surfaceRatio');
-    else
-        load(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'));
+parfor numFile=1:length(files)
+    if exist(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'file')
+        [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distribution_apical, polygon_distribution_basal, cellularFeatures, numCells, surfaceRatio2D, surfaceRatio3D, validCells] = obtainAllFeatures(files,numFile);
     end
-    
     %% Calculate mean and std of 3D features
     meanFeatures = varfun(@(x) mean(x),cells3dFeatures(:, 2:end));
     stdFeatures = varfun(@(x) std(x),cells3dFeatures(:, 2:end));
@@ -105,24 +31,30 @@ for numFiles=1:length(files)
     cellularFeaturesNoCells = varfun(@(x) cell2mat(x), cellularFeatures(:, 4:5));
     cellularFeatures.Total_neighbours = cellularFeaturesNoCells.Fun_Total_neighbours;
     cellularFeatures.Apicobasal_neighbours = cellularFeaturesNoCells.Fun_Apicobasal_neighbours;
-    mean3DNeighsFeatures = varfun(@(x) mean(x), cellularFeatures(validCells, 2:6));
-    std3DNeighsFeatures = varfun(@(x) std(x), cellularFeatures(validCells, 2:6));
+    mean3DNeighsFeatures = varfun(@(x) mean(x), cellularFeatures(validCells, 2:7));
+    std3DNeighsFeatures = varfun(@(x) std(x), cellularFeatures(validCells, 2:7));
     
-    totalMeanFeatures = vertcat(totalMeanFeatures, meanFeatures);
-    totalStdFeatures = vertcat(totalStdFeatures, stdFeatures);
-    allGlands = vertcat(allGlands, [gland3dFeatures, cell2table(polygon_distribution_apical(2, :), 'VariableNames', strcat('apical_', polygon_distribution_apical(1, :))), cell2table(polygon_distribution_basal(2, :), 'VariableNames', strcat('basal_', polygon_distribution_basal(1, :)))]);
-    allLumens = vertcat(allLumens, lumen3dFeatures);
-    totalMean3DNeighsFeatures = vertcat(totalMean3DNeighsFeatures, mean3DNeighsFeatures);
-    totalSTD3DNeighsFeatures = vertcat(totalSTD3DNeighsFeatures, std3DNeighsFeatures);
+    totalMeanFeatures(numFile, :) = table2cell(meanFeatures);
+    totalStdFeatures(numFile, :) = table2cell(stdFeatures);
+    allGlands(numFile, :) = table2cell([gland3dFeatures, cell2table(polygon_distribution_apical(2, :), 'VariableNames', strcat('apical_', polygon_distribution_apical(1, :))), cell2table(polygon_distribution_basal(2, :), 'VariableNames', strcat('basal_', polygon_distribution_basal(1, :)))]);
+    allLumens(numFile, :) = table2cell(lumen3dFeatures);
+    totalMean3DNeighsFeatures(numFile, :) = table2cell(mean3DNeighsFeatures);
+    totalSTD3DNeighsFeatures(numFile, :) = table2cell(std3DNeighsFeatures);
     
-    fileName = strsplit(files(numFiles).folder, {'/','\'});
+    fileName = strsplit(files(numFile).folder, {'/','\'});
     fileName = convertCharsToStrings(strjoin({fileName{1,end-2},fileName{1,end-1}}, ' '));
-    allGeneralInfo = [allGeneralInfo ; fileName, surfaceRatio, numCells];
+    allGeneralInfo(numFile, :) = [{fileName}, {surfaceRatio3D}, {surfaceRatio2D}, {numCells}];
 end
 
 if contains(folderName, 'Salivary gland') == 0
-    allGeneralInfo = table(allGeneralInfo, 'VariableNames', {'ID_Glands'});
-
+    allGeneralInfo = cell2table(allGeneralInfo, 'VariableNames', {'ID_Glands', 'SurfaceRatio3D', 'SurfaceRatio2D', 'NCells'});
+    allGlands = cell2table(allGlands, 'VariableNames', {'ID_Cell','Volume','EquivDiameter','PrincipalAxisLength','ConvexVolume','Solidity','SurfaceArea','aspectRatio','sphericity','normalizedVolume','basalNumNeighs','basal_area_cells2D','apicalNumNeighs','apical_area_cells2D','percentageScutoids','totalNeighs','apicoBasalTransitions','apical_triangles','apical_squares','apical_pentagons','apical_hexagons','apical_heptagons','apical_octogons','apical_nonagons','apical_decagons','basal_triangles','basal_squares','basal_pentagons','basal_hexagons','basal_heptagons','basal_octogons','basal_nonagons','basal_decagons'});
+    allLumens = cell2table(allLumens, 'VariableNames', {'ID_Cell','Volume','EquivDiameter','PrincipalAxisLength','ConvexVolume','Solidity','SurfaceArea','aspectRatio','sphericity','normalizedVolume','basalNumNeighs','basal_area_cells2D','apicalNumNeighs','apical_area_cells2D','percentageScutoids','totalNeighs','apicoBasalTransitions'});
+    totalMeanFeatures = cell2table(totalMeanFeatures, 'VariableNames', {'Fun_ConvexVolume','Fun_Solidity','Fun_SurfaceArea','Fun_aspectRatio','Fun_sphericity','Fun_normalizedVolume','Fun_apicalNumNeighs','Fun_apical_area_cells2D','Fun_basalNumNeighs','Fun_basal_area_cells2D','Fun_percentageScutoids','Fun_totalNeighs','Fun_apicoBasalTransitions'});
+    totalStdFeatures = cell2table(totalStdFeatures, 'VariableNames', {'Fun_ConvexVolume','Fun_Solidity','Fun_SurfaceArea','Fun_aspectRatio','Fun_sphericity','Fun_normalizedVolume','Fun_apicalNumNeighs','Fun_apical_area_cells2D','Fun_basalNumNeighs','Fun_basal_area_cells2D','Fun_percentageScutoids','Fun_totalNeighs','Fun_apicoBasalTransitions'});
+    totalMean3DNeighsFeatures = cell2table(totalMean3DNeighsFeatures, 'VariableNames', {'Fun_Apical_sides','Fun_Basal_sides','Fun_Total_neighbours','Fun_Apicobasal_neighbours','Fun_Scutoids','Fun_apicoBasalTransitions'});
+    totalSTD3DNeighsFeatures = cell2table(totalSTD3DNeighsFeatures, 'VariableNames', {'Fun_Apical_sides','Fun_Basal_sides','Fun_Total_neighbours','Fun_Apicobasal_neighbours','Fun_Scutoids','Fun_apicoBasalTransitions'});
+    
     allGlands.Properties.VariableNames = cellfun(@(x) strcat('Gland_', x), allGlands.Properties.VariableNames, 'UniformOutput', false);
     allLumens.Properties.VariableNames = cellfun(@(x) strcat('Lumen_', x), allLumens.Properties.VariableNames, 'UniformOutput', false);
     totalMeanFeatures.Properties.VariableNames = cellfun(@(x) strcat('AverageCell_', x(5:end)), totalMeanFeatures.Properties.VariableNames, 'UniformOutput', false);
