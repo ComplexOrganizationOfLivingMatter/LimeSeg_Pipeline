@@ -16,18 +16,18 @@ totalMeanFeatures = [];
 totalStdFeatures = [];
 allGlands = [];
 allLumens = [];
-allGeneralInfo = [];
+allGeneralInfo = {};
 totalSTD3DNeighsFeatures = [];
 totalMean3DNeighsFeatures = [];
 
 for numFiles=1:length(files)
+    load(fullfile(files(numFiles).folder, 'valid_cells.mat'));
     if exist(fullfile(files(numFiles).folder, 'morphological3dFeatures.mat'), 'file') == 0
         files(numFiles).folder
         if exist(fullfile(files(numFiles).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'file') == 0
             continue
         end
         load(fullfile(files(numFiles).folder, '3d_layers_info.mat'))%, 'labelledImage_realSize', 'lumenImage_realSize');
-        load(fullfile(files(numFiles).folder, 'valid_cells.mat'));
         
         cellularFeatures = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,[]);
         
@@ -117,11 +117,11 @@ for numFiles=1:length(files)
     
     fileName = strsplit(files(numFiles).folder, {'/','\'});
     fileName = convertCharsToStrings(strjoin({fileName{1,end-2},fileName{1,end-1}}, ' '));
-    allGeneralInfo = [allGeneralInfo ; fileName, surfaceRatio, numCells];
+    allGeneralInfo = [allGeneralInfo ; {fileName}, {surfaceRatio}, {numCells}];
 end
 
 if contains(folderName, 'Salivary gland') == 0
-    allGeneralInfo = table(allGeneralInfo, 'VariableNames', {'ID_Glands'});
+    allGeneralInfo = cell2table(allGeneralInfo, 'VariableNames', {'ID_Glands', 'SurfaceRatio', 'NCells'});
 
     allGlands.Properties.VariableNames = cellfun(@(x) strcat('Gland_', x), allGlands.Properties.VariableNames, 'UniformOutput', false);
     allLumens.Properties.VariableNames = cellfun(@(x) strcat('Lumen_', x), allLumens.Properties.VariableNames, 'UniformOutput', false);
