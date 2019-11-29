@@ -22,7 +22,7 @@ function varargout = window(varargin)
 
 % Edit the above text to modify the response to help window
 
-% Last Modified by GUIDE v2.5 29-Jul-2019 14:43:01
+% Last Modified by GUIDE v2.5 29-Nov-2019 09:58:41
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -126,7 +126,9 @@ if roiMask ~= -1
     lumenImage = getappdata(0, 'lumenImage');
 
     if sum(newCellRegion(:)) > 0
-        if getappdata(0, 'canModifyOutsideGland') == 0
+        if getappdata(0, 'canModifyInsideLumen') == 1 
+            insideGland = labelledImage(:,:,selectedZ) > 0 | lumenImage(:,:,selectedZ) > 0;
+        elseif getappdata(0, 'canModifyOutsideGland') == 0
             insideGland = labelledImage(:,:,selectedZ) > 0;
         else
             insideGland = newCellRegion>-1;
@@ -135,7 +137,12 @@ if roiMask ~= -1
             [y, x] = find(newCellRegion & insideGland');
             newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
             labelledImage(newIndices) = selectCellId;
+            if getappdata(0, 'canModifyInsideLumen') == 1
+            lumenImage(newIndices) = 0;
+            setappdata(0, 'lumenImage', lumenImage);
+            else
             labelledImage(lumenImage>0) = 0;
+            end
             %Smooth surface of next and previos Z
             labelledImage = smoothCellContour3D(labelledImage, selectCellId, (selectedZ-3):(selectedZ+3), lumenImage);
         else
@@ -287,3 +294,25 @@ function modifyOutside_Callback(hObject, eventdata, handles)
 toggleValue = get(hObject,'Value') == 1;
 
 setappdata(0, 'canModifyOutsideGland', toggleValue)
+
+
+% --- Executes on button press in hideLumen.
+function modifyInsideLumen_Callback(hObject, eventdata, handles)
+% hObject    handle to hideLumen (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of hideLumen
+toggleValue = get(hObject,'Value') == 1;
+setappdata(0, 'canModifyInsideLumen', toggleValue)
+
+
+% --- Executes on button press in modifyInsideLumen.
+function hideLumen_Callback(hObject, eventdata, handles)
+% hObject    handle to modifyInsideLumen (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of modifyInsideLumen
+toggleValue = get(hObject,'Value') == 1;
+setappdata(0, 'hideLumen', toggleValue)
