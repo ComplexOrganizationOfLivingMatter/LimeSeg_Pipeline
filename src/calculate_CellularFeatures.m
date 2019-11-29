@@ -51,6 +51,7 @@ end
 number_neighbours = table(cellfun(@length,(apical3dInfo)),cellfun(@length,(basal3dInfo)));
 apicobasal_neighbours=cellfun(@(x,y)(unique(vertcat(x,y))), apical3dInfo, basal3dInfo, 'UniformOutput',false);
 
+
 if length(total_neighbours3D) < length(apicobasal_neighbours)
     total_neighbours3D(length(apicobasal_neighbours)) = {[]};
 end
@@ -76,6 +77,8 @@ volume_cells=table2array(regionprops3(labelledImage,'Volume'));
 
 %%  Determine if a cell is a scutoid or not
 scutoids_cells=cellfun(@(x,y) double(~isequal(x,y)), neighbours_data.Apical,neighbours_data.Basal);
+apicoBasalTransitions = cellfun(@(x, y) length(unique(vertcat(setdiff(x, y), setdiff(y, x)))), neighbours_data.Apical, neighbours_data.Basal);
+        
 
 %%  Export to a excel file
 ID_cells=(1:length(basal3dInfo)).';
@@ -100,8 +103,8 @@ if isequal(total_neighbours3D,apicobasal_neighbours)==0
     warning(msg);
 end
 
-CellularFeatures=table(ID_cells,number_neighbours.Var1',number_neighbours.Var2',total_neighbours3DRecount',apicobasal_neighboursRecount',scutoids_cells',apical_area_cells,basal_area_cells, surfaceRatio, volume_cells);
-CellularFeatures.Properties.VariableNames = {'ID_Cell','Apical_sides','Basal_sides','Total_neighbours','Apicobasal_neighbours','Scutoids','Apical_area','Basal_area', 'Surface_Ratio','Volume'};
+CellularFeatures=table(ID_cells,number_neighbours.Var1',number_neighbours.Var2',total_neighbours3DRecount',apicobasal_neighboursRecount',scutoids_cells', apicoBasalTransitions', apical_area_cells,basal_area_cells, surfaceRatio, volume_cells);
+CellularFeatures.Properties.VariableNames = {'ID_Cell','Apical_sides','Basal_sides','Total_neighbours','Apicobasal_neighbours','Scutoids', 'apicoBasalTransitions', 'Apical_area','Basal_area', 'Surface_Ratio','Volume'};
 CellularFeaturesWithNoValidCells = CellularFeatures;
 CellularFeatures(noValidCells,:)=[];
 
