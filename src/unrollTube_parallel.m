@@ -110,7 +110,7 @@ function unrollTube_parallel(selpath)
             neighbours_data.Properties.VariableNames = {'Apical','Basal'};
             neighboursOfAllSurfaces{idToSave} = neighboursMid;
             
-            [infoPerSurfaceRatio{idToSave, 8}, infoPerSurfaceRatio{idToSave, 7}] = calculate_CellularFeatures(neighbours_data, neighboursApical, neighboursMid, apicalLayer, midLayer, img3d, noValidCells, validCells, [], [], total_neighbours3D);
+            [infoPerSurfaceRatio{idToSave, 8}, infoPerSurfaceRatio{idToSave, 7}] = calculate_CellularFeatures(neighboursApical, neighboursMid, apicalLayer, midLayer, img3d, noValidCells, validCells, [], total_neighbours3D);
             
         end
         
