@@ -14,7 +14,7 @@ selpath = dir(fullfile('**/data/Salivary gland/', folderName));
 
 totalMeanFeatures = cell([length(files) 16]);
 totalStdFeatures = cell([length(files) 16]);
-allGlands = cell([length(files) 33]);
+allGlands = cell([length(files) 41]);
 allLumens = cell([length(files) 17]);
 allGeneralInfo = cell(length(files), 4);
 totalSTD3DNeighsFeatures = cell(length(files), 6);
