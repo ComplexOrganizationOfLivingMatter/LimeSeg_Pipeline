@@ -3,7 +3,8 @@ function [rotatedImg3d, rotations] = rotateImg3(img3d, apicalRotationsOriginal)
     rotations = [0 0 0];
     closedImg3D = imdilate(img3d>0,strel('sphere',5));
     orientationImg3D = imerode(bwmorph3(closedImg3D,'fill'),strel('sphere',3));
-
+    clearvars closedImg3D
+    
     %rotation A %% You may keep this untouched
     orientationObj = regionprops3(orientationImg3D, 'Orientation');
     if exist('apicalRotationsOriginal', 'var') == 0
@@ -13,8 +14,9 @@ function [rotatedImg3d, rotations] = rotateImg3(img3d, apicalRotationsOriginal)
         img3d_rot1 = imrotate(img3d, - apicalRotationsOriginal(1));
         orientationImg3D = imrotate(img3d, - apicalRotationsOriginal(1));
     end
-    
     rotations(1) = orientationObj.Orientation(1);
+    
+    clearvars img3d
     
     %rotation B
     xzyImg = permute(img3d_rot1,[1 3 2]);
@@ -26,7 +28,8 @@ function [rotatedImg3d, rotations] = rotateImg3(img3d, apicalRotationsOriginal)
         xzyImg3d_rot = imrotate(xzyImg, - apicalRotationsOriginal(2));
     end
     rotations(2) = orientationObj.Orientation(1);
-
+    clearvars xzyImg img3d_rot1
+    
     %rotation C
     yzxImg3d_rot = permute(xzyImg3d_rot,[3 2 1]);
     orientationImg3D = permute(orientationImg3D,[3 2 1]);
@@ -37,11 +40,12 @@ function [rotatedImg3d, rotations] = rotateImg3(img3d, apicalRotationsOriginal)
     else
         img3d_rotFinal = imrotate(yzxImg3d_rot, - apicalRotationsOriginal(3)); 
     end
-    
     rotations(3) = orientationObj.Orientation(1);
+    clearvars xzyImg3d_rot orientationImg3D
     
     %come back to original axes
     img3d_rot = permute(img3d_rotFinal,[3 1 2]);
+    clearvars img3d_rotFinal
     
     [xCol, yRow, z] = ind2sub(size(img3d_rot),find(img3d_rot>0));
     if min(xCol) <= 0 || min(yRow) <= 0 || min(z) <= 0
