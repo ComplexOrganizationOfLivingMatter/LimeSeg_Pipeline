@@ -64,8 +64,19 @@ if contains(folderName, 'Salivary gland') == 0
     totalMean3DNeighsFeatures.Properties.VariableNames = cellfun(@(x) strcat('AverageCell_3D', x(5:end)), totalMean3DNeighsFeatures.Properties.VariableNames, 'UniformOutput', false);
     totalSTD3DNeighsFeatures.Properties.VariableNames = cellfun(@(x) strcat('STDCell_3D', x(5:end)), totalSTD3DNeighsFeatures.Properties.VariableNames, 'UniformOutput', false);
     
-    save(fullfile(selpath(1).folder, 'global_3dFeatures.mat'), 'allGeneralInfo', 'totalMeanFeatures','totalStdFeatures', 'allLumens', 'allGlands')
-    writetable([allGeneralInfo,totalMeanFeatures,totalStdFeatures, totalMean3DNeighsFeatures, totalSTD3DNeighsFeatures, allGlands, allLumens], fullfile(selpath(1).folder,'global_3dFeatures.xls'),'Range','B2');
+    save(fullfile(selpath(1).folder, 'global_3dFeatures.mat'), 'allGeneralInfo', 'totalMeanFeatures','totalStdFeatures', 'allLumens', 'allGlands', 'totalMean3DNeighsFeatures', 'totalSTD3DNeighsFeatures')
+    allFeatures = [allGeneralInfo,totalMeanFeatures,totalStdFeatures, totalMean3DNeighsFeatures, totalSTD3DNeighsFeatures, allGlands, allLumens];
+    % The order of the head is the following: nCell, (Basal, apical area and SR 2D), (Basal, apical area and SR 3D), (Basal, apical and
+    % apicobasal N-2D), (basal apical and apicobasal N-3D),Scutoids2D and 3D,apicobasalTransition 2D and 3D, 2D poligon
+    % distribution, (Volumen,ConvexVolume and Solidity Cells), AxisLength cells, AspectRatio cells,(EquivDiameter cell, Surface Area cell, 
+    % Sphericity cells), SurfaceArea Gland, (Volumen,ConvexVolume and Solidity Gland), AxisLength Gland, AspectRatio Gland
+    % SurfaceArea Lumen, (Volumen,ConvexVolume and Solidity Lumen),
+    % AxisLength Lumen, AspectRatio Lumen.
+
+    finalTable = [allFeatures(:,4),allFeatures(:,15), allFeatures(:,18), allFeatures(:,3),allFeatures(:,16), allFeatures(:,19),allFeatures(:,2),allFeatures(:,14),allFeatures(:,17),allFeatures(:,21),totalMean3DNeighsFeatures(:,1),totalMean3DNeighsFeatures(:,2), totalMean3DNeighsFeatures(:,4), allFeatures(:,20),totalMean3DNeighsFeatures(:,5),allFeatures(:,22),totalMean3DNeighsFeatures(:,6), allFeatures(:,60:83),allFeatures(:,5),allFeatures(:,8:9),allFeatures(:,7),allFeatures(:,11),allFeatures(:,6),allFeatures(:,10), allFeatures(:,12),allFeatures(:,47),allFeatures(:,42),allFeatures(:,45:46),allFeatures(:,44), allFeatures(:,48),allFeatures(:,90),allFeatures(:,85),allFeatures(:,88:89),allFeatures(:,87),allFeatures(:,91)];
+    
+    writetable(finalTable, fullfile(selpath(1).folder,'global_3dFeatures.xls'),'Range','B2');
+    writetable([totalStdFeatures,totalSTD3DNeighsFeatures, fullfile(selpath(1).folder,'global_3dFeatures.xls'),'Sheet', 2,'Range','B2');
 end
 end
 
