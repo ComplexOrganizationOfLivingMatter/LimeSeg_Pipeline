@@ -23,9 +23,16 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distributio
         
         load(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_basal/final3DImg.mat'), 'img3d', 'img3dComplete');
         [basalLayer] = calculatePerimOf3DImage(img3d, img3dComplete);
+        basalLayer_onlyValidCells = ismember(basalLayer, validCells) .* basalLayer;
+        basal_area_cells3D = cell2mat(struct2cell(regionprops(basalLayer_onlyValidCells,'Area'))).';
+        basal_area_cells3D = basal_area_cells3D(validCells);
         
         load(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_1/final3DImg.mat'), 'img3d');
         [apicalLayer] = calculatePerimOf3DImage(img3d, img3dComplete);
+        apicalLayer_onlyValidCells = ismember(apicalLayer, validCells) .* apicalLayer;
+        apical_area_cells3D = cell2mat(struct2cell(regionprops(apicalLayer_onlyValidCells,'Area'))).';
+        apical_area_cells3D = apical_area_cells3D(validCells);
+        
         surfaceRatio3D = sum(ismember(basalLayer(:), validCells)) / sum(ismember(apicalLayer(:), validCells));
         
         %% Basal features
@@ -37,7 +44,7 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distributio
         basal_area_cells2D=cell2mat(struct2cell(regionprops(cylindre2DImage,'Area'))).';
         basal_area_cells2D = basal_area_cells2D(validCells);
         
-        basalInfo = table(basalNumNeighs, basal_area_cells2D);
+        basalInfo = table(basalNumNeighs, basal_area_cells2D, basal_area_cells3D);
         
         %% Apical features
         load(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_1/verticesInfo.mat'), 'newVerticesNeighs2D', 'cylindre2DImage');
@@ -48,7 +55,7 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distributio
         apical_area_cells2D=cell2mat(struct2cell(regionprops(cylindre2DImage,'Area'))).';
         apical_area_cells2D = apical_area_cells2D(validCells);
         
-        apicalInfo = table(apicalNumNeighs, apical_area_cells2D);
+        apicalInfo = table(apicalNumNeighs, apical_area_cells2D, apical_area_cells3D);
         
         %% Total features
         percentageScutoids = cellfun(@(x, y) ~isempty(setxor(x,y)), apicalNeighs(validCells), basalNeighs(validCells))';
@@ -65,8 +72,10 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distributio
         lumen3dFeatures.ID_Cell = 'Lumen';
         lumen3dFeatures.basalNumNeighs = -1;
         lumen3dFeatures.basal_area_cells2D = -1;
+        lumen3dFeatures.basal_area_cells3D = -1;
         lumen3dFeatures.apicalNumNeighs = -1;
         lumen3dFeatures.apical_area_cells2D = -1;
+        lumen3dFeatures.apical_area_cells3D = -1;
         lumen3dFeatures.percentageScutoids = -1;
         lumen3dFeatures.totalNeighs = -1;
         lumen3dFeatures.apicoBasalTransitions = -1;
@@ -78,8 +87,10 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distributio
         gland3dFeatures.ID_Cell = 'Gland';
         gland3dFeatures.basalNumNeighs = -1;
         gland3dFeatures.basal_area_cells2D = -1;
+        gland3dFeatures.basal_area_cells3D = -1;
         gland3dFeatures.apicalNumNeighs = -1;
         gland3dFeatures.apical_area_cells2D = -1;
+        gland3dFeatures.apical_area_cells3D = -1;
         gland3dFeatures.percentageScutoids = -1;
         gland3dFeatures.totalNeighs = -1;
         gland3dFeatures.apicoBasalTransitions = -1;
