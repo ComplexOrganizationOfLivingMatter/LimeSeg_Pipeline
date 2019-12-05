@@ -65,7 +65,7 @@ if contains(folderName, 'Salivary gland') == 0
     totalSTD3DNeighsFeatures.Properties.VariableNames = cellfun(@(x) strcat('STDCell_3D', x(5:end)), totalSTD3DNeighsFeatures.Properties.VariableNames, 'UniformOutput', false);
 
     save(fullfile(selpath(1).folder, 'global_3dFeatures.mat'), 'allGeneralInfo', 'totalMeanFeatures','totalStdFeatures', 'allLumens', 'allGlands', 'totalMean3DNeighsFeatures', 'totalSTD3DNeighsFeatures')
-    allFeatures = [allGeneralInfo,totalMeanFeatures,totalStdFeatures, totalMean3DNeighsFeatures, totalSTD3DNeighsFeatures, allGlands, allLumens];
+    allFeatures = [allGeneralInfo,totalMeanFeatures,totalStdFeatures, allGlands, allLumens, totalMean3DNeighsFeatures, totalSTD3DNeighsFeatures];
     % The order of the head is the following: nCell, (Basal, apical area and SR 2D), (Basal, apical area and SR 3D), (Basal, apical and
     % apicobasal N-2D), (basal apical and apicobasal N-3D),Scutoids2D and 3D,apicobasalTransition 2D and 3D, 2D poligon
     % distribution, (Volumen,ConvexVolume and Solidity Cells), AxisLength cells, AspectRatio cells,(EquivDiameter cell, Surface Area cell, 
