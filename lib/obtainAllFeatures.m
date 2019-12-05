@@ -21,11 +21,12 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distributio
         end
         
         
+        load(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_basal/final3DImg.mat'), 'img3d', 'img3dComplete');
+        [basalLayer] = calculatePerimOf3DImage(img3d, img3dComplete);
         
-        load(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_basal/final3DImg.mat'), 'img3d');
-        basalLayer = img3d;        
         load(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_1/final3DImg.mat'), 'img3d');
-        surfaceRatio3D = sum(ismember(basalLayer(:), validCells)) / sum(ismember(img3d(:), validCells));
+        [apicalLayer] = calculatePerimOf3DImage(img3d, img3dComplete);
+        surfaceRatio3D = sum(ismember(basalLayer(:), validCells)) / sum(ismember(apicalLayer(:), validCells));
         
         %% Basal features
         load(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'newVerticesNeighs2D', 'cylindre2DImage');
