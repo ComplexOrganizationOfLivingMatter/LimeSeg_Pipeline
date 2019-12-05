@@ -20,18 +20,17 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distributio
             cellularFeatures = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,[]);
         end
         
+        load(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_1/final3DImg.mat'), 'img3d', 'img3dComplete');
+        [apicalLayer] = calculatePerimOf3DImage(img3d, img3dComplete);
+        apicalLayer_onlyValidCells = ismember(apicalLayer, validCells) .* apicalLayer;
+        apical_area_cells3D = cell2mat(struct2cell(regionprops(apicalLayer_onlyValidCells,'Area'))).';
+        apical_area_cells3D = apical_area_cells3D(validCells);
         
         load(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_basal/final3DImg.mat'), 'img3d', 'img3dComplete');
         [basalLayer] = calculatePerimOf3DImage(img3d, img3dComplete);
         basalLayer_onlyValidCells = ismember(basalLayer, validCells) .* basalLayer;
         basal_area_cells3D = cell2mat(struct2cell(regionprops(basalLayer_onlyValidCells,'Area'))).';
         basal_area_cells3D = basal_area_cells3D(validCells);
-        
-        load(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_1/final3DImg.mat'), 'img3d');
-        [apicalLayer] = calculatePerimOf3DImage(img3d, img3dComplete);
-        apicalLayer_onlyValidCells = ismember(apicalLayer, validCells) .* apicalLayer;
-        apical_area_cells3D = cell2mat(struct2cell(regionprops(apicalLayer_onlyValidCells,'Area'))).';
-        apical_area_cells3D = apical_area_cells3D(validCells);
         
         surfaceRatio3D = sum(ismember(basalLayer(:), validCells)) / sum(ismember(apicalLayer(:), validCells));
         
