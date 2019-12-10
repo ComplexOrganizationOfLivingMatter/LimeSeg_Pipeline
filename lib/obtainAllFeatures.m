@@ -2,7 +2,7 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distributio
 %OBTAINALLFEATURES Summary of this function goes here
 %   Detailed explanation goes here
     load(fullfile(files(numFile).folder, 'valid_cells.mat'));
-    if exist(fullfile(files(numFile).folder, 'morphological3dFeatures.mat'), 'file') ~= 0
+    if exist(fullfile(files(numFile).folder, 'morphological3dFeatures.mat'), 'file') == 0
         files(numFile).folder
         load(fullfile(files(numFile).folder, '3d_layers_info.mat'))%, 'labelledImage_realSize', 'lumenImage_realSize');
         
