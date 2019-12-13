@@ -17,10 +17,10 @@ for indexCell= 1: max(max(max(labelledImage)))
     oneCell3dFeatures.ConvexVolume = convexVolume;
     oneCell3dFeatures.Solidity = sum(actualImg(:)==indMax) / convexVolume;
     aspectRatio = max(oneCell3dFeatures.PrincipalAxisLength,[],2) ./ min(oneCell3dFeatures.PrincipalAxisLength,[],2);
-    sphereArea = 4 * pi .* ((oneCell3dFeatures.EquivDiameter) ./ 2) .^ 2;
-    sphericity = sphereArea ./ oneCell3dFeatures.SurfaceArea;
+    sphereSurfaceArea = pi^(1/3) * (6*oneCell3dFeatures.Volume)^(2/3); 
+    sphericity = sphereSurfaceArea ./ oneCell3dFeatures.SurfaceArea;
     normalizedVolume = oneCell3dFeatures.Volume;
-    
+    oneCell3dFeatures.EquivDiameter = sphereSurfaceArea;
     cells3dFeatures = [cells3dFeatures; horzcat(oneCell3dFeatures, table(aspectRatio, sphericity, normalizedVolume))];
 end
 cells3dFeatures.normalizedVolume = arrayfun(@(x) x/mean(cells3dFeatures.Volume), cells3dFeatures.normalizedVolume);
