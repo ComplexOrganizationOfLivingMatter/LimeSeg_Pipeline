@@ -36,18 +36,25 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distributio
         
         %% Basal features
         load(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'newVerticesNeighs2D', 'cylindre2DImage');
-        basalNeighs = getNeighboursFromVertices(newVerticesNeighs2D);
-        basalNumNeighs = cellfun(@(x) length(x), basalNeighs)';
-        [polygon_distribution_basal] = calculate_polygon_distribution(basalNumNeighs, validCells);
-        basalNumNeighs = basalNumNeighs(validCells);
         basal_area_cells2D=cell2mat(struct2cell(regionprops(cylindre2DImage,'Area'))).';
         basal_area_cells2D = basal_area_cells2D(validCells);
-        
-        basalInfo = table(basalNumNeighs, basal_area_cells2D, basal_area_cells3D);
+        basalNeighs = getNeighboursFromVertices(newVerticesNeighs2D);
         
         %% Apical features
         load(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_1/verticesInfo.mat'), 'newVerticesNeighs2D', 'cylindre2DImage');
         apicalNeighs = getNeighboursFromVertices(newVerticesNeighs2D);
+        
+        if size(apicalNeighs, 2) > size(basalNeighs, 2)
+            basalNeighs(size(apicalNeighs, 2)) = {[]};
+        elseif  size(apicalNeighs, 2) < size(basalNeighs, 2)
+            apicalNeighs(size(basalNeighs, 2)) = {[]};
+        end
+        basalNumNeighs = cellfun(@(x) length(x), basalNeighs)';
+        [polygon_distribution_basal] = calculate_polygon_distribution(basalNumNeighs, validCells);
+        basalNumNeighs = basalNumNeighs(validCells);
+        
+        basalInfo = table(basalNumNeighs, basal_area_cells2D, basal_area_cells3D);
+
         apicalNumNeighs = cellfun(@(x) length(x), apicalNeighs)';
         [polygon_distribution_apical] = calculate_polygon_distribution(apicalNumNeighs, validCells);
         apicalNumNeighs = apicalNumNeighs(validCells);
