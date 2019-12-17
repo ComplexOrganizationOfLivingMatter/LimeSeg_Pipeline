@@ -17,6 +17,8 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distributio
             
             cellularFeatures = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage_realSize,noValidCells,validCells,[]);
         else
+            labelledImage_realSize = imresize3(labelledImage, 4.06, 'nearest');
+            lumenImage_realSize = imresize3(double(lumenImage), 4.06, 'nearest');  
             cellularFeatures = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,[]);
         end
         
@@ -33,31 +35,25 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distributio
         surfaceRatio3D = sum(ismember(basalLayer(:), validCells)) / sum(ismember(apicalLayer(:), validCells));
         
         %% Basal features
-        newVerticesNeighs2D = [];
-        cylindre2DImage = [];
-        basalNeighs = getNeighboursFromVertices(newVerticesNeighs2D);
         basalNumNeighs = cellfun(@(x) length(x), basal3dInfo)'; 
         [polygon_distribution_basal] = calculate_polygon_distribution(basalNumNeighs, validCells);
-        basalNumNeighs = [];
-        basal_area_cells2D=cell2mat(struct2cell(regionprops(cylindre2DImage,'Area'))).';
-        basal_area_cells2D = basal_area_cells2D(validCells);
+        basalNumNeighs = -1 * ones(size(basal_area_cells3D));
+        basal_area_cells2D = -1 * ones(size(basal_area_cells3D));
         
         basalInfo = table(basalNumNeighs, basal_area_cells2D, basal_area_cells3D);
         
         %% Apical features
-        apicalNeighs = getNeighboursFromVertices(newVerticesNeighs2D);
         apicalNumNeighs = cellfun(@(x) length(x), apical3dInfo)';
         [polygon_distribution_apical] = calculate_polygon_distribution(apicalNumNeighs, validCells);
-        apicalNumNeighs = [];
-        apical_area_cells2D=cell2mat(struct2cell(regionprops(cylindre2DImage,'Area'))).';
-        apical_area_cells2D = apical_area_cells2D(validCells);
+        apicalNumNeighs =  -1 * ones(size(apical_area_cells3D));
+        apical_area_cells2D= -1 * ones(size(apical_area_cells3D));
         
         apicalInfo = table(apicalNumNeighs, apical_area_cells2D, apical_area_cells3D);
         
         %% Total features
-        percentageScutoids = [];
-        totalNeighs = [];
-        apicoBasalTransitions = [];
+        percentageScutoids = -1 * ones(size(apical_area_cells3D));
+        totalNeighs = -1 * ones(size(apical_area_cells3D));
+        apicoBasalTransitions = -1 * ones(size(apical_area_cells3D));
         polygon_distribution_total = calculate_polygon_distribution(cellfun(@(x,y) length(unique([x;y])), cells3dFeatures.Apical_sides, cells3dFeatures.Basal_sides), validCells);
 
         %% Extract each cell and calculate 3D features
