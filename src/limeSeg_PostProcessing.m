@@ -73,6 +73,9 @@ function limeSeg_PostProcessing(outputDir)
     else
         [noValidCells] = insertNoValidCells();
         validCells = setdiff(1:max(labelledImage(:)), noValidCells);
+        if noValidCells == -1
+            noValidCells = [];
+        end 
         save(fullfile(outputDir, 'Results', 'valid_cells.mat'), 'noValidCells', 'validCells')
     end
     [answer, apical3dInfo, notFoundCellsApical, basal3dInfo, notFoundCellsBasal] = calculateMissingCells(labelledImage, lumenImage, apicalLayer, basalLayer, colours, noValidCells);
@@ -103,9 +106,9 @@ function limeSeg_PostProcessing(outputDir)
     %% Save apical and basal 3d information
     save(fullfile(outputDir, 'Results', '3d_layers_info.mat'), 'labelledImage', 'basalLayer', 'apicalLayer', 'apical3dInfo', 'basal3dInfo', 'colours', 'lumenImage','glandOrientation', '-v7.3')
 
-%     %% Export to excel cellular features
-%     cellularFeatures = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,outputDir);
-%     
-%     save(fullfile(outputDir, 'Results', 'cellularFeaturesExcel.mat'), cellularFeatures); 
+    %% Export to excel cellular features
+    cellularFeatures = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,outputDir);
+    
+    save(fullfile(outputDir, 'Results', 'cellularFeaturesExcel.mat'), cellularFeatures); 
 end
 
