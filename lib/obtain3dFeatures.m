@@ -1,28 +1,27 @@
 function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distribution_apical, polygon_distribution_basal, cellularFeatures, numCells, surfaceRatio2D, surfaceRatio3D, validCells, polygon_distribution_total] = obtainAllFeatures(files,numFile)
-%OBTAINALLFEATURES Summary of this function goes here
+%OBTAIN3DFEATURES Summary of this function goes here
 %   Detailed explanation goes here
     load(fullfile(files(numFile).folder, 'valid_cells.mat'));
     if exist(fullfile(files(numFile).folder, 'morphological3dFeatures.mat'), 'file') == 0
         files(numFile).folder
         load(fullfile(files(numFile).folder, '3d_layers_info.mat'))%, 'labelledImage_realSize', 'lumenImage_realSize');
         
-        if contains(files(numFile).folder, 'flatten')
-            basalLayer = getBasalFrom3DImage(labelledImage_realSize, lumenImage_realSize, 0, labelledImage_realSize == 0 & lumenImage_realSize == 0);
-            [apicalLayer] = getApicalFrom3DImage(lumenImage_realSize, labelledImage_realSize);
-            [apical3dInfo] = calculateNeighbours3D(apicalLayer, 2, apicalLayer == 0);
-            apical3dInfo = apical3dInfo.neighbourhood';
-
-            [basal3dInfo] = calculateNeighbours3D(basalLayer, 2, basalLayer == 0);
-            basal3dInfo = basal3dInfo.neighbourhood';
-            
-            cellularFeatures = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage_realSize,noValidCells,validCells,[]);
-        else
-            labelledImage_realSize = imresize3(labelledImage, 4.06, 'nearest');
-            lumenImage_realSize = imresize3(double(lumenImage), 4.06, 'nearest');  
-            cellularFeatures = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,[]);
-        end
+        % if contains(files(numFile).folder, 'flatten')
+        % COLOCAR PROCESO DE FLATTEN CUANDO ELIMINEMOS EL UNROLL
+        % end
         
-        [apicalLayer] = getApicalFrom3DImage(lumenImage_realSize, labelledImage_realSize);    
+        labelledImage_realSize = imresize3(labelledImage, 4.06, 'nearest');
+        lumenImage_realSize = imresize3(double(lumenImage), 4.06, 'nearest');
+     
+        basalLayer = getBasalFrom3DImage(labelledImage_realSize, lumenImage_realSize, 0, labelledImage_realSize == 0 & lumenImage_realSize == 0);
+        [apicalLayer] = getApicalFrom3DImage(lumenImage_realSize, labelledImage_realSize);
+        [apical3dInfo] = calculateNeighbours3D(apicalLayer, 2, apicalLayer == 0);
+        apical3dInfo = apical3dInfo.neighbourhood';
+
+        [basal3dInfo] = calculateNeighbours3D(basalLayer, 2, basalLayer == 0);
+        basal3dInfo = basal3dInfo.neighbourhood';
+            
+        cellularFeatures = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage_realSize,noValidCells,validCells,[]);
 
         apicalLayer_onlyValidCells = ismember(apicalLayer, validCells) .* apicalLayer;
         apical_area_cells3D = cell2mat(struct2cell(regionprops(apicalLayer_onlyValidCells,'Area'))).';
@@ -54,8 +53,9 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distributio
         percentageScutoids = -1 * ones(size(apical_area_cells3D));
         totalNeighs = -1 * ones(size(apical_area_cells3D));
         apicoBasalTransitions = -1 * ones(size(apical_area_cells3D));
-        polygon_distribution_total = calculate_polygon_distribution(cellfun(@(x,y) length(unique([x;y])), cells3dFeatures.Apical_sides, cells3dFeatures.Basal_sides), validCells);
+        polygon_distribution_total = calculate_polygon_distribution(cellfun(@(x,y) length(unique([x;y])), apical3dInfo, basal3dInfo), validCells);
 
+        
         %% Extract each cell and calculate 3D features
         [cells3dFeatures] = extract3dDescriptors(labelledImage_realSize, validCells');
         cells3dFeatures = horzcat(cells3dFeatures, apicalInfo, basalInfo, table(percentageScutoids, totalNeighs, apicoBasalTransitions));
@@ -92,6 +92,11 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distributio
         surfaceRatio2D = sum(basal_area_cells2D) / sum(apical_area_cells2D);
         
         allFeatures = vertcat(cells3dFeatures, gland3dFeatures, lumen3dFeatures);
+        
+        if exist(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'file') == 1
+          [allFeatures,polygon_distribution_basal,polygon_distribution_apical,polygon_distribution_total] = obtain2dFeatures(files,numFile, allFeatures, validCells);  
+        end
+        
         %% Save variables and export to excel
         writetable(allFeatures,fullfile(files(numFile).folder,'3dFeatures_LimeSeg3DSegmentation.xls'), 'Range','B2');
         save(fullfile(files(numFile).folder, 'morphological3dFeatures.mat'), 'cells3dFeatures', 'gland3dFeatures', 'lumen3dFeatures', 'polygon_distribution_apical', 'polygon_distribution_basal', 'cellularFeatures', 'numCells', 'surfaceRatio2D', 'surfaceRatio3D', 'polygon_distribution_total');
