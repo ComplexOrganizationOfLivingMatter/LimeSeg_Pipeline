@@ -57,6 +57,8 @@ handles.output = hObject;
 set(0, 'currentfigure', hObject); 
 
 setappdata(0, 'labelledImageTemp', getappdata(0, 'labelledImage'));
+setappdata(0, 'hideLumen',0);
+
 
 % Update handles structure
 guidata(hObject, handles);
@@ -316,3 +318,4 @@ function hideLumen_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of modifyInsideLumen
 toggleValue = get(hObject,'Value') == 1;
 setappdata(0, 'hideLumen', toggleValue)
+showSelectedCell();
