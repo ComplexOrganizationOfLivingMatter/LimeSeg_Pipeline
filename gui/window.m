@@ -57,8 +57,6 @@ handles.output = hObject;
 set(0, 'currentfigure', hObject); 
 
 setappdata(0, 'labelledImageTemp', getappdata(0, 'labelledImage'));
-setappdata(0, 'hideLumen',0);
-
 
 % Update handles structure
 guidata(hObject, handles);
