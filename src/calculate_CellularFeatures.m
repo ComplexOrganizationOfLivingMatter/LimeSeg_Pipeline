@@ -1,4 +1,4 @@
-function [CellularFeaturesWithNoValidCells, meanSurfaceRatio] = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,outputDir, total_neighbours3D)
+function [CellularFeaturesWithNoValidCells, meanSurfaceRatio, apicobasal_neighbours] = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,outputDir, total_neighbours3D)
 %CALCULATE_CELLULARFEATURES Summary of this function goes here
 %   Detailed explanation goes here
 

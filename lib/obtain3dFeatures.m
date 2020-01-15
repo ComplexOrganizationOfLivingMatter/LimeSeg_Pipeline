@@ -1,4 +1,4 @@
-function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distribution_apical, polygon_distribution_basal, cellularFeatures, numCells, surfaceRatio2D, surfaceRatio3D, validCells, polygon_distribution_total] = obtainAllFeatures(files,numFile)
+function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distribution_apical, polygon_distribution_basal, cellularFeatures, numCells, surfaceRatio2D, surfaceRatio3D, validCells, polygon_distribution_total,apicoBasalNeighs] = obtain3dFeatures(files,numFile)
 %OBTAIN3DFEATURES Summary of this function goes here
 %   Detailed explanation goes here
     load(fullfile(files(numFile).folder, 'valid_cells.mat'));
@@ -21,7 +21,7 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distributio
         [basal3dInfo] = calculateNeighbours3D(basalLayer, 2, basalLayer == 0);
         basal3dInfo = basal3dInfo.neighbourhood';
             
-        cellularFeatures = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage_realSize,noValidCells,validCells,[]);
+        [cellularFeatures,~,apicoBasalNeighs] = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage_realSize,noValidCells,validCells,[]);
 
         apicalLayer_onlyValidCells = ismember(apicalLayer, validCells) .* apicalLayer;
         apical_area_cells3D = cell2mat(struct2cell(regionprops(apicalLayer_onlyValidCells,'Area'))).';
@@ -99,9 +99,9 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distributio
         
         %% Save variables and export to excel
         writetable(allFeatures,fullfile(files(numFile).folder,'3dFeatures_LimeSeg3DSegmentation.xls'), 'Range','B2');
-        save(fullfile(files(numFile).folder, 'morphological3dFeatures.mat'), 'cells3dFeatures', 'gland3dFeatures', 'lumen3dFeatures', 'polygon_distribution_apical', 'polygon_distribution_basal', 'cellularFeatures', 'numCells', 'surfaceRatio2D', 'surfaceRatio3D', 'polygon_distribution_total');
+        save(fullfile(files(numFile).folder, 'morphological3dFeatures.mat'), 'cells3dFeatures', 'gland3dFeatures', 'lumen3dFeatures', 'polygon_distribution_apical', 'polygon_distribution_basal', 'cellularFeatures', 'numCells', 'surfaceRatio2D', 'surfaceRatio3D', 'polygon_distribution_total','apicoBasalNeighs');
     else
-        load(fullfile(files(numFile).folder, 'morphological3dFeatures.mat'));
+        load(fullfile(files(numFile).folder, 'morphological3dFeatures.mat')); 
     end
 end
 
