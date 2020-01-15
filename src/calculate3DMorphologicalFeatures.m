@@ -20,11 +20,9 @@ allGeneralInfo = cell(length(files), 4);
 totalSTD3DNeighsFeatures = cell(length(files), 6);
 totalMean3DNeighsFeatures = cell(length(files), 6);
 
-parfor numFile=1:length(files)
-    if exist(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'file') == 0
-    [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distribution_apical, polygon_distribution_basal, cellularFeatures, numCells, surfaceRatio2D, surfaceRatio3D, validCells, polygon_distribution_total] = obtain3dFeatures(files,numFile);
-    end
-    [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distribution_apical, polygon_distribution_basal, cellularFeatures, numCells, surfaceRatio2D, surfaceRatio3D, validCells, polygon_distribution_total] = obtainAllFeatures(files,numFile);
+for numFile=1:length(files)
+   [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distribution_apical, polygon_distribution_basal, cellularFeatures, numCells, surfaceRatio2D, surfaceRatio3D, validCells, polygon_distribution_total] = obtain3dFeatures(files,numFile);
+     
     %% Calculate mean and std of 3D features
     meanFeatures = varfun(@(x) mean(x),cells3dFeatures(:, 2:end));
     stdFeatures = varfun(@(x) std(x),cells3dFeatures(:, 2:end));
