@@ -2,15 +2,15 @@ function [] = calculate3DMorphologicalFeatures(folderName)
 %CALCULATE3DMORPHOLOGICALFEATURES Summary of this function goes here
 %   Detailed explanation goes here
 
-if contains(folderName, '\data\Salivary gland\')
+if contains(folderName, '\data\Cysts\')
     files = dir(fullfile(folderName, '/3d_layers_info.mat'));
 else
-    files = dir(fullfile('**/data/Salivary gland/', folderName, '/**/Results/3d_layers_info.mat'));
+    files = dir(fullfile('**/data/Cysts/', folderName, '/**/Results/3d_layers_info.mat'));
 end
 nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0, {files.folder});
 files = files(nonDiscardedFiles);
 
-selpath = dir(fullfile('**/data/Salivary gland/', folderName));
+selpath = dir(fullfile('**/data/Cysts/', folderName));
 
 totalMeanFeatures = cell([length(files) 18]);
 totalStdFeatures = cell([length(files) 18]);
@@ -45,6 +45,7 @@ for numFile=1:length(files)
     fileName = convertCharsToStrings(strjoin({fileName{1,end-2},fileName{1,end-1}}, ' '));
     allGeneralInfo(numFile, :) = [{fileName}, {surfaceRatio3D}, {surfaceRatio2D}, {numCells}];
     [degreeNodesCorrelation,coefCluster,betweennessCentrality] = obtainNetworksFeatures(apicoBasalNeighs,validCells);
+     save(fullfile(files(numFile).folder, 'network3dFeatures.mat'), 'coefCluster', 'betweennessCentrality')
     allNetworkFeatures(numFile,:) = table2cell(table([mean(coefCluster),mean(betweennessCentrality),degreeNodesCorrelation,std(coefCluster),std(betweennessCentrality)]));
 end
 

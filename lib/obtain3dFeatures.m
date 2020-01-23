@@ -5,13 +5,13 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distributio
     if exist(fullfile(files(numFile).folder, 'morphological3dFeatures.mat'), 'file') == 0
         files(numFile).folder
         load(fullfile(files(numFile).folder, '3d_layers_info.mat'))%, 'labelledImage_realSize', 'lumenImage_realSize');
-        
+        load(fullfile(files(numFile).folder, 'zScaleOfGland'))
         % if contains(files(numFile).folder, 'flatten')
         % COLOCAR PROCESO DE FLATTEN CUANDO ELIMINEMOS EL UNROLL
         % end
         
-        labelledImage_realSize = imresize3(labelledImage, 4.06, 'nearest');
-        lumenImage_realSize = imresize3(double(lumenImage), 4.06, 'nearest');
+        labelledImage_realSize = imresize3(labelledImage, zScale, 'nearest');
+        lumenImage_realSize = imresize3(double(lumenImage), zScale, 'nearest');
      
         basalLayer = getBasalFrom3DImage(labelledImage_realSize, lumenImage_realSize, 0, labelledImage_realSize == 0 & lumenImage_realSize == 0);
         [apicalLayer] = getApicalFrom3DImage(lumenImage_realSize, labelledImage_realSize);
