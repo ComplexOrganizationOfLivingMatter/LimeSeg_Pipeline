@@ -1,4 +1,4 @@
-function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distribution_apical, polygon_distribution_basal, cellularFeatures, numCells, surfaceRatio2D, surfaceRatio3D, validCells, polygon_distribution_total,apicoBasalNeighs] = obtain3dFeatures(files,numFile)
+function [cells3dFeatures, gland3dFeatures, lumen3dFeatures,hollowGland3dFeatures, polygon_distribution_apical, polygon_distribution_basal, cellularFeatures, numCells, surfaceRatio2D, surfaceRatio3D, validCells, polygon_distribution_total,apicoBasalNeighs] = obtain3dFeatures(files,numFile)
 %OBTAIN3DFEATURES Summary of this function goes here
 %   Detailed explanation goes here
     load(fullfile(files(numFile).folder, 'valid_cells.mat'));
@@ -72,12 +72,25 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distributio
         lumen3dFeatures.percentageScutoids = -1;
         lumen3dFeatures.totalNeighs = -1;
         lumen3dFeatures.apicoBasalTransitions = -1;
-
-        %% Global Gland
+        
+        %% Gland features
+        [hollowGland3dFeatures] = extract3dDescriptors(labelledImage_realSize>0, 1);
+        hollowGland3dFeatures.ID_Cell = 'Gland';
+        hollowGland3dFeatures.basalNumNeighs = -1;
+        hollowGland3dFeatures.basal_area_cells2D = -1;
+        hollowGland3dFeatures.basal_area_cells3D = -1;
+        hollowGland3dFeatures.apicalNumNeighs = -1;
+        hollowGland3dFeatures.apical_area_cells2D = -1;
+        hollowGland3dFeatures.apical_area_cells3D = -1;
+        hollowGland3dFeatures.percentageScutoids = -1;
+        hollowGland3dFeatures.totalNeighs = -1;
+        hollowGland3dFeatures.apicoBasalTransitions = -1;
+        
+        %% Global Gland (Gland + Lumen)
         % We need calculate thickness of the glands or number of cell in
         % transversal axis
-        [gland3dFeatures] = extract3dDescriptors(labelledImage_realSize>0, 1);
-        gland3dFeatures.ID_Cell = 'Gland';
+        [gland3dFeatures] = extract3dDescriptors(labelledImage_realSize>0|lumenImage_realSize>0, 1);
+        gland3dFeatures.ID_Cell = 'Gland and Lumen';
         gland3dFeatures.basalNumNeighs = -1;
         gland3dFeatures.basal_area_cells2D = -1;
         gland3dFeatures.basal_area_cells3D = -1;
@@ -99,6 +112,7 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures, polygon_distributio
         
         %% Save variables and export to excel
         writetable(allFeatures,fullfile(files(numFile).folder,'3dFeatures_LimeSeg3DSegmentation.xls'), 'Range','B2');
+        save(fullfile(files(numFile).folder, 'realSize3dLayers.mat'), 'labelledImage_realSize','lumenImage_RealSize','ApicalLayer','BasalLayer');
         save(fullfile(files(numFile).folder, 'morphological3dFeatures.mat'), 'cells3dFeatures', 'gland3dFeatures', 'lumen3dFeatures', 'polygon_distribution_apical', 'polygon_distribution_basal', 'cellularFeatures', 'numCells', 'surfaceRatio2D', 'surfaceRatio3D', 'polygon_distribution_total','apicoBasalNeighs');
     else
         load(fullfile(files(numFile).folder, 'morphological3dFeatures.mat')); 
