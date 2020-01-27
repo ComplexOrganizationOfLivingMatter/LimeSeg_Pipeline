@@ -20,10 +20,10 @@ allGeneralInfo = cell(length(files), 4);
 allNetworkFeatures = cell(length(files),5);
 totalSTD3DNeighsFeatures = cell(length(files), 6);
 totalMean3DNeighsFeatures = cell(length(files), 6);
+allHollowGland3dFeatures = cell([length(files) 19]);
 
 parfor numFile=1:length(files)
    [cells3dFeatures, gland3dFeatures, lumen3dFeatures,hollowGland3dFeatures, polygon_distribution_apical, polygon_distribution_basal, cellularFeatures, numCells, surfaceRatio2D, surfaceRatio3D, validCells, polygon_distribution_total,apicoBasalNeighs] = obtain3dFeatures(files,numFile);
-    
     %% Calculate mean and std of 3D features
     meanFeatures = varfun(@(x) mean(x),cells3dFeatures(:, 2:end));
     stdFeatures = varfun(@(x) std(x),cells3dFeatures(:, 2:end));
@@ -46,6 +46,7 @@ parfor numFile=1:length(files)
     allGeneralInfo(numFile, :) = [{fileName}, {surfaceRatio3D}, {surfaceRatio2D}, {numCells}];
     [degreeNodesCorrelation,coefCluster,betweennessCentrality] = obtainNetworksFeatures(apicoBasalNeighs,validCells, fullfile(files(numFile).folder, 'network3dFeatures.mat'));
     allNetworkFeatures(numFile,:) = table2cell(table([mean(coefCluster),mean(betweennessCentrality),degreeNodesCorrelation,std(coefCluster),std(betweennessCentrality)]));
+    allHollowGland3dFeatures(numFile, :) = table2cell(hollowGland3dFeatures);
 end
 
 if contains(folderName, 'Salivary gland') == 0
@@ -66,7 +67,7 @@ if contains(folderName, 'Salivary gland') == 0
     totalMean3DNeighsFeatures.Properties.VariableNames = cellfun(@(x) strcat('AverageCell_3D', x(5:end)), totalMean3DNeighsFeatures.Properties.VariableNames, 'UniformOutput', false);
     totalSTD3DNeighsFeatures.Properties.VariableNames = cellfun(@(x) strcat('STDCell_3D', x(5:end)), totalSTD3DNeighsFeatures.Properties.VariableNames, 'UniformOutput', false);
 
-    save(fullfile(selpath(1).folder, 'global_3dFeatures.mat'), 'allGeneralInfo', 'totalMeanFeatures','totalStdFeatures', 'allLumens', 'allGlands', 'totalMean3DNeighsFeatures', 'totalSTD3DNeighsFeatures', 'allNetworkFeatures', 'hollowGland3dFeatures')
+    save(fullfile(selpath(1).folder, 'global_3dFeatures.mat'), 'allGeneralInfo', 'totalMeanFeatures','totalStdFeatures', 'allLumens', 'allGlands', 'totalMean3DNeighsFeatures', 'totalSTD3DNeighsFeatures', 'allNetworkFeatures', 'allHollowGland3dFeatures')
     allFeatures = [allGeneralInfo,totalMeanFeatures,totalStdFeatures, allGlands, allLumens, totalMean3DNeighsFeatures, totalSTD3DNeighsFeatures];
     % The order of the head is the following: nCell, (Basal, apical area and SR 2D), (Basal, apical area and SR 3D), (Basal, apical and
     % apicobasal N-2D), (basal apical and apicobasal N-3D),Scutoids2D and 3D,apicobasalTransition 2D and 3D, 2D poligon
@@ -76,7 +77,7 @@ if contains(folderName, 'Salivary gland') == 0
     % AxisLength Lumen, AspectRatio Lumen, networkFeatures(coeficient clustering,betweenness centrality and degree-nodes correlation)
     
     
-    finalTable = [allFeatures(:,1), allFeatures(:,4),allFeatures(:,15), allFeatures(:,18), allFeatures(:,3),allFeatures(:,16), allFeatures(:,19),allFeatures(:,2),allFeatures(:,14),allFeatures(:,17),allFeatures(:,21),totalMean3DNeighsFeatures(:,1),totalMean3DNeighsFeatures(:,2), totalMean3DNeighsFeatures(:,4), allFeatures(:,20),totalMean3DNeighsFeatures(:,5),allFeatures(:,22),totalMean3DNeighsFeatures(:,6), allFeatures(:,60:83),allFeatures(:,5),allFeatures(:,8:9),allFeatures(:,7),allFeatures(:,11),allFeatures(:,6),allFeatures(:,10), allFeatures(:,12),allFeatures(:,47),allFeatures(:,42),allFeatures(:,45:46),allFeatures(:,44), allFeatures(:,48),allFeatures(:,90),allFeatures(:,85),allFeatures(:,88:89),allFeatures(:,87),allFeatures(:,91),allFeatures(:,13),hollowGland3dFeatures,allNetworkFeatures];
+    finalTable = [allFeatures(:,1), allFeatures(:,4),allFeatures(:,15), allFeatures(:,18), allFeatures(:,3),allFeatures(:,16), allFeatures(:,19),allFeatures(:,2),allFeatures(:,14),allFeatures(:,17),allFeatures(:,21),totalMean3DNeighsFeatures(:,1),totalMean3DNeighsFeatures(:,2), totalMean3DNeighsFeatures(:,4), allFeatures(:,20),totalMean3DNeighsFeatures(:,5),allFeatures(:,22),totalMean3DNeighsFeatures(:,6), allFeatures(:,60:83),allFeatures(:,5),allFeatures(:,8:9),allFeatures(:,7),allFeatures(:,11),allFeatures(:,6),allFeatures(:,10), allFeatures(:,12),allFeatures(:,47),allFeatures(:,42),allFeatures(:,45:46),allFeatures(:,44), allFeatures(:,48),allFeatures(:,90),allFeatures(:,85),allFeatures(:,88:89),allFeatures(:,87),allFeatures(:,91),allFeatures(:,13),allHollowGland3dFeatures,allNetworkFeatures];
     
     writetable(finalTable, fullfile(selpath(1).folder,'global_3dFeatures.xls'),'Range','B2');
     writetable([totalStdFeatures,totalSTD3DNeighsFeatures], fullfile(selpath(1).folder,'global_3dFeatures.xls'),'Sheet', 2,'Range','B2');
