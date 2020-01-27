@@ -4,17 +4,24 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures,hollowGland3dFeature
     load(fullfile(files(numFile).folder, 'valid_cells.mat'));
     if exist(fullfile(files(numFile).folder, 'morphological3dFeatures.mat'), 'file') == 0
         files(numFile).folder
-        load(fullfile(files(numFile).folder, '3d_layers_info.mat'))%, 'labelledImage_realSize', 'lumenImage_realSize');
-        load(fullfile(files(numFile).folder, 'zScaleOfGland'))
-        % if contains(files(numFile).folder, 'flatten')
-        % COLOCAR PROCESO DE FLATTEN CUANDO ELIMINEMOS EL UNROLL
-        % end
+        if exist(fullfile(files(numFile).folder, 'realSize3dLayers.mat'), 'file') == 0
+            load(fullfile(files(numFile).folder, '3d_layers_info.mat'))%, 'labelledImage_realSize', 'lumenImage_realSize');
+            load(fullfile(files(numFile).folder, 'zScaleOfGland'))
+            % if contains(files(numFile).folder, 'flatten')
+            % COLOCAR PROCESO DE FLATTEN CUANDO ELIMINEMOS EL UNROLL
+            % end
+
+            labelledImage_realSize = imresize3(labelledImage, zScale, 'nearest');
+            lumenImage_realSize = imresize3(double(lumenImage), zScale, 'nearest');
+
+            basalLayer = getBasalFrom3DImage(labelledImage_realSize, lumenImage_realSize, 0, labelledImage_realSize == 0 & lumenImage_realSize == 0);
+            [apicalLayer] = getApicalFrom3DImage(lumenImage_realSize, labelledImage_realSize);
+
+            save(fullfile(files(numFile).folder, 'realSize3dLayers.mat'), 'labelledImage_realSize','lumenImage_realSize','apicalLayer','basalLayer', '-v7.3');
+        else
+            load(fullfile(files(numFile).folder, 'realSize3dLayers.mat'))
+        end
         
-        labelledImage_realSize = imresize3(labelledImage, zScale, 'nearest');
-        lumenImage_realSize = imresize3(double(lumenImage), zScale, 'nearest');
-     
-        basalLayer = getBasalFrom3DImage(labelledImage_realSize, lumenImage_realSize, 0, labelledImage_realSize == 0 & lumenImage_realSize == 0);
-        [apicalLayer] = getApicalFrom3DImage(lumenImage_realSize, labelledImage_realSize);
         [apical3dInfo] = calculateNeighbours3D(apicalLayer, 2, apicalLayer == 0);
         apical3dInfo = apical3dInfo.neighbourhood';
 
@@ -112,8 +119,7 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures,hollowGland3dFeature
         
         %% Save variables and export to excel
         writetable(allFeatures,fullfile(files(numFile).folder,'3dFeatures_LimeSeg3DSegmentation.xls'), 'Range','B2');
-        save(fullfile(files(numFile).folder, 'realSize3dLayers.mat'), 'labelledImage_realSize','lumenImage_realSize','ApicalLayer','BasalLayer');
-        save(fullfile(files(numFile).folder, 'morphological3dFeatures.mat'), 'cells3dFeatures', 'gland3dFeatures', 'lumen3dFeatures', 'polygon_distribution_apical', 'polygon_distribution_basal', 'cellularFeatures', 'numCells', 'surfaceRatio2D', 'surfaceRatio3D', 'polygon_distribution_total','apicoBasalNeighs');
+        save(fullfile(files(numFile).folder, 'morphological3dFeatures.mat'), 'cells3dFeatures', 'gland3dFeatures', 'lumen3dFeatures', 'polygon_distribution_apical', 'polygon_distribution_basal', 'cellularFeatures', 'numCells', 'surfaceRatio2D', 'surfaceRatio3D', 'polygon_distribution_total','apicoBasalNeighs', 'hollowGland3dFeatures');
     else
         load(fullfile(files(numFile).folder, 'morphological3dFeatures.mat')); 
     end
