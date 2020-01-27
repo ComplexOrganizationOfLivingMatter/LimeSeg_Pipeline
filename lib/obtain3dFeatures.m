@@ -112,7 +112,7 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures,hollowGland3dFeature
         
         %% Save variables and export to excel
         writetable(allFeatures,fullfile(files(numFile).folder,'3dFeatures_LimeSeg3DSegmentation.xls'), 'Range','B2');
-        save(fullfile(files(numFile).folder, 'realSize3dLayers.mat'), 'labelledImage_realSize','lumenImage_RealSize','ApicalLayer','BasalLayer');
+        save(fullfile(files(numFile).folder, 'realSize3dLayers.mat'), 'labelledImage_realSize','lumenImage_realSize','ApicalLayer','BasalLayer');
         save(fullfile(files(numFile).folder, 'morphological3dFeatures.mat'), 'cells3dFeatures', 'gland3dFeatures', 'lumen3dFeatures', 'polygon_distribution_apical', 'polygon_distribution_basal', 'cellularFeatures', 'numCells', 'surfaceRatio2D', 'surfaceRatio3D', 'polygon_distribution_total','apicoBasalNeighs');
     else
         load(fullfile(files(numFile).folder, 'morphological3dFeatures.mat')); 
