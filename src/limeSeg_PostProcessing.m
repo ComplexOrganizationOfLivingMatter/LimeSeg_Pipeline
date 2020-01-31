@@ -17,6 +17,15 @@ function limeSeg_PostProcessing(outputDir)
         load(fullfile(outputDir, 'Results', 'zScaleOfGland.mat')); 
     end
     
+    if exist(fullfile(outputDir, 'Results', 'pixelScaleOfGland.mat'), 'file') == 0
+        pixelScale = inputdlg('Insert pixel width of Gland');
+        pixelScale = str2double(pixelScale{1});
+
+        save(fullfile(outputDir, 'Results', 'pixelScaleOfGland.mat'), 'pixelScale');
+    else
+        load(fullfile(outputDir, 'Results', 'pixelScaleOfGland.mat')); 
+    end
+    
     resizeImg = 1/zScale;
 
     tipValue = 4;

@@ -28,6 +28,8 @@ for numFile=1:length(files)
     meanFeatures = varfun(@(x) mean(x),cells3dFeatures(:, 2:end));
     stdFeatures = varfun(@(x) std(x),cells3dFeatures(:, 2:end));
     
+    [meanFeatures,stdFeatures, gland3dFeatures, lumen3dFeatures,hollowGland3dFeatures] = convertPixelsToMicrons(files,numFile,meanFeatures,stdFeatures, gland3dFeatures, lumen3dFeatures,hollowGland3dFeatures);
+    
     cellularFeaturesNoCells = varfun(@(x) cell2mat(x), cellularFeatures(:, 4:5));
     cellularFeatures.Total_neighbours = cellularFeaturesNoCells.Fun_Total_neighbours;
     cellularFeatures.Apicobasal_neighbours = cellularFeaturesNoCells.Fun_Apicobasal_neighbours;
@@ -65,7 +67,7 @@ if contains(folderName, 'Salivary gland') == 0
     allLumens.Properties.VariableNames = cellfun(@(x) strcat('Lumen_', x), allLumens.Properties.VariableNames, 'UniformOutput', false);
     totalMeanFeatures.Properties.VariableNames = cellfun(@(x) strcat('AverageCell_', x(5:end)), totalMeanFeatures.Properties.VariableNames, 'UniformOutput', false);
     totalStdFeatures.Properties.VariableNames = cellfun(@(x) strcat('STDCell_', x(5:end)), totalStdFeatures.Properties.VariableNames, 'UniformOutput', false);
-
+    
     totalMean3DNeighsFeatures.Properties.VariableNames = cellfun(@(x) strcat('AverageCell_3D', x(5:end)), totalMean3DNeighsFeatures.Properties.VariableNames, 'UniformOutput', false);
     totalSTD3DNeighsFeatures.Properties.VariableNames = cellfun(@(x) strcat('STDCell_3D', x(5:end)), totalSTD3DNeighsFeatures.Properties.VariableNames, 'UniformOutput', false);
 
@@ -73,16 +75,18 @@ if contains(folderName, 'Salivary gland') == 0
     allFeatures = [allGeneralInfo,totalMeanFeatures,totalStdFeatures, allGlands, allLumens, totalMean3DNeighsFeatures, totalSTD3DNeighsFeatures];
     % The order of the head is the following: nCell, (Basal, apical area and SR 2D), (Basal, apical area and SR 3D), (Basal, apical and
     % apicobasal N-2D), (basal apical and apicobasal N-3D),Scutoids2D and 3D,apicobasalTransition 2D and 3D, 2D poligon
-    % distribution, (Volumen,ConvexVolume and Solidity Cells), AxisLength cells, AspectRatio cells,(EquivDiameter cell, Surface Area cell, 
-    % Sphericity cells), SurfaceArea Gland, (Volumen,ConvexVolume and Solidity Gland), AxisLength Gland, AspectRatio Gland
-    % SurfaceArea Lumen, (Volumen,ConvexVolume and Solidity Lumen),
-    % AxisLength Lumen, AspectRatio Lumen, EquivDiameter and Sphericity Gland and after lumen,hollowGland Features, networkFeatures(coeficient clustering,betweenness centrality and assortativity)
+    % distribution, (Volumen,ConvexVolume and Solidity Cells),(Surface Area cell, 
+    % Sphericity cells), AxisLength cells, AspectRatio cells, (Volumen,ConvexVolume and Solidity Gland),SurfaceArea and sphericity Gland, AxisLength Gland, AspectRatio Gland
+    % (Volumen,ConvexVolume and Solidity Lumen), SurfaceArea and sphericity Lumen, 
+    % AxisLength Lumen, AspectRatio Lumen,percentageLumenSpace,hollowGland Features, networkFeatures(coeficient clustering,betweenness centrality and assortativity)
+    PercentageLumenSpace = table(table2array(allFeatures(:,85)) ./ table2array(allFeatures(:,5))); 
+    PercentageLumenSpace.Properties.VariableNames = {'PercentageLumenSpace'};
     
-    
-    finalTable = [allFeatures(:,1), allFeatures(:,4),allFeatures(:,15), allFeatures(:,18), allFeatures(:,3),allFeatures(:,16), allFeatures(:,19),allFeatures(:,2),allFeatures(:,14),allFeatures(:,17),allFeatures(:,21),totalMean3DNeighsFeatures(:,1),totalMean3DNeighsFeatures(:,2), totalMean3DNeighsFeatures(:,4), allFeatures(:,20),totalMean3DNeighsFeatures(:,5),allFeatures(:,22),totalMean3DNeighsFeatures(:,6), allFeatures(:,60:83),allFeatures(:,5),allFeatures(:,8:9),allFeatures(:,7),allFeatures(:,11),allFeatures(:,6),allFeatures(:,10), allFeatures(:,12),allFeatures(:,47),allFeatures(:,42),allFeatures(:,45:46),allFeatures(:,44), allFeatures(:,48),allFeatures(:,90),allFeatures(:,85),allFeatures(:,88:89),allFeatures(:,87),allFeatures(:,91),allFeatures(:,13),allFeatures(:,43),allFeatures(:,49),allFeatures(:,86),allFeatures(:,92),allHollowGland3dFeatures(:,2:end),allNetworkFeatures];
+    finalTable = [allFeatures(:,1), allFeatures(:,4),allFeatures(:,15), allFeatures(:,18), allFeatures(:,3),allFeatures(:,16), allFeatures(:,19),allFeatures(:,2),allFeatures(:,14),allFeatures(:,17),allFeatures(:,21),totalMean3DNeighsFeatures(:,1),totalMean3DNeighsFeatures(:,2), totalMean3DNeighsFeatures(:,4), allFeatures(:,20),totalMean3DNeighsFeatures(:,5),allFeatures(:,22),totalMean3DNeighsFeatures(:,6), allFeatures(:,60:83),allFeatures(:,5),allFeatures(:,8:10),allFeatures(:,12),allFeatures(:,7),allFeatures(:,11),allFeatures(:,42),allFeatures(:,45:47),allFeatures(:,49),allFeatures(:,44), allFeatures(:,48),allFeatures(:,85),allFeatures(:,88:90),allFeatures(:,92),allFeatures(:,87),allFeatures(:,91),PercentageLumenSpace,allHollowGland3dFeatures(:,2),allHollowGland3dFeatures(:,5:7),allHollowGland3dFeatures(:,9),allHollowGland3dFeatures(:,4),allHollowGland3dFeatures(:,8),allNetworkFeatures(:,1:3)];
+    finalSTDTable = ([totalStdFeatures(:,12),totalStdFeatures(:,15),totalSTD3DNeighsFeatures(:,1:2),totalSTD3DNeighsFeatures(:,4:5),allNetworkFeatures(:,4:5),totalStdFeatures(:,1),totalStdFeatures(:,4:5),totalStdFeatures(:,6),totalStdFeatures(:,8),totalStdFeatures(:,3),totalStdFeatures(:,7)]);
     
     writetable(finalTable, fullfile(selpath(1).folder,'global_3dFeatures.xls'),'Range','B2');
-    writetable([totalStdFeatures,totalSTD3DNeighsFeatures], fullfile(selpath(1).folder,'global_3dFeatures.xls'),'Sheet', 2,'Range','B2');
+    writetable(finalSTDTable, fullfile(selpath(1).folder,'global_3dFeatures.xls'),'Sheet', 2,'Range','B2');
 end
 end
 
