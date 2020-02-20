@@ -1,21 +1,30 @@
 %To Adrian and Maria Jose's Machine Learning project 
 clear all
+close all
+
+addpath(genpath('src'))
+addpath(genpath('lib'))
+addpath(genpath('gui'))
 
 files = dir('**/data/Salivary gland/**/Results/3d_layers_info.mat');
 nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0 && (contains(lower(x), 'wildtype')), {files.folder}); %% contains(lower(x), 'echnoid')
 files = files(nonDiscardedFiles);
 
 for numFile = 1:length(files)
-    inputDir = files(numFile).folder;
+    inputDir = files(numFile).folder
     inputDirSplitted = strsplit(inputDir, '\');
     if exist(fullfile(inputDirSplitted{1:end-1}, 'RawSequence')) == 0
         continue
     end
     inputDir = fullfile(inputDirSplitted{1:end-1});
 
+    if exist(fullfile(inputDir, strcat(strjoin(inputDirSplitted(end-3:end-1), '_'),'.mat')), 'file')
+        continue
+    end
+    
     load(fullfile(inputDir, 'Results\3d_layers_info.mat'), 'labelledImage');
     labelledImage_NoTips = labelledImage(6:end-5, 6:end-5, 6:end-5);
-    usedZScale = 1024/size(labelledImage_NoTips, 1)
+    usedZScale = 1024/size(labelledImage_NoTips, 1);
     labelledImage3D = imresize3(labelledImage_NoTips, usedZScale, 'nearest');
     labelledImageAsConfocal = imresize3(labelledImage_NoTips, [1024 1024 size(labelledImage_NoTips, 3)], 'nearest');
 
@@ -24,6 +33,7 @@ for numFile = 1:length(files)
     imageSequenceFiles = imageSequenceFiles(~NoValidFiles);
     imageSequence = [];
     imageSequence_Small = [];
+    centroidOfRois = [];
 
     for numImg = 1:size(imageSequenceFiles, 1)
         actualFile = imageSequenceFiles(numImg);
