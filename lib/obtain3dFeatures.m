@@ -4,23 +4,16 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures,hollowGland3dFeature
     load(fullfile(files(numFile).folder, 'valid_cells.mat'));
     if exist(fullfile(files(numFile).folder, 'morphological3dFeatures.mat'), 'file') == 0
         files(numFile).folder
-        if exist(fullfile(files(numFile).folder, 'realSize3dLayers.mat'), 'file') == 0
-            load(fullfile(files(numFile).folder, '3d_layers_info.mat'))%, 'labelledImage_realSize', 'lumenImage_realSize');
-            load(fullfile(files(numFile).folder, 'zScaleOfGland'))
+        load(fullfile(files(numFile).folder, '3d_layers_info.mat'))%, 'labelledImage_realSize', 'lumenImage_realSize');
+        
             % if contains(files(numFile).folder, 'flatten')
             % COLOCAR PROCESO DE FLATTEN CUANDO ELIMINEMOS EL UNROLL
             % end
 
-            labelledImage_realSize = imresize3(labelledImage, zScale, 'nearest');
-            lumenImage_realSize = imresize3(double(lumenImage), zScale, 'nearest');
-
-            basalLayer = getBasalFrom3DImage(labelledImage_realSize, lumenImage_realSize, 0, labelledImage_realSize == 0 & lumenImage_realSize == 0);
-            [apicalLayer] = getApicalFrom3DImage(lumenImage_realSize, labelledImage_realSize);
-
+           [basalLayer,apicalLayer,labelledImage_RealSize,lumenImage_RealSize]=ResizeTissue(numFile,files,labelledImage,lumenImage);
+            
             save(fullfile(files(numFile).folder, 'realSize3dLayers.mat'), 'labelledImage_realSize','lumenImage_realSize','apicalLayer','basalLayer', '-v7.3');
-        else
-            load(fullfile(files(numFile).folder, 'realSize3dLayers.mat'))
-        end
+       
         
         [apical3dInfo] = calculateNeighbours3D(apicalLayer, 2, apicalLayer == 0);
         apical3dInfo = apical3dInfo.neighbourhood';
@@ -113,8 +106,8 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures,hollowGland3dFeature
         
         allFeatures = vertcat(cells3dFeatures, gland3dFeatures, lumen3dFeatures);
         
-        if exist(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'file') == 1
-          [allFeatures,polygon_distribution_basal,polygon_distribution_apical,polygon_distribution_total] = obtain2dFeatures(files,numFile, allFeatures, validCells);  
+        if exist(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'file') > 0
+          [allFeatures,polygon_distribution_basal,polygon_distribution_apical,polygon_distribution_total,surfaceRatio2D] = obtain2dFeatures(files,numFile, allFeatures, validCells);  
         end
         
         %% Save variables and export to excel

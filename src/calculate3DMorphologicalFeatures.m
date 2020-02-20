@@ -1,16 +1,16 @@
-function [] = calculate3DMorphologicalFeatures(folderName)
+function [] = calculate3DMorphologicalFeatures(folderName, TissueName)
 %CALCULATE3DMORPHOLOGICALFEATURES Summary of this function goes here
 %   Detailed explanation goes here
 
-if contains(folderName, '\data\Cysts\')
+if contains(folderName, strcat('\data\',TissueName,'/'))
     files = dir(fullfile(folderName, '3d_layers_info.mat'));
 else
-    files = dir(fullfile('**/data/Cysts/', folderName, '/**/Results/3d_layers_info.mat'));
+    files = dir(fullfile('**/data/',TissueName,'/', folderName, '/**/Results/3d_layers_info.mat'));
 end
 nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0, {files.folder});
 files = files(nonDiscardedFiles);
 
-selpath = dir(fullfile('**/data/Cysts/', folderName));
+selpath = dir(fullfile('**/data/',TissueName,'/', folderName));
 
 totalMeanFeatures = cell([length(files) 18]);
 totalStdFeatures = cell([length(files) 18]);
