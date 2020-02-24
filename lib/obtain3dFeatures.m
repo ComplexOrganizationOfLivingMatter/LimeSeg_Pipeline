@@ -12,7 +12,7 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures,hollowGland3dFeature
 
            [basalLayer,apicalLayer,labelledImage_RealSize,lumenImage_RealSize]=ResizeTissue(numFile,files,labelledImage,lumenImage);
             
-            save(fullfile(files(numFile).folder, 'realSize3dLayers.mat'), 'labelledImage_realSize','lumenImage_realSize','apicalLayer','basalLayer', '-v7.3');
+            
        
         
         [apical3dInfo] = calculateNeighbours3D(apicalLayer, 2, apicalLayer == 0);

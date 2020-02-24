@@ -20,13 +20,7 @@ for iteration=1:2
     if exist(fullfile(files(numFile).folder, 'final3DImg.mat'), 'file')
         load(fullfile(files(numFile).folder, 'final3DImg.mat'));
     else
-        
-        if exist('labelledImage_realSize', 'var')
-            resizeImg = 1;
-        else
-            resizeImg = 1/zScale;
-        end
-        
+                
         img3dComplete = labelledImage_realSize;
         img3d_original = cell2mat(layers(iteration));
         
@@ -56,7 +50,7 @@ for iteration=1:2
         img3dComplete = addTipsImg3D(tipValue, img3dComplete);
         
         img3dComplete = double(img3dComplete);
-        imgSize = round(size(img3d_original)/resizeImg);
+        imgSize = round(size(img3d_original));
         img3d = double(imresize3(img3d_original, imgSize, 'nearest'));
         
         img3dComplete = double(imresize3(img3dComplete, imgSize, 'nearest'));
