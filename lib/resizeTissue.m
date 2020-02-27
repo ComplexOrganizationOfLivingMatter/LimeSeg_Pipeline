@@ -1,28 +1,25 @@
-function [basalLayer,apicalLayer,labelledImage_realSize,lumenImage_realSize]=resizeTissue(numFile,files,labelledImage,lumenImage,zScaleGland)
+function [basalLayer,apicalLayer,labelledImage_realSize,lumenImage_realSize]=resizeTissue(numFile,files)
 
-%% Step 1: Creating image with its real size, in case it is necessary
-load(fullfile(files(numFile).folder, 'zScaleOfGland'))
 if exist(fullfile(files(numFile).folder, 'realSize3dLayers.mat'), 'file') == 0
+    
+    %% Step 1: Creating image with its real size
+    load(fullfile(files(numFile).folder, 'zScaleOfGland'))
+    load(fullfile(files(numFile).folder, '3d_layers_info.mat'))%, 'labelledImage_realSize', 'lumenImage_realSize');
+    
     labelledImage_realSize = imresize3(labelledImage, zScale, 'nearest');
     lumenImage_realSize = imresize3(double(lumenImage), zScale, 'nearest');
     
     basalLayer = getBasalFrom3DImage(labelledImage_realSize, lumenImage_realSize, 0, labelledImage_realSize == 0 & lumenImage_realSize == 0);
     [apicalLayer] = getApicalFrom3DImage(lumenImage_realSize, labelledImage_realSize);
-    save(fullfile(files(numFile).folder, 'realSize3dLayers.mat'), 'labelledImage_realSize','lumenImage_realSize','apicalLayer','basalLayer', '-v7.3');
-else
-    load(fullfile(files(numFile).folder, 'realSize3dLayers.mat'))
-end
-
-layers=[{apicalLayer},{basalLayer}];
-
-for iteration=1:2
-    if exist(fullfile(files(numFile).folder, 'final3DImg.mat'), 'file')
-        load(fullfile(files(numFile).folder, 'final3DImg.mat'));
-    else
-                
+    
+    layers3d=[{apicalLayer},{basalLayer}];
+    
+    %% Step 2: Getting the perimeter of the basal and apical layers of the image with its real size
+    for iteration=1:2
+        
         img3dComplete = labelledImage_realSize;
-        img3d_original = cell2mat(layers(iteration));
-                
+        img3d_original = cell2mat(layers3d(iteration));
+        
         [allX,allY,allZ]=ind2sub(size(img3dComplete),find(img3dComplete>0));
         img3d_originalCropped = img3d_original(min(allX):max(allX),min(allY):max(allY),min(allZ):max(allZ));
         img3dComplete_Cropped = img3dComplete(min(allX):max(allX),min(allY):max(allY),min(allZ):max(allZ));
@@ -43,9 +40,12 @@ for iteration=1:2
         else
             [basalLayer] = calculatePerimOf3DImage(img3d, img3dComplete);
         end
+        
     end
-end
+    save(fullfile(files(numFile).folder, 'realSize3dLayers.mat'), 'labelledImage_realSize','lumenImage_realSize','apicalLayer','basalLayer', '-v7.3');
     
-    save(fullfile(files(numFile).folder, 'final3DImg.mat'), 'apicalLayer','basalLayer');
+else
+    load(fullfile(files(numFile).folder, 'realSize3dLayers.mat'))
+end
 
 end
