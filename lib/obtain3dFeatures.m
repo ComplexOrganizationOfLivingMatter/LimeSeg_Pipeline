@@ -10,7 +10,7 @@ function [cells3dFeatures, gland3dFeatures, lumen3dFeatures,hollowGland3dFeature
             % COLOCAR PROCESO DE FLATTEN CUANDO ELIMINEMOS EL UNROLL
             % end
 
-           [basalLayer,apicalLayer,labelledImage_RealSize,lumenImage_RealSize]=ResizeTissue(numFile,files,labelledImage,lumenImage);
+           [basalLayer,apicalLayer,labelledImage_RealSize,lumenImage_RealSize]=resizeTissue(numFile,files,labelledImage,lumenImage);
             
             
        

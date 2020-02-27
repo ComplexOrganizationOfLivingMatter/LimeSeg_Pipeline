@@ -1,4 +1,4 @@
-function [basalLayer,apicalLayer,labelledImage_realSize,lumenImage_realSize]=ResizeTissue(numFile,files,labelledImage,lumenImage,zScaleGland)
+function [basalLayer,apicalLayer,labelledImage_realSize,lumenImage_realSize]=resizeTissue(numFile,files,labelledImage,lumenImage,zScaleGland)
 
 %% Step 1: Creating image with its real size, in case it is necessary
 load(fullfile(files(numFile).folder, 'zScaleOfGland'))
@@ -13,7 +13,6 @@ else
     load(fullfile(files(numFile).folder, 'realSize3dLayers.mat'))
 end
 
-
 layers=[{apicalLayer},{basalLayer}];
 
 for iteration=1:2
@@ -23,20 +22,7 @@ for iteration=1:2
                 
         img3dComplete = labelledImage_realSize;
         img3d_original = cell2mat(layers(iteration));
-        
-                %% Rotate the image to obtain all the glands with the same orientation
-        if iteration == 1
-            [img3d_original, rotationsOriginal] = rotateImg3(img3d_original);
-            [img3dComplete] = rotateImg3(img3dComplete, rotationsOriginal);
-            save(fullfile(files(numFile).folder, 'apicalRotationsOriginal.mat'), 'rotationsOriginal');
-        else
-            load(fullfile(files(numFile).folder, 'apicalRotationsOriginal.mat'), 'rotationsOriginal');
-            [img3d_original] = rotateImg3(img3d_original, rotationsOriginal);
-            [img3dComplete] = rotateImg3(img3dComplete, rotationsOriginal);
-
-        end
-        
-        
+                
         [allX,allY,allZ]=ind2sub(size(img3dComplete),find(img3dComplete>0));
         img3d_originalCropped = img3d_original(min(allX):max(allX),min(allY):max(allY),min(allZ):max(allZ));
         img3dComplete_Cropped = img3dComplete(min(allX):max(allX),min(allY):max(allY),min(allZ):max(allZ));
@@ -54,7 +40,6 @@ for iteration=1:2
         img3d = double(imresize3(img3d_original, imgSize, 'nearest'));
         
         img3dComplete = double(imresize3(img3dComplete, imgSize, 'nearest'));
-        
         
         closingPxAreas3D = 10;
         
