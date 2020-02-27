@@ -6,6 +6,10 @@ if exist(fullfile(files(numFile).folder, 'realSize3dLayers.mat'), 'file') == 0
     load(fullfile(files(numFile).folder, 'zScaleOfGland'))
     load(fullfile(files(numFile).folder, '3d_layers_info.mat'))%, 'labelledImage_realSize', 'lumenImage_realSize');
     
+    if contains(lower(files(numFile).folder), 'flatten')
+        [labelledImage] = flattenMutantGland(apicalLayer, basalLayer, labelledImage, lumenImage);
+    end
+    
     labelledImage_realSize = imresize3(labelledImage, zScale, 'nearest');
     lumenImage_realSize = imresize3(double(lumenImage), zScale, 'nearest');
     
