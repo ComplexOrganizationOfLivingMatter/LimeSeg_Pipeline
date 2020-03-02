@@ -108,8 +108,9 @@ if exist(fullfile(files(numFile).folder, 'morphological3dFeatures.mat'), 'file')
     
     if exist(fullfile(files(numFile).folder, 'unrolledGlands/gland_SR_basal/verticesInfo.mat'), 'file') > 0
         [allFeatures,polygon_distribution_basal,polygon_distribution_apical,polygon_distribution_total,surfaceRatio2D] = obtain2dFeatures(files,numFile, allFeatures, validCells);
+        cells3dFeatures= allFeatures(:,1:size(cells3dFeatures,2));
     end
-    
+      
     %% Save variables and export to excel
     writetable(allFeatures,fullfile(files(numFile).folder,'3dFeatures_LimeSeg3DSegmentation.xls'), 'Range','B2');
     save(fullfile(files(numFile).folder, 'morphological3dFeatures.mat'), 'cells3dFeatures', 'gland3dFeatures', 'lumen3dFeatures', 'polygon_distribution_apical', 'polygon_distribution_basal', 'cellularFeatures', 'numCells', 'surfaceRatio2D', 'surfaceRatio3D', 'polygon_distribution_total','apicoBasalNeighs', 'hollowGland3dFeatures');
