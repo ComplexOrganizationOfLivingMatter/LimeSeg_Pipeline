@@ -22,7 +22,7 @@ function varargout = window(varargin)
 
 % Edit the above text to modify the response to help window
 
-% Last Modified by GUIDE v2.5 29-Nov-2019 09:58:41
+% Last Modified by GUIDE v2.5 09-Mar-2020 12:01:59
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -320,3 +320,40 @@ function hideLumen_Callback(hObject, eventdata, handles)
 toggleValue = get(hObject,'Value') == 1;
 setappdata(0, 'hideLumen', toggleValue)
 showSelectedCell();
+
+
+% --- Executes on button press in btRemove.
+function btRemove_Callback(hObject, eventdata, handles)
+% hObject    handle to btRemove (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in btAddCell.
+function btAddCell_Callback(hObject, eventdata, handles)
+% hObject    handle to btAddCell (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in btMergeCells.
+function btMergeCells_Callback(hObject, eventdata, handles)
+% hObject    handle to btMergeCells (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+prompt = {'Enter cells to be merged (comma-separated): E.g. 20,25'};
+title = 'Input';
+dims = [1 35];
+definput = {''};
+answer = inputdlg(prompt,title,dims,definput);
+if isempty(answer) == 0
+    cellsToMergeStr = strtrim(strsplit(answer{1}, ','));
+    cellsToMerge = cellfun(@str2double, cellsToMergeStr);
+    if length(cellsToMerge) > 1
+        mergeLabelsOfImage(labelledImage, cellsToMerge);
+    else
+        errordlg('You should add more than 1 cell label', 'MEC!');
+    end
+    
+end

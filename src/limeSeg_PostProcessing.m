@@ -110,7 +110,7 @@ function limeSeg_PostProcessing(outputDir)
     
     %% Insert no valid cells
     while isequal(answer, 'Yes')
-        volumeViewer(vertcat(labelledImage, lumenImage))
+        volumeViewer(vertcat(labelledImage>0, lumenImage))
         setappdata(0, 'notFoundCellsApical', notFoundCellsApical);
         setappdata(0, 'notFoundCellsBasal', notFoundCellsBasal);
         h = window();
