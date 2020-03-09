@@ -6,8 +6,8 @@ function [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(la
 %     [labelledImage] = fillEmptySpacesByWatershed3D(labelledImage, outsideGland | lumenImage, 1); % error outsideGland?
 %     outsideGland_NotLumen = ~outsideGland | lumenImage;
 
-    labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
-    labelledImage(lumenImage) = 0;
+    %labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
+    %labelledImage(lumenImage) = 0;
 
     %% Get basal layer by dilating the empty space
     basalLayer = getBasalFrom3DImage(labelledImage, lumenImage, tipValue, outsideGland & imdilate(lumenImage, strel('sphere', 1)) == 0);

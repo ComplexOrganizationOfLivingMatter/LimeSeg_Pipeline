@@ -26,15 +26,18 @@ function limeSeg_PostProcessing(outputDir)
         load(fullfile(outputDir, 'Results', 'pixelScaleOfGland.mat')); 
     end
     
-    resizeImg = 1/zScale;
+    resizeImg = 0.25;
 
     tipValue = 4;
 
     imageSequenceFiles = dir(fullfile(outputDir, 'ImageSequence/*.tif'));
+    
+    %% if there is more than 1 image
     NoValidFiles = startsWith({imageSequenceFiles.name},'._','IgnoreCase',true);
     imageSequenceFiles=imageSequenceFiles(~NoValidFiles);
     demoFile =  imageSequenceFiles(3);
     demoImg = imread(fullfile(demoFile.folder, demoFile.name));
+    %% else load stack
 
     imgSize = size(imresize(demoImg, resizeImg));
 
@@ -42,14 +45,27 @@ function limeSeg_PostProcessing(outputDir)
         load(fullfile(outputDir, 'Results', '3d_layers_info.mat'))
     else
         colours = [];
-        [labelledImage, outsideGland] = processCells(fullfile(outputDir, 'Cells', filesep), resizeImg, imgSize, tipValue);
+        %[labelledImage, outsideGland] = processCells(fullfile(outputDir, 'Cells', filesep), resizeImg, imgSize, tipValue);
         
-     if size(dir(fullfile(outputDir, 'Lumen/SegmentedLumen', '*.tif')),1) > 0
-        [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
-     else
-        [labelledImage, lumenImage] = inferLumen(labelledImage);
-     end
-     
+        selpath = fullfile(outputDir, 'cyst10_predictions_gasp_average.tiff');
+        tiff_info = imfinfo(selpath); % return tiff structure, one element per image
+        tiff_stack = imread(selpath, 1) ; % read in first image
+        %concatenate each successive tiff to tiff_stack
+        for ii = 2 : size(tiff_info, 1)
+            temp_tiff = imread(selpath, ii);
+            tiff_stack = cat(3 , tiff_stack, temp_tiff);
+        end
+        labelledImage = double(tiff_stack)-1;
+        outsideGland = labelledImage == 0;
+        
+        if size(dir(fullfile(outputDir, 'Lumen/SegmentedLumen', '*.tif')),1) > 0
+            [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
+        else
+            %[labelledImage, lumenImage] = inferLumen(labelledImage);
+            lumenImage = labelledImage == 12;
+            labelledImage(labelledImage == 12) = 0;
+        end
+
         %It add pixels and remove some
         validRegion = imfill(bwmorph3(labelledImage>0 | imdilate(lumenImage, strel('sphere', 5)), 'majority'), 'holes');
         %outsideGland = validRegion == 0;
@@ -57,7 +73,7 @@ function limeSeg_PostProcessing(outputDir)
         outsideGland(questionedRegion) = ~validRegion(questionedRegion);
         outsideGland(lumenImage) = 0;
         
-        labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
+        %%labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
             
         %% Put both lumen and labelled image at a 90 degrees
         orientationGland = regionprops3(lumenImage>0, 'Orientation');
@@ -72,8 +88,8 @@ function limeSeg_PostProcessing(outputDir)
     setappdata(0,'outputDir', outputDir);
     setappdata(0,'labelledImage',labelledImage);
     setappdata(0,'lumenImage', lumenImage);
-    setappdata(0,'resizeImg',resizeImg);
-    setappdata(0,'tipValue', tipValue);
+    setappdata(0,'resizeImg',1);
+    setappdata(0,'tipValue', 0);
     setappdata(0, 'glandOrientation', glandOrientation);
     setappdata(0, 'canModifyOutsideGland', 0);
     setappdata(0, 'hideLumen',0);
@@ -91,8 +107,12 @@ function limeSeg_PostProcessing(outputDir)
     end
     [answer, apical3dInfo, notFoundCellsApical, basal3dInfo, notFoundCellsBasal] = calculateMissingCells(labelledImage, lumenImage, apicalLayer, basalLayer, colours, noValidCells);
 
+    
     %% Insert no valid cells
     while isequal(answer, 'Yes')
+        volumeViewer(vertcat(labelledImage, lumenImage))
+        setappdata(0, 'notFoundCellsApical', notFoundCellsApical);
+        setappdata(0, 'notFoundCellsBasal', notFoundCellsBasal);
         h = window();
         waitfor(h);
 
@@ -112,6 +132,7 @@ function limeSeg_PostProcessing(outputDir)
             [answer] = isEverythingCorrect();
         end
         setappdata(0,'labelledImage',labelledImage);
+        volumeViewer close
     end
 
     %% Save apical and basal 3d information

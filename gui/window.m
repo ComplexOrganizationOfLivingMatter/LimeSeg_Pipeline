@@ -56,6 +56,9 @@ handles.output = hObject;
 
 set(0, 'currentfigure', hObject); 
 
+set(handles.missingApical,'string', strjoin(arrayfun(@num2str, getappdata(0, 'notFoundCellsApical'), 'UniformOutput', false), ', '));
+set(handles.missingBasal,'string', strjoin(arrayfun(@num2str, getappdata(0, 'notFoundCellsBasal'), 'UniformOutput', false), ', '))
+
 setappdata(0, 'labelledImageTemp', getappdata(0, 'labelledImage'));
 
 % Update handles structure
@@ -80,13 +83,13 @@ for numImg = 1:size(imageSequenceFiles, 1)
     imageSequence(:, :, numImg) = imresize(actualImg, resizeImg);
 end
 
-imageSequence = addTipsImg3D(tipValue+1, double(imageSequence));
+imageSequence = addTipsImg3D(tipValue+1, imageSequence);
 
 
-%imageSequence = imrotate(imageSequence, -glandOrientation);
+% imageSequence = imrotate(imageSequence, -glandOrientation);
 
-% orientationGland = regionprops3(imageSequence>0, 'Orientation');
-% glandOrientation = -orientationGland.Orientation(1);
+%orientationGland = regionprops3(imageSequence>0, 'Orientation');
+%glandOrientation = -orientationGland.Orientation(1);
 setappdata(0,'imageSequence',imageSequence);
 
 % This sets up the initial plot - only do when we are invisible
