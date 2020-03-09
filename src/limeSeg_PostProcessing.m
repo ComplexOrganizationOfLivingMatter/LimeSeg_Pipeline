@@ -61,9 +61,14 @@ function limeSeg_PostProcessing(outputDir)
         if size(dir(fullfile(outputDir, 'Lumen/SegmentedLumen', '*.tif')),1) > 0
             [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
         else
+            %%Posible idea: try catch this line and if an error occurs get
+            %%the biggest 'cell' from plantSeg
             %[labelledImage, lumenImage] = inferLumen(labelledImage);
-            lumenImage = labelledImage == 12;
-            labelledImage(labelledImage == 12) = 0;
+            
+            [cellsArea] = regionprops(labelledImage, 'Area');
+            [~, lumenIndex] = max(struct2array(cellsArea));
+            lumenImage = labelledImage == lumenIndex;
+            labelledImage(labelledImage == lumenIndex) = 0;
         end
 
         %It add pixels and remove some
