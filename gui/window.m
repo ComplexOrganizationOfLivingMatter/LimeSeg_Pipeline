@@ -327,20 +327,22 @@ function btRemove_Callback(hObject, eventdata, handles)
 % hObject    handle to btRemove (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+disp('');
 
 % --- Executes on button press in btAddCell.
 function btAddCell_Callback(hObject, eventdata, handles)
 % hObject    handle to btAddCell (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+disp('');
 
 % --- Executes on button press in btMergeCells.
 function btMergeCells_Callback(hObject, eventdata, handles)
 % hObject    handle to btMergeCells (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+labelledImage = getappdata(0, 'labelledImageTemp');
 
 prompt = {'Enter cells to be merged (comma-separated): E.g. 20,25'};
 title = 'Input';
@@ -351,9 +353,9 @@ if isempty(answer) == 0
     cellsToMergeStr = strtrim(strsplit(answer{1}, ','));
     cellsToMerge = cellfun(@str2double, cellsToMergeStr);
     if length(cellsToMerge) > 1
-        mergeLabelsOfImage(labelledImage, cellsToMerge);
+        labelledImageTmp = mergeLabelsOfImage(labelledImage, cellsToMerge);
+        setappdata(0, 'labelledImageTemp', labelledImageTmp);
     else
         errordlg('You should add more than 1 cell label', 'MEC!');
     end
-    
 end
