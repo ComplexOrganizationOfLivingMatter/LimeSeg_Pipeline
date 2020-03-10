@@ -151,7 +151,6 @@ if roiMask ~= -1
             labelledImage(newIndices) = selectCellId;
             if getappdata(0, 'canModifyInsideLumen') == 1
                 lumenImage(newIndices) = 0;
-                setappdata(0, 'lumenImage', lumenImage);
             else
                 labelledImage(lumenImage>0) = 0;
             end
@@ -163,16 +162,18 @@ if roiMask ~= -1
             labelledImage(newIndices) = selectCellId;
             lumenImage(newIndices) = 1;
             labelledImage(lumenImage>0) = 0;
-            setappdata(0, 'lumenImage', lumenImage);
         end
        
         setappdata(0, 'labelledImageTemp', labelledImage);
+        setappdata(0, 'lumenImage', lumenImage);
         resizeImg = getappdata(0,'resizeImg');
         originalSize = size(labelledImage);
         sizeResized = originalSize * resizeImg;
         sizeResized(3) = originalSize(3);
         
         setappdata(0, 'labelledImageTemp_Resized', imresize3(labelledImage, sizeResized, 'nearest'));
+        setappdata(0, 'lumenImage_Resized', imresize3(double(lumenImage), sizeResized, 'nearest')>0);
+
         if showAllCells
             showAllCells();
         end
