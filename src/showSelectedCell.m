@@ -14,7 +14,9 @@ imageSequence = getappdata(0, 'imageSequence');
 imgToShow = imageSequence(:, :, selectedZ)';
 
 % imgToShow(perimImg == 1) = 65536;
-cla('reset')
+cla
+%clf
+
 
 
 if showAllCells==1
@@ -25,17 +27,23 @@ if showAllCells==1
     labelsZ = unique(labImageZ);
     
     cmap(1,:)=[0 0 0];
-    imshow(labelledImage(:, :,  selectedZ)',cmap);
+    im1 = image(labelledImage(:, :,  selectedZ)');
+    colormap(cmap);
+
+    %imshow(labelledImage(:, :,  selectedZ)',cmap);
     hold on
-    hLab = imshow(imgToShow);
-    set(hLab, 'AlphaData', 0.35);
-    colormap(cmap)
+%     hLab = imshow(imgToShow);
+%     set(hLab, 'AlphaData', 0.35);
+    im2 = image(imgToShow);
+    im2.AlphaData = 0.5;
+    set(im2,'HitTest','off')
+
     textscatter(centroids(labelsZ(2:end),1),centroids(labelsZ(2:end),2),cellfun(@num2str,num2cell(labelsZ(2:end)),'UniformOutput',false),'TextDensityPercentage',100,'ColorData',ones(length(labelsZ(2:end)),3));
 
     hold off
 else
     %% Showing selected cell
-    imshow(imgToShow);
+    image(imgToShow);
     hold on
     if selectCellId > 0
         [xIndices, yIndices] = find(labelledImage(:, :,  selectedZ) == selectCellId);
@@ -58,9 +66,9 @@ if isempty(xIndices) == 0 && getappdata(0, 'hideLumen') == 0
     alpha(s,.5)
 end
 
-datacursormode 'off';
-dcm_obj = datacursormode();
-set(dcm_obj,'UpdateFcn',@pickCell);
+% datacursormode 'off';
+% dcm_obj = datacursormode();
+% set(dcm_obj,'UpdateFcn',@pickCell);
 
 end
 

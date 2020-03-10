@@ -22,7 +22,7 @@ function varargout = window(varargin)
 
 % Edit the above text to modify the response to help window
 
-% Last Modified by GUIDE v2.5 10-Mar-2020 10:42:14
+% Last Modified by GUIDE v2.5 10-Mar-2020 16:51:28
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -161,9 +161,7 @@ if roiMask ~= -1
         end
        
         setappdata(0, 'labelledImageTemp', labelledImage);
-        if showAllCells
-            showAllCells();
-        end
+        
         showSelectedCell();
     end
 end
@@ -401,3 +399,27 @@ idx = randperm((size(cmapToUpdate,1)));
 setappdata(0,'cmap',cmapToUpdate(idx,:));
 showSelectedCell();
 
+
+% --- Executes on mouse press over axes background.
+function imageCanvas_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to imageCanvas (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+pos = get(eventdata,'Position');
+
+labelledImage = getappdata(0, 'labelledImageTemp');
+selectedCell = labelledImage(pos(1), pos(2), getappdata(0, 'selectedZ'));
+output_txt = {['ID Cell: ',num2str(selectedCell)]};
+
+myhandles = guidata(get(eventdata, 'Target'));
+myhandles.tbCellId.String = num2str(selectedCell);
+setappdata(0,'cellId',selectedCell);
+set(myhandles.tbCellId, 'String', num2str(selectedCell));
+
+showSelectedCell()
+
+
+function imageCanvas_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to imageCanvas (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
