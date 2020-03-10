@@ -1,4 +1,4 @@
-function limeSeg_PostProcessing(outputDir)
+function limeSeg_PostProcessing(outputDir, fileName)
 %PIPELINE Summary of this function goes here
 %   Detailed explanation goes here
     mkdir(fullfile(outputDir, 'Cells', 'OutputLimeSeg'));
@@ -56,9 +56,8 @@ function limeSeg_PostProcessing(outputDir)
     else
         colours = [];
         %[labelledImage, outsideGland] = processCells(fullfile(outputDir, 'Cells', filesep), resizeImg, imgSize, tipValue);
-        imageSeqLabelPath = [dir(fullfile(outputDir, '*.tif'));dir(fullfile(outputDir, '*.tiff'))];
 
-        selpath = fullfile(imageSeqLabelPath.folder, imageSeqLabelPath.name);
+        selpath = fullfile(outputDir, fileName);
         tiff_info = imfinfo(selpath); % return tiff structure, one element per image
         tiff_stack = imread(selpath, 1) ; % read in first image
         %concatenate each successive tiff to tiff_stack
