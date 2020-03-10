@@ -6,7 +6,7 @@ function [output_txt] = pickCell(obj,event_obj)
 
 pos = get(event_obj,'Position');
 
-labelledImage = getappdata(0, 'labelledImageTemp');
+labelledImage = getappdata(0, 'labelledImageTemp_Resized');
 selectedCell = labelledImage(pos(1), pos(2), getappdata(0, 'selectedZ'));
 output_txt = {['ID Cell: ',num2str(selectedCell)]};
 

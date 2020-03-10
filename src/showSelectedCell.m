@@ -2,9 +2,9 @@ function [] = showSelectedCell()
 %SHOWSELECTEDCELL Summary of this function goes here
 %   Detailed explanation goes here
 selectCellId = getappdata(0, 'cellId');
-labelledImage = getappdata(0, 'labelledImageTemp');
+labelledImage = getappdata(0, 'labelledImageTemp_Resized');
 selectedZ = getappdata(0, 'selectedZ');
-lumenImage = getappdata(0, 'lumenImage');
+lumenImage = getappdata(0, 'lumenImage_Resized');
 
 % perimImg = bwperim(labelledImage(:, :,  selectedZ) == selectCellId)';
 %imshow(perimImg);
@@ -15,7 +15,7 @@ imgToShow = imageSequence(:, :, selectedZ)';
 % imgToShow(perimImg == 1) = 65536;
 cla('reset') 
 
-imshow(imgToShow);
+imshow(uint16(imgToShow));
 hold on;
     if selectCellId > 0
         [xIndices, yIndices] = find(labelledImage(:, :,  selectedZ) == selectCellId);

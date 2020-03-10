@@ -60,10 +60,17 @@ set(handles.missingApical,'string', strjoin(arrayfun(@num2str, getappdata(0, 'no
 set(handles.missingBasal,'string', strjoin(arrayfun(@num2str, getappdata(0, 'notFoundCellsBasal'), 'UniformOutput', false), ', '))
 
 setappdata(0, 'labelledImageTemp', getappdata(0, 'labelledImage'));
+resizeImg = getappdata(0,'resizeImg');
+labelledImage = getappdata(0, 'labelledImage');
+originalSize = size(labelledImage);
+sizeResized = originalSize * resizeImg;
+sizeResized(3) = originalSize(3);
+
+setappdata(0, 'labelledImageTemp_Resized', imresize3(labelledImage, sizeResized, 'nearest'));
+setappdata(0, 'lumenImage_Resized', imresize3(double(getappdata(0, 'lumenImage')), sizeResized, 'nearest')>0);
 
 % Update handles structure
 guidata(hObject, handles);
-resizeImg = getappdata(0,'resizeImg');
 outputDir = getappdata(0,'outputDir');
 imageSequenceFiles = dir(fullfile(outputDir, 'ImageSequence/*.tif'));
 NoValidFiles = startsWith({imageSequenceFiles.name},'._','IgnoreCase',true);
@@ -73,7 +80,6 @@ imageSequence = [];
 tipValue = getappdata(0, 'tipValue');
 setappdata(0, 'selectedZ', 1+tipValue+1);
 setappdata(0, 'cellId', 1);
-glandOrientation = getappdata(0, 'glandOrientation');
 
 for numImg = 1:size(imageSequenceFiles, 1)
     actualFile = imageSequenceFiles(numImg);
@@ -83,7 +89,7 @@ for numImg = 1:size(imageSequenceFiles, 1)
     imageSequence(:, :, numImg) = imresize(actualImg, resizeImg);
 end
 
-imageSequence = addTipsImg3D(tipValue+1, imageSequence);
+% imageSequence = addTipsImg3D(tipValue+1, imageSequence);
 
 
 % imageSequence = imrotate(imageSequence, -glandOrientation);
@@ -237,7 +243,7 @@ function increaseID_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 newValue = getappdata(0, 'cellId')+1;
-labelledImage = getappdata(0, 'labelledImageTemp');
+labelledImage = getappdata(0, 'labelledImageTemp_Resized');
 
 if newValue <= max(labelledImage(:))
     setappdata(0, 'cellId', newValue);
@@ -263,7 +269,7 @@ function increaseZ_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 newValue = getappdata(0, 'selectedZ')+1;
-labelledImage = getappdata(0, 'labelledImageTemp');
+labelledImage = getappdata(0, 'labelledImageTemp_Resized');
 tipValue = getappdata(0, 'tipValue');
 
 if newValue <= (size(labelledImage, 3)-(tipValue+1))
