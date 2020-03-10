@@ -12,7 +12,7 @@ polygon_distribution.Properties.VariableNames = {'Apical','Basal'};
 
 %% Check if there is any atypical cell.
 if isempty(outputDir)==0
-    if contains(lower(outputDir), 'echnoid')
+    if contains(lower(outputDir), 'echinoid')
         loadEchnoidAtypicalCells = 1;
     else
         loadEchnoidAtypicalCells = 0;
@@ -22,8 +22,8 @@ else
 end
 
 if loadEchnoidAtypicalCells
-    if exist(fullfile(outputDir, 'Results', 'atypicalCells.mat'), 'file')
-        load(fullfile(outputDir, 'Results', 'atypicalCells.mat'))
+    if exist(fullfile(outputDir, 'atypicalCells.mat'), 'file')
+        load(fullfile(outputDir, 'atypicalCells.mat'))
     else
         prompt = {'Enter atypical cells:'};
         dlgtitle = 'Input';
@@ -31,7 +31,7 @@ if loadEchnoidAtypicalCells
         definput = {'20','hsv'};
         atypicalCells = inputdlg(prompt,dlgtitle,dims,definput);
         atypicalCells = str2num(atypicalCells{1});
-        save(fullfile(outputDir, 'Results', 'atypicalCells.mat'), 'atypicalCells')
+        save(fullfile(outputDir, 'atypicalCells.mat'), 'atypicalCells')
     end
     
     [basal3dInfo] = checkAtypicalCells(atypicalCells,basal3dInfo);
