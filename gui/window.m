@@ -130,9 +130,9 @@ if roiMask ~= -1
     delete(roiMask);
     roiMask = -1;
     setappdata(0, 'roiMask', roiMask);
-    newCellRegion = getappdata(0, 'newCellRegion');
-    selectCellId = getappdata(0, 'cellId');
     labelledImage = getappdata(0, 'labelledImageTemp');
+    newCellRegion = imresize(double(getappdata(0, 'newCellRegion')), [size(labelledImage, 1)  size(labelledImage, 2)], 'nearest')>0;
+    selectCellId = getappdata(0, 'cellId');
     selectedZ = getappdata(0, 'selectedZ');
     lumenImage = getappdata(0, 'lumenImage');
     showAllCells = getappdata(0, 'showAllCells');
@@ -150,10 +150,10 @@ if roiMask ~= -1
             newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
             labelledImage(newIndices) = selectCellId;
             if getappdata(0, 'canModifyInsideLumen') == 1
-            lumenImage(newIndices) = 0;
-            setappdata(0, 'lumenImage', lumenImage);
+                lumenImage(newIndices) = 0;
+                setappdata(0, 'lumenImage', lumenImage);
             else
-            labelledImage(lumenImage>0) = 0;
+                labelledImage(lumenImage>0) = 0;
             end
             %Smooth surface of next and previos Z
             labelledImage = smoothCellContour3D(labelledImage, selectCellId, (selectedZ-3):(selectedZ+3), lumenImage);
@@ -167,6 +167,12 @@ if roiMask ~= -1
         end
        
         setappdata(0, 'labelledImageTemp', labelledImage);
+        resizeImg = getappdata(0,'resizeImg');
+        originalSize = size(labelledImage);
+        sizeResized = originalSize * resizeImg;
+        sizeResized(3) = originalSize(3);
+        
+        setappdata(0, 'labelledImageTemp_Resized', imresize3(labelledImage, sizeResized, 'nearest'));
         if showAllCells
             showAllCells();
         end
