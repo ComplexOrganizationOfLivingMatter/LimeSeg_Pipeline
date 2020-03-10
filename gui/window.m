@@ -343,7 +343,11 @@ function btAddCell_Callback(hObject, eventdata, handles)
 % hObject    handle to btAddCell (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-disp('');
+labelledImage = getappdata(0, 'labelledImageTemp');
+newValue = max(labelledImage(:)) + 1;
+setappdata(0, 'cellId', newValue);
+set(handles.tbCellId,'string',num2str(newValue));
+
 
 % --- Executes on button press in btMergeCells.
 function btMergeCells_Callback(hObject, eventdata, handles)
