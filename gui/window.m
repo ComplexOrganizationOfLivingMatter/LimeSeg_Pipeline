@@ -332,14 +332,27 @@ function btRemove_Callback(hObject, eventdata, handles)
 % hObject    handle to btRemove (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-disp('');
+cellId = getappdata(0, 'cellId');
+answer = questdlg(['Are you sure to remove cell ', num2str(getappdata(0, 'cellId')) , '?'], ...
+	'Remove cell', ...
+	'Yes','No', 'No');
+if strcmp(answer, 'Yes')
+    labelledImage = getappdata(0, 'labelledImageTemp');
+    labelledImage(labelledImage == cellId) = 0;
+    setappdata(0, 'labelledImageTemp', labelledImage);
+end
+showSelectedCell();
 
 % --- Executes on button press in btAddCell.
 function btAddCell_Callback(hObject, eventdata, handles)
 % hObject    handle to btAddCell (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-disp('');
+labelledImage = getappdata(0, 'labelledImageTemp');
+newValue = max(labelledImage(:)) + 1;
+setappdata(0, 'cellId', newValue);
+set(handles.tbCellId,'string',num2str(newValue));
+
 
 % --- Executes on button press in btMergeCells.
 function btMergeCells_Callback(hObject, eventdata, handles)

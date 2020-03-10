@@ -1,4 +1,4 @@
-function limeSeg_PostProcessing(outputDir)
+function limeSeg_PostProcessing(outputDir, fileName)
 %PIPELINE Summary of this function goes here
 %   Detailed explanation goes here
     mkdir(fullfile(outputDir, 'Cells', 'OutputLimeSeg'));
@@ -56,9 +56,8 @@ function limeSeg_PostProcessing(outputDir)
     else
         colours = [];
         %[labelledImage, outsideGland] = processCells(fullfile(outputDir, 'Cells', filesep), resizeImg, imgSize, tipValue);
-        imageSeqLabelPath = [dir(fullfile(outputDir, '*.tif'));dir(fullfile(outputDir, '*.tiff'))];
 
-        selpath = fullfile(imageSeqLabelPath.folder, imageSeqLabelPath.name);
+        selpath = fullfile(outputDir, fileName);
         tiff_info = imfinfo(selpath); % return tiff structure, one element per image
         tiff_stack = imread(selpath, 1) ; % read in first image
         %concatenate each successive tiff to tiff_stack
@@ -110,8 +109,8 @@ function limeSeg_PostProcessing(outputDir)
     setappdata(0,'outputDir', outputDir);
     setappdata(0,'labelledImage',labelledImage);
     setappdata(0,'lumenImage', lumenImage);
-    setappdata(0,'resizeImg',1);
-    setappdata(0,'tipValue', 0);
+    setappdata(0,'resizeImg', resizeImg);
+    setappdata(0,'tipValue', tipValue);
     setappdata(0, 'glandOrientation', glandOrientation);
     setappdata(0, 'canModifyOutsideGland', 0);
     setappdata(0, 'hideLumen',0);
@@ -132,7 +131,7 @@ function limeSeg_PostProcessing(outputDir)
     
     %% Insert no valid cells
     while isequal(answer, 'Yes')
-        volumeViewer(vertcat(labelledImage>0, lumenImage))
+        %volumeViewer(vertcat(labelledImage>0, lumenImage))
         setappdata(0, 'notFoundCellsApical', notFoundCellsApical);
         setappdata(0, 'notFoundCellsBasal', notFoundCellsBasal);
         h = window();

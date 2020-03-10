@@ -5,8 +5,8 @@ addpath(genpath('gui'))
 
 close all
 
-selpath = uigetdir('data');
+[fileName, selpath] = uigetfile('*.*');
 if isempty(selpath) == 0
-    limeSeg_PostProcessing(selpath);
+    limeSeg_PostProcessing(selpath, fileName);
 end
 
