@@ -10,10 +10,11 @@ lumenImage = getappdata(0, 'lumenImage');
 %imshow(perimImg);
 imageSequence = getappdata(0, 'imageSequence');
 
-imgToShow = imageSequence(:, :, selectedZ);
+imgToShow = imageSequence(:, :, selectedZ)';
 
 % imgToShow(perimImg == 1) = 65536;
 cla('reset') 
+
 imshow(imgToShow);
 hold on;
     if selectCellId > 0
@@ -36,6 +37,10 @@ if isempty(xIndices) == 0 && getappdata(0, 'hideLumen') == 0
     hold off
     alpha(s,.5)
 end
+
+datacursormode 'off';
+dcm_obj = datacursormode();
+set(dcm_obj,'UpdateFcn',@pickCell);
 
 end
 
