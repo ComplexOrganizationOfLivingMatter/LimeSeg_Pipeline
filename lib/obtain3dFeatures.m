@@ -20,7 +20,13 @@ if exist(fullfile(files(numFile).folder, 'morphological3dFeatures.mat'), 'file')
     [basal3dInfo] = calculateNeighbours3D(basalLayer, 2, basalLayer == 0);
     basal3dInfo = basal3dInfo.neighbourhood';
     
-    [cellularFeatures,~,apicoBasalNeighs] = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage_realSize,noValidCells,validCells,[]);
+    if length(apical3dInfo) > length(basal3dInfo)
+        basal3dInfo(length(apical3dInfo)) = {[]};
+    elseif length(apical3dInfo) < length(basal3dInfo)
+        apical3dInfo(length(basal3dInfo)) = {[]};
+    end
+    
+    [cellularFeatures,~,apicoBasalNeighs] = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage_realSize,noValidCells,validCells,files(numFile).folder);
     
     %% Surface ratio 3D
     apicalLayer_onlyValidCells = ismember(apicalLayer, validCells) .* apicalLayer;
