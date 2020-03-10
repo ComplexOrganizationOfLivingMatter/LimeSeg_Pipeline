@@ -22,7 +22,7 @@ function varargout = window(varargin)
 
 % Edit the above text to modify the response to help window
 
-% Last Modified by GUIDE v2.5 09-Mar-2020 12:01:59
+% Last Modified by GUIDE v2.5 10-Mar-2020 10:42:14
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -91,7 +91,9 @@ end
 
 % imageSequence = addTipsImg3D(tipValue+1, imageSequence);
 
-
+cmap = jet(max(max(max(getappdata(0, 'labelledImage')))));
+setappdata(0,'cmap',cmap);
+setappdata(0,'showAllCells',0);
 % imageSequence = imrotate(imageSequence, -glandOrientation);
 
 %orientationGland = regionprops3(imageSequence>0, 'Orientation');
@@ -133,6 +135,7 @@ if roiMask ~= -1
     labelledImage = getappdata(0, 'labelledImageTemp');
     selectedZ = getappdata(0, 'selectedZ');
     lumenImage = getappdata(0, 'lumenImage');
+    showAllCells = getappdata(0, 'showAllCells');
 
     if sum(newCellRegion(:)) > 0
         if getappdata(0, 'canModifyInsideLumen') == 1 
@@ -162,9 +165,11 @@ if roiMask ~= -1
             labelledImage(lumenImage>0) = 0;
             setappdata(0, 'lumenImage', lumenImage);
         end
-
-        
+       
         setappdata(0, 'labelledImageTemp', labelledImage);
+        if showAllCells
+            showAllCells();
+        end
         showSelectedCell();
     end
 end
@@ -378,3 +383,27 @@ if isempty(answer) == 0
         errordlg('You should add more than 1 cell label', 'MEC!');
     end
 end
+
+
+% --- Executes on button press in chBoxShowAll.
+function chBoxShowAll_Callback(hObject, eventdata, handles)
+% hObject    handle to chBoxShowAll (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    
+toggleValue = get(hObject,'Value') == 1;
+setappdata(0, 'showAllCells', toggleValue)
+showSelectedCell();
+
+
+
+% --- Executes on button press in butChangeColors.
+function butChangeColors_Callback(hObject, eventdata, handles)
+% hObject    handle to butChangeColors (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+cmapToUpdate = getappdata(0,'cmap');
+idx = randperm((size(cmapToUpdate,1)));
+setappdata(0,'cmap',cmapToUpdate(idx,:));
+showSelectedCell();
+
