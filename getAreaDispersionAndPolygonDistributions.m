@@ -416,9 +416,7 @@ set([H.mu],'color','k')
 for ii=1:length(H)
     set(H(ii).perc1,'FaceColor','none',...
                    'EdgeColor','k','lineStyle','-')
-               
-    set(H(ii). perc1,'FaceColor','none',...
-                   'EdgeColor','k','lineStyle','-')           
+          
     set(H(ii).sd,'FaceColor','none',...
                    'EdgeColor',[0.6 0.6 0.6],'lineStyle',':')        
     set(H(ii).sd1,'Color',[0.6 0.6 0.6])     
