@@ -30,24 +30,35 @@ function limeSeg_PostProcessing(outputDir)
 
     tipValue = 4;
 
-    imageSequenceFiles = dir(fullfile(outputDir, 'ImageSequence/*.tif'));
-    
-    %% if there is more than 1 image
+    imageSequenceFiles = [dir(fullfile(outputDir, 'ImageSequence/*.tif'));dir(fullfile(outputDir, 'ImageSequence/*.tiff'))];
     NoValidFiles = startsWith({imageSequenceFiles.name},'._','IgnoreCase',true);
-    imageSequenceFiles=imageSequenceFiles(~NoValidFiles);
-    demoFile =  imageSequenceFiles(3);
-    demoImg = imread(fullfile(demoFile.folder, demoFile.name));
-    %% else load stack
-
+    imageSequenceFiles=imageSequenceFiles(~(NoValidFiles));
+      
+    %% if there is only 1 image, convert to imageSequence, then load.
+    if size(imageSequenceFiles,1) == 1
+        fname = fullfile(imageSequenceFiles.folder, imageSequenceFiles.name);
+        info = imfinfo(fname);
+        num_images = numel(info);
+        for k = 1:num_images
+            demoImg = imread(fname, k);
+            imwrite(demoImg , [imageSequenceFiles.folder '\image' num2str(k,'%03.f') '.tif']) ;
+        end
+        mkdir([imageSequenceFiles.folder,'\rawImageSequence\'])
+        movefile(fname, [imageSequenceFiles.folder,'\rawImageSequence\' imageSequenceFiles.name]);
+    else
+        demoFile =  imageSequenceFiles(3);
+        demoImg = imread(fullfile(demoFile.folder, demoFile.name));
+    end
     imgSize = size(imresize(demoImg, resizeImg));
-
+    
     if exist(fullfile(outputDir, 'Results', '3d_layers_info.mat'), 'file')
         load(fullfile(outputDir, 'Results', '3d_layers_info.mat'))
     else
         colours = [];
         %[labelledImage, outsideGland] = processCells(fullfile(outputDir, 'Cells', filesep), resizeImg, imgSize, tipValue);
-        
-        selpath = fullfile(outputDir, 'cyst10_predictions_gasp_average.tiff');
+        imageSeqLabelPath = [dir(fullfile(outputDir, '*.tif'));dir(fullfile(outputDir, '*.tiff'))];
+
+        selpath = fullfile(imageSeqLabelPath.folder, imageSeqLabelPath.name);
         tiff_info = imfinfo(selpath); % return tiff structure, one element per image
         tiff_stack = imread(selpath, 1) ; % read in first image
         %concatenate each successive tiff to tiff_stack
@@ -55,7 +66,13 @@ function limeSeg_PostProcessing(outputDir)
             temp_tiff = imread(selpath, ii);
             tiff_stack = cat(3 , tiff_stack, temp_tiff);
         end
-        labelledImage = double(tiff_stack)-1;
+        
+        %set the background to the '0' label
+        if min(tiff_stack(:))==1
+            labelledImage = double(tiff_stack)-1;
+        else
+            labelledImage = double(tiff_stack);
+        end
         outsideGland = labelledImage == 0;
         
         if size(dir(fullfile(outputDir, 'Lumen/SegmentedLumen', '*.tif')),1) > 0
@@ -65,8 +82,8 @@ function limeSeg_PostProcessing(outputDir)
             %%the biggest 'cell' from plantSeg
             %[labelledImage, lumenImage] = inferLumen(labelledImage);
             
-            [cellsArea] = regionprops(labelledImage, 'Area');
-            [~, lumenIndex] = max(struct2array(cellsArea));
+            [cellsVolume] = regionprops3(labelledImage, 'Volume');
+            [~, lumenIndex] = max(table2array(cellsVolume));
             lumenImage = labelledImage == lumenIndex;
             labelledImage(labelledImage == lumenIndex) = 0;
         end
