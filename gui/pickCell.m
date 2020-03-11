@@ -11,9 +11,11 @@ selectedCell = labelledImage(pos(1), pos(2), getappdata(0, 'selectedZ'));
 output_txt = {['ID Cell: ',num2str(selectedCell)]};
 
 myhandles = guidata(get(event_obj, 'Target'));
-%myhandles.tbCellId.String = num2str(selectedCell);
+myhandles.tbCellId.String = num2str(selectedCell);
+setappdata(0,'cellId',selectedCell);
 set(myhandles.tbCellId, 'String', num2str(selectedCell));
 
+showSelectedCell()
 % hObject = get(event_obj, 'Target');
 % 
 % notify(@(hObject,eventdata)window('tbCellId_Callback',hObject,[],guidata(hObject)))

@@ -26,7 +26,7 @@ function limeSeg_PostProcessing(outputDir, fileName)
         load(fullfile(outputDir, 'Results', 'pixelScaleOfGland.mat')); 
     end
     
-    resizeImg = 0.25;
+    resizeImg = 1;
 
     tipValue = 4;
 
