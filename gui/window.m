@@ -127,6 +127,7 @@ function save_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 roiMask = getappdata(0, 'roiMask');
+progressBar = waitbar(0, 'Saving... Please wait', 'WindowStyle', 'modal');
 if roiMask ~= -1
     delete(roiMask);
     roiMask = -1;
@@ -177,6 +178,7 @@ if roiMask ~= -1
         showSelectedCell();
     end
 end
+close(progressBar)
 
 
 % --- Executes during object creation, after setting all properties.
@@ -433,7 +435,7 @@ if getappdata(0,'windowListener')==1
         pos = round(eventdata.Source.CurrentObject.Parent.CurrentPoint);
         pos = pos(1,1:2);
 
-        labelledImage = getappdata(0, 'labelledImageTemp');
+        labelledImage = getappdata(0, 'labelledImageTemp_Resized');
         labelledImageZ = labelledImage(:,:,getappdata(0, 'selectedZ'))';
         selectedCell = labelledImageZ(pos(2), pos(1));
 
