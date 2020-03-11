@@ -135,8 +135,7 @@ if roiMask ~= -1
     selectCellId = getappdata(0, 'cellId');
     selectedZ = getappdata(0, 'selectedZ');
     lumenImage = getappdata(0, 'lumenImage');
-    showAllCells = getappdata(0, 'showAllCells');
-
+    
     if sum(newCellRegion(:)) > 0
         if getappdata(0, 'canModifyInsideLumen') == 1 
             insideGland = labelledImage(:,:,selectedZ) > 0 | lumenImage(:,:,selectedZ) > 0;
@@ -362,6 +361,7 @@ labelledImage = getappdata(0, 'labelledImageTemp');
 newValue = max(labelledImage(:)) + 1;
 setappdata(0, 'cellId', newValue);
 set(handles.tbCellId,'string',num2str(newValue));
+insertROI_Callback(hObject, eventdata, handles)
 
 
 % --- Executes on button press in btMergeCells.
