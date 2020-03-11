@@ -106,6 +106,7 @@ function limeSeg_PostProcessing(outputDir, fileName)
     setappdata(0, 'canModifyOutsideGland', 0);
     setappdata(0, 'hideLumen',0);
     setappdata(0, 'canModifyInsideLumen',0);
+    setappdata(0, 'colours', colours);
 
     if exist(fullfile(outputDir, 'Results', 'valid_cells.mat'), 'file')
         load(fullfile(outputDir, 'Results', 'valid_cells.mat'))

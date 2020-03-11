@@ -6,16 +6,12 @@ labelledImage = getappdata(0, 'labelledImageTemp_Resized');
 selectedZ = getappdata(0, 'selectedZ');
 lumenImage = getappdata(0, 'lumenImage_Resized');
 showAllCells = getappdata(0, 'showAllCells');
-cmap = getappdata(0, 'cmap');
-% perimImg = bwperim(labelledImage(:, :,  selectedZ) == selectCellId)';
-%imshow(perimImg);
-
 imageSequence = getappdata(0, 'imageSequence');
-imgToShow = imageSequence(:, :, selectedZ)';
+colours = getappdata(0, 'colours');
 
-% imgToShow(perimImg == 1) = 65536;
+imgToShow = mat2gray(imageSequence(:, :, selectedZ)');
+
 cla
-%clf
 
 if showAllCells==1
     %% Showing all cells
@@ -24,26 +20,12 @@ if showAllCells==1
     centroids = vertcat(centLab.Centroid);
     labelsZ = unique(labImageZ);
     
-    cmap(1,:)=[0 0 0];
-    image(labelledImage(:, :,  selectedZ)');
-%     hImage1 = imshow(uint16(imgToShow)); 
-    colormap(cmap)
-
-    %imshow(labelledImage(:, :,  selectedZ)',cmap);
-    hold on
-%     hImage2 = imshow(labelledImage(:, :,  selectedZ)',cmap); 
-%     set(hImage2, 'AlphaData', 0.35);
-    im = image(imgToShow);
-    im.AlphaData = 0.4;
-    
-
+    B = labeloverlay(imgToShow,labelledImage(:, :,  selectedZ)', 'Colormap', colours);
+    imshow(B);
+    hold on;
     textscatter(centroids(labelsZ(2:end),1),centroids(labelsZ(2:end),2),cellfun(@num2str,num2cell(labelsZ(2:end)),'UniformOutput',false),'TextDensityPercentage',100,'ColorData',ones(length(labelsZ(2:end)),3));
-    hold off
-
 else
-    image(imgToShow); 
-    colormap('gray');
-    hold on
+    imshow(imgToShow);
     if selectCellId > 0
         [xIndices, yIndices] = find(labelledImage(:, :,  selectedZ) == selectCellId);
         if isempty(xIndices) == 0
@@ -53,6 +35,7 @@ else
             alpha(s2,.4)
         end
     end
+    hold off
 end
 
 
