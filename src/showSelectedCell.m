@@ -25,23 +25,24 @@ if showAllCells==1
     labelsZ = unique(labImageZ);
     
     cmap(1,:)=[0 0 0];
-%     im1 = image(labelledImage(:, :,  selectedZ)');
-    hImage1 = imshow(labelledImage(:, :,  selectedZ)'); 
-    
+    image(labelledImage(:, :,  selectedZ)');
+%     hImage1 = imshow(uint16(imgToShow)); 
+    colormap(cmap)
 
     %imshow(labelledImage(:, :,  selectedZ)',cmap);
     hold on
-    hImage2 = imshow(imgToShow); 
-    set(hImage2, 'AlphaData', 0.35);
-%     im2 = image(imgToShow);
-%     im2.AlphaData = 0.5;
+%     hImage2 = imshow(labelledImage(:, :,  selectedZ)',cmap); 
+%     set(hImage2, 'AlphaData', 0.35);
+    im = image(imgToShow);
+    im.AlphaData = 0.4;
+    
 
     textscatter(centroids(labelsZ(2:end),1),centroids(labelsZ(2:end),2),cellfun(@num2str,num2cell(labelsZ(2:end)),'UniformOutput',false),'TextDensityPercentage',100,'ColorData',ones(length(labelsZ(2:end)),3));
-    colormap(cmap);
     hold off
 
 else
-    hImage2 = imshow(uint16(imgToShow)); 
+    image(imgToShow); 
+    colormap('gray');
     hold on
     if selectCellId > 0
         [xIndices, yIndices] = find(labelledImage(:, :,  selectedZ) == selectCellId);
