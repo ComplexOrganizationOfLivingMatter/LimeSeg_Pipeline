@@ -150,16 +150,28 @@ if roiMask ~= -1
             insideGland = newCellRegion>-1;
         end
         if selectCellId > 0
-            [y, x] = find(newCellRegion & insideGland');
-            newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
-            labelledImage(newIndices) = selectCellId;
-            if getappdata(0, 'canModifyInsideLumen') == 1
-                lumenImage(newIndices) = 0;
-            else
-                labelledImage(lumenImage>0) = 0;
+            if selectCellId <= max(labelledImage(:))
+                [y, x] = find(newCellRegion & insideGland');
+                newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
+                labelledImage(newIndices) = selectCellId;
+                if getappdata(0, 'canModifyInsideLumen') == 1
+                    lumenImage(newIndices) = 0;
+                else
+                    labelledImage(lumenImage>0) = 0;
+                end
+                %Smooth surface of next and previos Z
+
+                labelledImage = smoothCellContour3D(labelledImage, selectCellId, (selectedZ-3):(selectedZ+3), lumenImage);
+            else % Add cell
+                [y, x] = find(newCellRegion);
+                newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
+                labelledImage(newIndices) = selectCellId;
+                
+                colours = getappdata(0, 'colours');
+                newColours = colorcube(255);
+                colours(end+1, :) = newColours(randi(255), :);
+                setappdata(0, 'colours', colours);
             end
-            %Smooth surface of next and previos Z
-            labelledImage = smoothCellContour3D(labelledImage, selectCellId, (selectedZ-3):(selectedZ+3), lumenImage);
         else
             [y, x] = find(newCellRegion);
             newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
@@ -167,12 +179,15 @@ if roiMask ~= -1
             lumenImage(newIndices) = 1;
             labelledImage(lumenImage>0) = 0;
         end
+        setappdata(0, 'labelledImageTemp', labelledImage);
+        setappdata(0, 'lumenImage', lumenImage);
         
         updateResizedImage();
-        showSelectedCell();
     end
 end
+pause(2);
 close(progressBar)
+showSelectedCell();
 
 
 % --- Executes during object creation, after setting all properties.
