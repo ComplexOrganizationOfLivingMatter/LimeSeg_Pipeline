@@ -173,10 +173,7 @@ if roiMask ~= -1
         
         setappdata(0, 'labelledImageTemp_Resized', imresize3(labelledImage, sizeResized, 'nearest'));
         setappdata(0, 'lumenImage_Resized', imresize3(double(lumenImage), sizeResized, 'nearest')>0);
-
-        if showAllCells
-            showAllCells();
-        end
+        
         showSelectedCell();
     end
 end
