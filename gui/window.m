@@ -22,7 +22,7 @@ function varargout = window(varargin)
 
 % Edit the above text to modify the response to help window
 
-% Last Modified by GUIDE v2.5 11-Mar-2020 09:35:44
+% Last Modified by GUIDE v2.5 11-Mar-2020 11:13:05
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -93,6 +93,7 @@ setappdata(0,'showAllCells',0);
 %orientationGland = regionprops3(imageSequence>0, 'Orientation');
 %glandOrientation = -orientationGland.Orientation(1);
 setappdata(0,'imageSequence',imageSequence);
+setappdata(0,'windowListener',1);
 
 % This sets up the initial plot - only do when we are invisible
 % so window can get raised using window.
@@ -224,6 +225,8 @@ function insertROI_Callback(hObject, eventdata, handles)
 % hObject    handle to insertROI (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+setappdata(0,'windowListener',0);
+
 roiMask = getappdata(0, 'roiMask');
 if roiMask ~= -1
     delete(roiMask);
@@ -232,6 +235,7 @@ roiMask = impoly(gca);
 newCellRegion = createMask(roiMask);
 setappdata(0,'roiMask', roiMask);
 setappdata(0,'newCellRegion', newCellRegion);
+setappdata(0,'windowListener',1);
 
 
 % --- Executes on button press in increaseID.
@@ -412,19 +416,21 @@ function figure1_WindowButtonDownFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-pos2 = round(eventdata.Source.CurrentPoint);
-try
-    pos = round(eventdata.Source.CurrentObject.Parent.CurrentPoint);
-    pos = pos(1,1:2);
+if getappdata(0,'windowListener')==1
+    try
+        pos = round(eventdata.Source.CurrentObject.Parent.CurrentPoint);
+        pos = pos(1,1:2);
 
-    labelledImage = getappdata(0, 'labelledImageTemp');
-    labelledImageZ = labelledImage(:,:,getappdata(0, 'selectedZ'))';
-    selectedCell = labelledImageZ(pos(2), pos(1));
+        labelledImage = getappdata(0, 'labelledImageTemp');
+        labelledImageZ = labelledImage(:,:,getappdata(0, 'selectedZ'))';
+        selectedCell = labelledImageZ(pos(2), pos(1));
 
-    setappdata(0,'cellId',selectedCell);
-    set(handles.tbCellId,'string',num2str(selectedCell));
-    
-catch
+        setappdata(0,'cellId',selectedCell);
+        set(handles.tbCellId,'string',num2str(selectedCell));
+
+    catch
+    end
+
+    showSelectedCell()
 end
 
-showSelectedCell()
