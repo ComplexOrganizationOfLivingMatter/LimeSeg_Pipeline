@@ -39,10 +39,10 @@ end
 if nargout
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
-    try
+    %try
         gui_mainfcn(gui_State, varargin{:});
-    catch
-    end
+    %catch
+    %end
 end
 % End initialization code - DO NOT EDIT
 
@@ -167,17 +167,8 @@ if roiMask ~= -1
             lumenImage(newIndices) = 1;
             labelledImage(lumenImage>0) = 0;
         end
-       
-        setappdata(0, 'labelledImageTemp', labelledImage);
-        setappdata(0, 'lumenImage', lumenImage);
-        resizeImg = getappdata(0,'resizeImg');
-        originalSize = size(labelledImage);
-        sizeResized = originalSize * resizeImg;
-        sizeResized(3) = originalSize(3);
         
-        setappdata(0, 'labelledImageTemp_Resized', imresize3(labelledImage, sizeResized, 'nearest'));
-        setappdata(0, 'lumenImage_Resized', imresize3(double(lumenImage), sizeResized, 'nearest')>0);
-        
+        updateResizedImage();
         showSelectedCell();
     end
 end
@@ -358,6 +349,7 @@ if strcmp(answer, 'Yes')
     labelledImage = getappdata(0, 'labelledImageTemp');
     labelledImage(labelledImage == cellId) = 0;
     setappdata(0, 'labelledImageTemp', labelledImage);
+    updateResizedImage();
 end
 showSelectedCell();
 
@@ -392,6 +384,7 @@ if isempty(answer) == 0
     if length(cellsToMerge) > 1
         labelledImageTmp = mergeLabelsOfImage(labelledImage, cellsToMerge);
         setappdata(0, 'labelledImageTemp', labelledImageTmp);
+        updateResizedImage();
     else
         errordlg('You should add more than 1 cell label', 'MEC!');
     end
@@ -447,7 +440,7 @@ if getappdata(0,'windowListener')==1
 
     catch
     end
-
+    
     showSelectedCell()
 end
 
