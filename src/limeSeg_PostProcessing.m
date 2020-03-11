@@ -86,15 +86,6 @@ function limeSeg_PostProcessing(outputDir, fileName)
             lumenImage = labelledImage == lumenIndex;
             labelledImage(labelledImage == lumenIndex) = 0;
         end
-
-        %It add pixels and remove some
-        validRegion = imfill(bwmorph3(labelledImage>0 | imdilate(lumenImage, strel('sphere', 5)), 'majority'), 'holes');
-        %outsideGland = validRegion == 0;
-        questionedRegion = imdilate(outsideGland, strel('sphere', 2));
-        outsideGland(questionedRegion) = ~validRegion(questionedRegion);
-        outsideGland(lumenImage) = 0;
-        
-        %%labelledImage = fill0sWithCells(labelledImage, labelledImage, outsideGland | lumenImage);
             
         %% Put both lumen and labelled image at a 90 degrees
         orientationGland = regionprops3(lumenImage>0, 'Orientation');

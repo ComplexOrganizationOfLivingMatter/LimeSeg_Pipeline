@@ -2,9 +2,9 @@ function [] = showSelectedCell()
 %SHOWSELECTEDCELL Summary of this function goes here
 %   Detailed explanation goes here
 selectCellId = getappdata(0, 'cellId');
-labelledImage = getappdata(0, 'labelledImageTemp');
+labelledImage = getappdata(0, 'labelledImageTemp_Resized');
 selectedZ = getappdata(0, 'selectedZ');
-lumenImage = getappdata(0, 'lumenImage');
+lumenImage = getappdata(0, 'lumenImage_Resized');
 showAllCells = getappdata(0, 'showAllCells');
 cmap = getappdata(0, 'cmap');
 % perimImg = bwperim(labelledImage(:, :,  selectedZ) == selectCellId)';
@@ -39,10 +39,9 @@ if showAllCells==1
     textscatter(centroids(labelsZ(2:end),1),centroids(labelsZ(2:end),2),cellfun(@num2str,num2cell(labelsZ(2:end)),'UniformOutput',false),'TextDensityPercentage',100,'ColorData',ones(length(labelsZ(2:end)),3));
     colormap(cmap);
     hold off
+
 else
-    %% Showing selected cell
-    hImage2 = imshow(imgToShow);
-%     image(imgToShow);
+    hImage2 = imshow(uint16(imgToShow)); 
     hold on
     if selectCellId > 0
         [xIndices, yIndices] = find(labelledImage(:, :,  selectedZ) == selectCellId);

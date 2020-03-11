@@ -60,10 +60,17 @@ set(handles.missingApical,'string', strjoin(arrayfun(@num2str, getappdata(0, 'no
 set(handles.missingBasal,'string', strjoin(arrayfun(@num2str, getappdata(0, 'notFoundCellsBasal'), 'UniformOutput', false), ', '))
 
 setappdata(0, 'labelledImageTemp', getappdata(0, 'labelledImage'));
+resizeImg = getappdata(0,'resizeImg');
+labelledImage = getappdata(0, 'labelledImage');
+originalSize = size(labelledImage);
+sizeResized = originalSize * resizeImg;
+sizeResized(3) = originalSize(3);
+
+setappdata(0, 'labelledImageTemp_Resized', imresize3(labelledImage, sizeResized, 'nearest'));
+setappdata(0, 'lumenImage_Resized', imresize3(double(getappdata(0, 'lumenImage')), sizeResized, 'nearest')>0);
 
 % Update handles structure
 guidata(hObject, handles);
-resizeImg = getappdata(0,'resizeImg');
 outputDir = getappdata(0,'outputDir');
 imageSequenceFiles = dir(fullfile(outputDir, 'ImageSequence/*.tif'));
 NoValidFiles = startsWith({imageSequenceFiles.name},'._','IgnoreCase',true);
@@ -73,7 +80,6 @@ imageSequence = [];
 tipValue = getappdata(0, 'tipValue');
 setappdata(0, 'selectedZ', 1+tipValue+1);
 setappdata(0, 'cellId', 1);
-glandOrientation = getappdata(0, 'glandOrientation');
 
 for numImg = 1:size(imageSequenceFiles, 1)
     actualFile = imageSequenceFiles(numImg);
@@ -83,7 +89,7 @@ for numImg = 1:size(imageSequenceFiles, 1)
     imageSequence(:, :, numImg) = imresize(actualImg, resizeImg);
 end
 
-imageSequence = addTipsImg3D(tipValue+1, imageSequence);
+% imageSequence = addTipsImg3D(tipValue+1, imageSequence);
 
 cmap = jet(max(max(max(getappdata(0, 'labelledImage')))));
 setappdata(0,'cmap',cmap);
@@ -125,13 +131,12 @@ if roiMask ~= -1
     delete(roiMask);
     roiMask = -1;
     setappdata(0, 'roiMask', roiMask);
-    newCellRegion = getappdata(0, 'newCellRegion');
-    selectCellId = getappdata(0, 'cellId');
     labelledImage = getappdata(0, 'labelledImageTemp');
+    newCellRegion = imresize(double(getappdata(0, 'newCellRegion')), [size(labelledImage, 1)  size(labelledImage, 2)], 'nearest')>0;
+    selectCellId = getappdata(0, 'cellId');
     selectedZ = getappdata(0, 'selectedZ');
     lumenImage = getappdata(0, 'lumenImage');
-    showAllCells = getappdata(0, 'showAllCells');
-
+    
     if sum(newCellRegion(:)) > 0
         if getappdata(0, 'canModifyInsideLumen') == 1 
             insideGland = labelledImage(:,:,selectedZ) > 0 | lumenImage(:,:,selectedZ) > 0;
@@ -145,10 +150,9 @@ if roiMask ~= -1
             newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
             labelledImage(newIndices) = selectCellId;
             if getappdata(0, 'canModifyInsideLumen') == 1
-            lumenImage(newIndices) = 0;
-            setappdata(0, 'lumenImage', lumenImage);
+                lumenImage(newIndices) = 0;
             else
-            labelledImage(lumenImage>0) = 0;
+                labelledImage(lumenImage>0) = 0;
             end
             %Smooth surface of next and previos Z
             labelledImage = smoothCellContour3D(labelledImage, selectCellId, (selectedZ-3):(selectedZ+3), lumenImage);
@@ -158,10 +162,17 @@ if roiMask ~= -1
             labelledImage(newIndices) = selectCellId;
             lumenImage(newIndices) = 1;
             labelledImage(lumenImage>0) = 0;
-            setappdata(0, 'lumenImage', lumenImage);
         end
        
         setappdata(0, 'labelledImageTemp', labelledImage);
+        setappdata(0, 'lumenImage', lumenImage);
+        resizeImg = getappdata(0,'resizeImg');
+        originalSize = size(labelledImage);
+        sizeResized = originalSize * resizeImg;
+        sizeResized(3) = originalSize(3);
+        
+        setappdata(0, 'labelledImageTemp_Resized', imresize3(labelledImage, sizeResized, 'nearest'));
+        setappdata(0, 'lumenImage_Resized', imresize3(double(lumenImage), sizeResized, 'nearest')>0);
         
         showSelectedCell();
     end
@@ -244,7 +255,7 @@ function increaseID_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 newValue = getappdata(0, 'cellId')+1;
-labelledImage = getappdata(0, 'labelledImageTemp');
+labelledImage = getappdata(0, 'labelledImageTemp_Resized');
 
 if newValue <= max(labelledImage(:))
     setappdata(0, 'cellId', newValue);
@@ -270,7 +281,7 @@ function increaseZ_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 newValue = getappdata(0, 'selectedZ')+1;
-labelledImage = getappdata(0, 'labelledImageTemp');
+labelledImage = getappdata(0, 'labelledImageTemp_Resized');
 tipValue = getappdata(0, 'tipValue');
 
 if newValue <= (size(labelledImage, 3)-(tipValue+1))
@@ -354,6 +365,7 @@ labelledImage = getappdata(0, 'labelledImageTemp');
 newValue = max(labelledImage(:)) + 1;
 setappdata(0, 'cellId', newValue);
 set(handles.tbCellId,'string',num2str(newValue));
+insertROI_Callback(hObject, eventdata, handles)
 
 
 % --- Executes on button press in btMergeCells.

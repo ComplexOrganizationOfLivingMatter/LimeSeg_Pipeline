@@ -12,7 +12,7 @@ polygon_distribution.Properties.VariableNames = {'Apical','Basal'};
 
 %% Check if there is any atypical cell.
 if isempty(outputDir)==0
-    if contains(lower(outputDir), 'echnoid')
+    if contains(lower(outputDir), 'echinoid')
         loadEchnoidAtypicalCells = 1;
     else
         loadEchnoidAtypicalCells = 0;
@@ -22,8 +22,8 @@ else
 end
 
 if loadEchnoidAtypicalCells
-    if exist(fullfile(outputDir, 'Results', 'atypicalCells.mat'), 'file')
-        load(fullfile(outputDir, 'Results', 'atypicalCells.mat'))
+    if exist(fullfile(outputDir, 'atypicalCells.mat'), 'file')
+        load(fullfile(outputDir, 'atypicalCells.mat'))
     else
         prompt = {'Enter atypical cells:'};
         dlgtitle = 'Input';
@@ -31,7 +31,7 @@ if loadEchnoidAtypicalCells
         definput = {'20','hsv'};
         atypicalCells = inputdlg(prompt,dlgtitle,dims,definput);
         atypicalCells = str2num(atypicalCells{1});
-        save(fullfile(outputDir, 'Results', 'atypicalCells.mat'), 'atypicalCells')
+        save(fullfile(outputDir, 'atypicalCells.mat'), 'atypicalCells')
     end
     
     [basal3dInfo] = checkAtypicalCells(atypicalCells,basal3dInfo);
@@ -109,15 +109,15 @@ CellularFeaturesWithNoValidCells = CellularFeatures;
 CellularFeatures(noValidCells,:)=[];
 
 
-if isempty(outputDir) == 0
-    writetable(CellularFeatures,fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Range','B2');
-
-    %% Poligon distribution 
-    polygon_distribution_3D=calculate_polygon_distribution(cellfun(@length, apicobasal_neighbours), validCells);
-    writetable(table('','VariableNames',{'Apical'}),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B2')
-    writetable(table(polygon_distribution.Apical),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B3', 'WriteVariableNames',false);
-    writetable(table('','VariableNames',{'Basal'}),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B6')
-    writetable(table(polygon_distribution.Basal),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B7', 'WriteVariableNames',false);
-    writetable(table('','VariableNames',{'Accumulate'}),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B10')
-    writetable(table(polygon_distribution_3D),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B11', 'WriteVariableNames',false);
-end
+% if isempty(outputDir) == 0
+%     writetable(CellularFeatures,fullfile(outputDir, 'cellular_features_LimeSeg3DSegmentation.xls'), 'Range','B2');
+% 
+%     %% Poligon distribution 
+%     polygon_distribution_3D=calculate_polygon_distribution(cellfun(@length, apicobasal_neighbours), validCells);
+%     writetable(table('','VariableNames',{'Apical'}),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B2')
+%     writetable(table(polygon_distribution.Apical),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B3', 'WriteVariableNames',false);
+%     writetable(table('','VariableNames',{'Basal'}),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B6')
+%     writetable(table(polygon_distribution.Basal),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B7', 'WriteVariableNames',false);
+%     writetable(table('','VariableNames',{'Accumulate'}),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B10')
+%     writetable(table(polygon_distribution_3D),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B11', 'WriteVariableNames',false);
+% end
