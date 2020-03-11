@@ -9,15 +9,13 @@ showAllCells = getappdata(0, 'showAllCells');
 cmap = getappdata(0, 'cmap');
 % perimImg = bwperim(labelledImage(:, :,  selectedZ) == selectCellId)';
 %imshow(perimImg);
-imageSequence = getappdata(0, 'imageSequence');
 
+imageSequence = getappdata(0, 'imageSequence');
 imgToShow = imageSequence(:, :, selectedZ)';
 
 % imgToShow(perimImg == 1) = 65536;
 cla
 %clf
-
-
 
 if showAllCells==1
     %% Showing all cells
@@ -28,15 +26,17 @@ if showAllCells==1
     
     cmap(1,:)=[0 0 0];
     im1 = image(labelledImage(:, :,  selectedZ)');
+%     hImage1 = imshow(labelledImage(:, :,  selectedZ)','Parent',ax); 
     colormap(cmap);
 
     %imshow(labelledImage(:, :,  selectedZ)',cmap);
     hold on
 %     hLab = imshow(imgToShow);
 %     set(hLab, 'AlphaData', 0.35);
+%     hImage2 = imshow(imgToShow,'Parent',ax); 
+%     set(hImage2, 'AlphaData', 0.35);
     im2 = image(imgToShow);
     im2.AlphaData = 0.5;
-    set(im2,'HitTest','off')
 
     textscatter(centroids(labelsZ(2:end),1),centroids(labelsZ(2:end),2),cellfun(@num2str,num2cell(labelsZ(2:end)),'UniformOutput',false),'TextDensityPercentage',100,'ColorData',ones(length(labelsZ(2:end)),3));
     hold off
