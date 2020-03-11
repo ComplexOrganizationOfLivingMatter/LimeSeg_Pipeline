@@ -22,7 +22,7 @@ function varargout = window(varargin)
 
 % Edit the above text to modify the response to help window
 
-% Last Modified by GUIDE v2.5 11-Mar-2020 11:13:05
+% Last Modified by GUIDE v2.5 11-Mar-2020 12:33:34
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -39,7 +39,10 @@ end
 if nargout
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
-    gui_mainfcn(gui_State, varargin{:});
+    try
+        gui_mainfcn(gui_State, varargin{:});
+    catch
+    end
 end
 % End initialization code - DO NOT EDIT
 
