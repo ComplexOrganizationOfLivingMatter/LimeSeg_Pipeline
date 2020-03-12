@@ -55,13 +55,14 @@ for nIndex= 1:length(indexCells')
                 totalMsgs = [totalMsgs, msg2];
                 warning(msg);
             end
-%             if length(otherMotifCells) == 2
-%                 newApicalNeighs = apical3dInfo{1,indexCells(nIndex)}';
-%                 newBasalNeighs = basal3dInfo{1,indexCells(nIndex)}';
-%                 wrongScutoids(wrongScutoids == indexCells(nIndex)) =[];
-%                 apical3dInfo{1,indexCells(nIndex)} = unique([newApicalNeighs wrongScutoids])';
-%                 basal3dInfo{1,indexCells(nIndex)} = unique([newBasalNeighs  wrongScutoids])';
-%             end
+            if length(otherMotifCells) == 2
+                newApicalNeighs = apical3dInfo{1,indexCells(nIndex)}';
+                  newApicalNeighs(newApicalNeighs == pairedCells(indexPairedCells)) = [];
+                newBasalNeighs = basal3dInfo{1,indexCells(nIndex)}';
+                  newBasalNeighs(newBasalNeighs == pairedCells(indexPairedCells)) = [];
+                apical3dInfo{1,indexCells(nIndex)} = newApicalNeighs';
+                basal3dInfo{1,indexCells(nIndex)} = newBasalNeighs';
+            end
         end
     end
 end
@@ -113,7 +114,7 @@ volume_cells=table2array(regionprops3(labelledImage,'Volume'));
 
 %%  Determine if a cell is a scutoid or not
 scutoids_cells=cellfun(@(x,y) double(~isequal(x,y)), neighbours_data.Apical,neighbours_data.Basal);
-apicoBasalTransitions = cellfun(@(x, y) length(unique(vertcat(setdiff(x, y), setdiff(y, x)))), apical3dInfo, basal3dInfo, 'UniformOutput', false);
+apicoBasalTransitions = cellfun(@(x, y) length(unique(vertcat(setdiff(x, y), setdiff(y, x)))), apical3dInfo, basal3dInfo);
 
 %%  Export to a excel file
 ID_cells=(1:length(basal3dInfo)).';
