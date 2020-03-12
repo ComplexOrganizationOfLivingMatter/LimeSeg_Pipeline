@@ -55,13 +55,13 @@ for nIndex= 1:length(indexCells')
                 totalMsgs = [totalMsgs, msg2];
                 warning(msg);
             end
-            if length(otherMotifCells) == 2
-                newApicalNeighs = apical3dInfo{1,indexCells(nIndex)}';
-                newBasalNeighs = basal3dInfo{1,indexCells(nIndex)}';
-                wrongScutoids(wrongScutoids == indexCells(nIndex)) =[];
-                apical3dInfo{1,indexCells(nIndex)} = unique([newApicalNeighs wrongScutoids])';
-                basal3dInfo{1,indexCells(nIndex)} = unique([newBasalNeighs  wrongScutoids])';
-            end
+%             if length(otherMotifCells) == 2
+%                 newApicalNeighs = apical3dInfo{1,indexCells(nIndex)}';
+%                 newBasalNeighs = basal3dInfo{1,indexCells(nIndex)}';
+%                 wrongScutoids(wrongScutoids == indexCells(nIndex)) =[];
+%                 apical3dInfo{1,indexCells(nIndex)} = unique([newApicalNeighs wrongScutoids])';
+%                 basal3dInfo{1,indexCells(nIndex)} = unique([newBasalNeighs  wrongScutoids])';
+%             end
         end
     end
 end
