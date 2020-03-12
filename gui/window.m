@@ -133,12 +133,14 @@ if roiMask ~= -1
     roiMask = -1;
     setappdata(0, 'roiMask', roiMask);
     labelledImage = getappdata(0, 'labelledImageTemp');
-    newCellRegion = imresize(double(getappdata(0, 'newCellRegion')), [size(labelledImage, 1)  size(labelledImage, 2)], 'nearest')>0;
+    labelledImage_Resized = getappdata(0, 'labelledImageTemp_Resized');
+    newCellRegion = getappdata(0, 'newCellRegion')>0;
     selectCellId = getappdata(0, 'cellId');
     selectedZ = getappdata(0, 'selectedZ');
     lumenImage = getappdata(0, 'lumenImage');
     
     if sum(newCellRegion(:)) > 0
+        newCellRegion = imresize(double(newCellRegion), [size(labelledImage, 1)  size(labelledImage, 2)], 'nearest')>0;
         if getappdata(0, 'canModifyInsideLumen') == 1 
             insideGland = labelledImage(:,:,selectedZ) > 0 | lumenImage(:,:,selectedZ) > 0;
         elseif getappdata(0, 'canModifyOutsideGland') == 0
@@ -157,8 +159,7 @@ if roiMask ~= -1
                     labelledImage(lumenImage>0) = 0;
                 end
                 %Smooth surface of next and previos Z
-
-                labelledImage = smoothCellContour3D(labelledImage, selectCellId, (selectedZ-3):(selectedZ+3), lumenImage);
+                %labelledImage = smoothCellContour3D(labelledImage, selectCellId, (selectedZ-3):(selectedZ+3), lumenImage);
             else % Add cell
                 [y, x] = find(newCellRegion);
                 newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
@@ -178,9 +179,9 @@ if roiMask ~= -1
         end
         setappdata(0, 'labelledImageTemp', labelledImage);
         setappdata(0, 'lumenImage', lumenImage);
-        
-        job = batch('updateResizedImage');
-        wait(job);
+
+        updateResizedImage();
+        pause(2);
     end
 end
 close(progressBar)
