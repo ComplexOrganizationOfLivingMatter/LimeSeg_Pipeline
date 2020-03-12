@@ -207,6 +207,8 @@ function tbCellId_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of tbZFrame as text
 %        str2double(get(hObject,'String')) returns contents of tbZFrame as a double
+setappdata(0,'windowListener',1);
+
 setappdata(0,'cellId',str2double(get(hObject,'String')));
 showSelectedCell();
 
@@ -218,6 +220,7 @@ function tbZFrame_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of tbZFrame as text
 %        str2double(get(hObject,'String')) returns contents of tbZFrame as a double
+setappdata(0,'windowListener',1);
 labelledImage = getappdata(0, 'labelledImageTemp');
 newFrameValue = str2double(get(hObject,'String'));
 if newFrameValue > 0 && newFrameValue <= size(labelledImage, 3)
@@ -262,6 +265,7 @@ function increaseID_Callback(hObject, eventdata, handles)
 % hObject    handle to increaseID (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+setappdata(0,'windowListener',1);
 newValue = getappdata(0, 'cellId')+1;
 labelledImage = getappdata(0, 'labelledImageTemp_Resized');
 
@@ -276,6 +280,7 @@ function decreaseID_Callback(hObject, eventdata, handles)
 % hObject    handle to decreaseID (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+setappdata(0,'windowListener',1);
 newValue = getappdata(0, 'cellId')-1;
 if newValue >= 0
     setappdata(0, 'cellId', newValue);
@@ -288,6 +293,7 @@ function increaseZ_Callback(hObject, eventdata, handles)
 % hObject    handle to increaseZ (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+setappdata(0,'windowListener',1);
 newValue = getappdata(0, 'selectedZ')+1;
 labelledImage = getappdata(0, 'labelledImageTemp_Resized');
 
