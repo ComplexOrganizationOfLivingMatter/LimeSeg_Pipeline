@@ -22,7 +22,7 @@ function varargout = window(varargin)
 
 % Edit the above text to modify the response to help window
 
-% Last Modified by GUIDE v2.5 11-Mar-2020 12:33:34
+% Last Modified by GUIDE v2.5 12-Mar-2020 11:32:57
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -134,7 +134,7 @@ if roiMask ~= -1
     setappdata(0, 'roiMask', roiMask);
     labelledImage = getappdata(0, 'labelledImageTemp');
     labelledImage_Resized = getappdata(0, 'labelledImageTemp_Resized');
-    newCellRegion = getappdata(0, 'newCellRegion')>0;
+    newCellRegion = getappdata(0, 'newCellRegion');
     selectCellId = getappdata(0, 'cellId');
     selectedZ = getappdata(0, 'selectedZ');
     lumenImage = getappdata(0, 'lumenImage');
@@ -452,3 +452,23 @@ if getappdata(0,'windowListener')==1
     
     showSelectedCell()
 end
+
+
+% --- Executes on button press in btRemove2DCell.
+function btRemove2DCell_Callback(hObject, eventdata, handles)
+% hObject    handle to btRemove2DCell (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+cellId = getappdata(0, 'cellId');
+answer = questdlg(['Are you sure to remove cell ', num2str(getappdata(0, 'cellId')) , ' on this frame?'], ...
+	'Remove cell', ...
+	'Yes','No', 'No');
+if strcmp(answer, 'Yes')
+    labelledImage = getappdata(0, 'labelledImageTemp');
+    labelledImage_selectedZ = labelledImage(:, :, getappdata(0, 'selectedZ'));
+    labelledImage_selectedZ(labelledImage_selectedZ == cellId) = 0;
+    labelledImage(:, :, getappdata(0, 'selectedZ')) = labelledImage_selectedZ;
+    setappdata(0, 'labelledImageTemp', labelledImage);
+    updateResizedImage();
+end
+showSelectedCell();
