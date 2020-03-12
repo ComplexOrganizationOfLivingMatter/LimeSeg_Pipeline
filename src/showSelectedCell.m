@@ -23,7 +23,9 @@ if showAllCells==1
     B = labeloverlay(imgToShow,labelledImage(:, :,  selectedZ)', 'Colormap', colours);
     imshow(B);
     hold on;
-    textscatter(centroids(labelsZ(2:end),1),centroids(labelsZ(2:end),2),cellfun(@num2str,num2cell(labelsZ(2:end)),'UniformOutput',false),'TextDensityPercentage',100,'ColorData',ones(length(labelsZ(2:end)),3));
+    if isempty(centroids) == 0
+        textscatter(centroids(labelsZ(2:end),1),centroids(labelsZ(2:end),2),cellfun(@num2str,num2cell(labelsZ(2:end)),'UniformOutput',false),'TextDensityPercentage',100,'ColorData',ones(length(labelsZ(2:end)),3));
+    end
 else
     imshow(imgToShow);
     if selectCellId > 0

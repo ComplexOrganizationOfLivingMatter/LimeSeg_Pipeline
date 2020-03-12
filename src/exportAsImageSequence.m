@@ -14,7 +14,7 @@ function [colours] = exportAsImageSequence(labelledImage, outputDir, colours, ti
     colours = vertcat([1 1 1], colours);
     
     h = figure('Visible', 'off');
-    for numZ = 1+tipValue+1:(size(labelledImage, 3)-(tipValue+1))
+    for numZ = 1:(size(labelledImage, 3))
         if exist('imageSequence', 'var') == 0
             imshow((labelledImage(:, :, numZ)')+1, colours);
         else
@@ -40,7 +40,7 @@ function [colours] = exportAsImageSequence(labelledImage, outputDir, colours, ti
             end
         end
         h.InvertHardcopy = 'off';
-        saveas(h,fullfile(outputDir, strcat('labelledImage_', num2str(numZ-(tipValue+1)), '.png')))
+        saveas(h,fullfile(outputDir, strcat('labelledImage_', num2str(numZ), '.png')))
         %imwrite(labelledImage(:, :, numZ), , );
     end
     

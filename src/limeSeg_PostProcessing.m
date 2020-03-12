@@ -28,7 +28,7 @@ function limeSeg_PostProcessing(outputDir, fileName)
     
     resizeImg = 0.25;
 
-    tipValue = 4;
+    tipValue = 0;
 
     imageSequenceFiles = [dir(fullfile(outputDir, 'ImageSequence/*.tif'));dir(fullfile(outputDir, 'ImageSequence/*.tiff'))];
     NoValidFiles = startsWith({imageSequenceFiles.name},'._','IgnoreCase',true);
@@ -49,14 +49,11 @@ function limeSeg_PostProcessing(outputDir, fileName)
         demoFile =  imageSequenceFiles(3);
         demoImg = imread(fullfile(demoFile.folder, demoFile.name));
     end
-    imgSize = size(imresize(demoImg, resizeImg));
     
     if exist(fullfile(outputDir, 'Results', '3d_layers_info.mat'), 'file')
         load(fullfile(outputDir, 'Results', '3d_layers_info.mat'))
     else
         colours = [];
-        %[labelledImage, outsideGland] = processCells(fullfile(outputDir, 'Cells', filesep), resizeImg, imgSize, tipValue);
-
         selpath = fullfile(outputDir, fileName);
         tiff_info = imfinfo(selpath); % return tiff structure, one element per image
         tiff_stack = imread(selpath, 1) ; % read in first image
@@ -90,13 +87,11 @@ function limeSeg_PostProcessing(outputDir, fileName)
         %% Put both lumen and labelled image at a 90 degrees
         orientationGland = regionprops3(lumenImage>0, 'Orientation');
         glandOrientation = -orientationGland.Orientation(1);
-        %labelledImage = imrotate(labelledImage, glandOrientation);
-        %lumenImage = imrotate(lumenImage, glandOrientation);
         
         [labelledImage, basalLayer, apicalLayer, colours] = postprocessGland(labelledImage,outsideGland, lumenImage, outputDir, colours, tipValue);
     end
     outsideGland = labelledImage == 0 & imdilate(lumenImage, strel('sphere', 1)) == 0;
-
+    
     setappdata(0,'outputDir', outputDir);
     setappdata(0,'labelledImage',labelledImage);
     setappdata(0,'lumenImage', lumenImage);

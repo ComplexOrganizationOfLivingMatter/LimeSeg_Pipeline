@@ -76,9 +76,7 @@ imageSequenceFiles = dir(fullfile(outputDir, 'ImageSequence/*.tif'));
 NoValidFiles = startsWith({imageSequenceFiles.name},'._','IgnoreCase',true);
 imageSequenceFiles = imageSequenceFiles(~NoValidFiles);
 imageSequence = [];
-
-tipValue = getappdata(0, 'tipValue');
-setappdata(0, 'selectedZ', 1+tipValue+1);
+setappdata(0, 'selectedZ', 1);
 setappdata(0, 'cellId', 1);
 
 for numImg = 1:size(imageSequenceFiles, 1)
@@ -220,11 +218,10 @@ function tbZFrame_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of tbZFrame as text
 %        str2double(get(hObject,'String')) returns contents of tbZFrame as a double
-tipValue = getappdata(0, 'tipValue');
 labelledImage = getappdata(0, 'labelledImageTemp');
 newFrameValue = str2double(get(hObject,'String'));
-if newFrameValue > 0 && newFrameValue + tipValue + 1 <= size(labelledImage, 3)
-    setappdata(0, 'selectedZ', newFrameValue + (tipValue + 1));
+if newFrameValue > 0 && newFrameValue <= size(labelledImage, 3)
+    setappdata(0, 'selectedZ', newFrameValue);
     showSelectedCell();
 end
 
@@ -293,11 +290,10 @@ function increaseZ_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 newValue = getappdata(0, 'selectedZ')+1;
 labelledImage = getappdata(0, 'labelledImageTemp_Resized');
-tipValue = getappdata(0, 'tipValue');
 
-if newValue <= (size(labelledImage, 3)-(tipValue+1))
+if newValue <= size(labelledImage, 3)
     setappdata(0, 'selectedZ', newValue);
-    set(handles.tbZFrame,'string',num2str(newValue-(tipValue+1)));
+    set(handles.tbZFrame,'string',num2str(newValue));
     showSelectedCell();
 end
 
@@ -306,12 +302,11 @@ function decreaseZ_Callback(hObject, eventdata, handles)
 % hObject    handle to decreaseZ (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+setappdata(0,'windowListener',1);
 newValue = getappdata(0, 'selectedZ')-1;
-tipValue = getappdata(0, 'tipValue');
-if newValue >= (tipValue+2)
-    tipValue = getappdata(0, 'tipValue');
+if newValue > 0
     setappdata(0, 'selectedZ', newValue);
-    set(handles.tbZFrame,'string',num2str(newValue-(tipValue+1)));
+    set(handles.tbZFrame,'string',num2str(newValue));
     showSelectedCell();
 end
 
