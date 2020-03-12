@@ -39,10 +39,7 @@ end
 if nargout
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
-    %try
-        gui_mainfcn(gui_State, varargin{:});
-    %catch
-    %end
+    gui_mainfcn(gui_State, varargin{:});
 end
 % End initialization code - DO NOT EDIT
 
@@ -414,18 +411,6 @@ function chBoxShowAll_Callback(hObject, eventdata, handles)
     
 toggleValue = get(hObject,'Value') == 1;
 setappdata(0, 'showAllCells', toggleValue)
-showSelectedCell();
-
-
-
-% --- Executes on button press in butChangeColors.
-function butChangeColors_Callback(hObject, eventdata, handles)
-% hObject    handle to butChangeColors (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-cmapToUpdate = getappdata(0,'cmap');
-idx = randperm((size(cmapToUpdate,1)));
-setappdata(0,'cmap',cmapToUpdate(idx,:));
 showSelectedCell();
 
 
