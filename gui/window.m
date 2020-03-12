@@ -179,10 +179,10 @@ if roiMask ~= -1
         setappdata(0, 'labelledImageTemp', labelledImage);
         setappdata(0, 'lumenImage', lumenImage);
         
-        updateResizedImage();
+        job = batch('updateResizedImage');
+        wait(job);
     end
 end
-pause(2);
 close(progressBar)
 showSelectedCell();
 
@@ -420,8 +420,14 @@ function imageCanvas_CreateFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
+function figure1_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
 % --- Executes on mouse press over figure background, over a disabled or
 % --- inactive control, or over an axes background.
+
+
 function figure1_WindowButtonDownFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -443,4 +449,3 @@ if getappdata(0,'windowListener')==1
     
     showSelectedCell()
 end
-
