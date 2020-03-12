@@ -141,13 +141,15 @@ if roiMask ~= -1
     
     if sum(newCellRegion(:)) > 0
         newCellRegion = imresize(double(newCellRegion), [size(labelledImage, 1)  size(labelledImage, 2)], 'nearest')>0;
-        if getappdata(0, 'canModifyInsideLumen') == 1 
-            insideGland = labelledImage(:,:,selectedZ) > 0 | lumenImage(:,:,selectedZ) > 0;
-        elseif getappdata(0, 'canModifyOutsideGland') == 0
-            insideGland = labelledImage(:,:,selectedZ) > 0;
-        else
-            insideGland = newCellRegion>-1;
+        insideGland = newCellRegion>-1;
+        if getappdata(0, 'canModifyOutsideGland') == 0
+            insideGland = insideGland & labelledImage(:,:,selectedZ) > 0;
         end
+        %% The order is important here: Because the lumen is already 0 on the labelled image
+        if getappdata(0, 'canModifyInsideLumen') == 1
+            insideGland(lumenImage(:,:,selectedZ) == 1) = 1;
+        end
+        
         if selectCellId > 0
             if selectCellId <= max(labelledImage(:))
                 [y, x] = find(newCellRegion & insideGland');
