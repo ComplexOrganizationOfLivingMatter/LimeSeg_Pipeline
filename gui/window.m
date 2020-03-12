@@ -148,6 +148,8 @@ if roiMask ~= -1
         %% The order is important here: Because the lumen is already 0 on the labelled image
         if getappdata(0, 'canModifyInsideLumen') == 1
             insideGland(lumenImage(:,:,selectedZ) == 1) = 1;
+        else
+            insideGland(lumenImage(:,:,selectedZ) == 1) = 0;
         end
         
         if selectCellId > 0
@@ -157,8 +159,6 @@ if roiMask ~= -1
                 labelledImage(newIndices) = selectCellId;
                 if getappdata(0, 'canModifyInsideLumen') == 1
                     lumenImage(newIndices) = 0;
-                else
-                    labelledImage(lumenImage>0) = 0;
                 end
                 %Smooth surface of next and previos Z
                 %labelledImage = smoothCellContour3D(labelledImage, selectCellId, (selectedZ-3):(selectedZ+3), lumenImage);
