@@ -22,7 +22,7 @@ function varargout = window(varargin)
 
 % Edit the above text to modify the response to help window
 
-% Last Modified by GUIDE v2.5 12-Mar-2020 11:32:57
+% Last Modified by GUIDE v2.5 13-Mar-2020 13:16:10
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -473,3 +473,34 @@ if strcmp(answer, 'Yes')
     updateResizedImage();
 end
 showSelectedCell();
+
+
+% --- Executes on slider movement.
+function slider1_Callback(hObject, eventdata, handles)
+% hObject    handle to slider1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+numZ = get(hObject,'Value');
+setappdata(0, 'selectedZ', round(numZ));
+showSelectedCell();
+
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+
+% --- Executes during object creation, after setting all properties.
+function slider1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+imageSequence = getappdata(0, 'imageSequence');
+
+set(hObject,'Max',size(imageSequence,3));
+set(hObject,'Value',1);
+set(hObject,'Min',1);
+set(hObject,'SliderStep',[1 1]./(size(imageSequence,3)-1));
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
