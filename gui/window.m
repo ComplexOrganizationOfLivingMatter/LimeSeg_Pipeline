@@ -314,6 +314,7 @@ labelledImage = getappdata(0, 'labelledImageTemp_Resized');
 if newValue <= size(labelledImage, 3)
     setappdata(0, 'selectedZ', newValue);
     set(handles.tbZFrame,'string',num2str(newValue));
+    set(handles.slider1,'Value', newValue);
     showSelectedCell();
 end
 
@@ -327,6 +328,7 @@ newValue = getappdata(0, 'selectedZ')-1;
 if newValue > 0
     setappdata(0, 'selectedZ', newValue);
     set(handles.tbZFrame,'string',num2str(newValue));
+    set(handles.slider1,'Value', newValue);
     showSelectedCell();
 end
 
@@ -495,6 +497,7 @@ function slider1_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 numZ = get(hObject,'Value');
 setappdata(0, 'selectedZ', round(numZ));
+set(handles.tbZFrame,'string',num2str(numZ));
 showSelectedCell();
 
 % --- Executes during object creation, after setting all properties.
