@@ -22,7 +22,7 @@ function varargout = window(varargin)
 
 % Edit the above text to modify the response to help window
 
-% Last Modified by GUIDE v2.5 12-Mar-2020 11:32:57
+% Last Modified by GUIDE v2.5 13-Mar-2020 12:48:05
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -84,7 +84,8 @@ for numImg = 1:size(imageSequenceFiles, 1)
     actualImg = imread(fullfile(actualFile.folder, actualFile.name));
     %imageSequence(end+1) = {imresize(fliplr(flip(actualImg')), resizeImg, 'nearest')};
     %imageSequence(end+1) = {imresize(actualImg, resizeImg, 'nearest')};
-    imageSequence(:, :, numImg) = imresize(actualImg, resizeImg);
+    imageSequence(:, :, numImg) = actualImg;
+    %imageSequence(:, :, numImg) = imresize(actualImg, resizeImg);
 end
 
 % imageSequence = addTipsImg3D(tipValue+1, imageSequence);
@@ -151,9 +152,21 @@ if roiMask ~= -1
         end
         
         if selectCellId > 0
+            imgActualZ = labelledImage(:, :, selectedZ);
+            mostCommonIndex = mode(imgActualZ(newCellRegion'));
+            if (mostCommonIndex ~= 0 && mostCommonIndex ~= selectCellId) || sum(imgActualZ(newCellRegion') == selectCellId) == 0
+                answer = questdlg(['You are mostly replacing ', num2str(mostCommonIndex) , ' with ', num2str(selectCellId),'. Are you sure you want to proceed?'], ...
+                    'Confirm', ...
+                    'Yes','No', 'No');
+                if strcmp(answer, 'No')
+                    close(progressBar)
+                    return
+                end
+            end
             if selectCellId <= max(labelledImage(:))
                 [y, x] = find(newCellRegion & insideGland');
                 newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
+                
                 labelledImage(newIndices) = selectCellId;
                 if getappdata(0, 'canModifyInsideLumen') == 1
                     lumenImage(newIndices) = 0;
@@ -438,12 +451,13 @@ function figure1_WindowButtonDownFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 if getappdata(0,'windowListener')==1
     try
+        resizeImg = getappdata(0,'resizeImg');
         pos = round(eventdata.Source.CurrentObject.Parent.CurrentPoint);
-        pos = pos(1,1:2);
+        pos = pos(1,1:2)/resizeImg;
 
         labelledImage = getappdata(0, 'labelledImageTemp_Resized');
         labelledImageZ = labelledImage(:,:,getappdata(0, 'selectedZ'))';
-        selectedCell = labelledImageZ(pos(2), pos(1));
+        selectedCell = labelledImageZ(pos(2)/re, pos(1));
 
         setappdata(0,'cellId',selectedCell);
         set(handles.tbCellId,'string',num2str(selectedCell));
@@ -473,3 +487,12 @@ if strcmp(answer, 'Yes')
     updateResizedImage();
 end
 showSelectedCell();
+
+
+% --- Executes on scroll wheel click while the figure is in focus.
+function figure1_WindowScrollWheelFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.FIGURE)
+%	VerticalScrollCount: signed integer indicating direction and number of clicks
+%	VerticalScrollAmount: number of lines scrolled for each click
+% handles    structure with handles and user data (see GUIDATA)
