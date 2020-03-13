@@ -22,7 +22,9 @@ function varargout = window(varargin)
 
 % Edit the above text to modify the response to help window
 
+
 % Last Modified by GUIDE v2.5 13-Mar-2020 13:16:10
+
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -84,7 +86,8 @@ for numImg = 1:size(imageSequenceFiles, 1)
     actualImg = imread(fullfile(actualFile.folder, actualFile.name));
     %imageSequence(end+1) = {imresize(fliplr(flip(actualImg')), resizeImg, 'nearest')};
     %imageSequence(end+1) = {imresize(actualImg, resizeImg, 'nearest')};
-    imageSequence(:, :, numImg) = imresize(actualImg, resizeImg);
+    imageSequence(:, :, numImg) = actualImg;
+    %imageSequence(:, :, numImg) = imresize(actualImg, resizeImg);
 end
 
 % imageSequence = addTipsImg3D(tipValue+1, imageSequence);
@@ -131,14 +134,13 @@ if roiMask ~= -1
     roiMask = -1;
     setappdata(0, 'roiMask', roiMask);
     labelledImage = getappdata(0, 'labelledImageTemp');
-    labelledImage_Resized = getappdata(0, 'labelledImageTemp_Resized');
     newCellRegion = getappdata(0, 'newCellRegion');
     selectCellId = getappdata(0, 'cellId');
     selectedZ = getappdata(0, 'selectedZ');
     lumenImage = getappdata(0, 'lumenImage');
     
     if sum(newCellRegion(:)) > 0
-        newCellRegion = imresize(double(newCellRegion), [size(labelledImage, 1)  size(labelledImage, 2)], 'nearest')>0;
+        %newCellRegion = imresize(double(newCellRegion), [size(labelledImage, 1)  size(labelledImage, 2)], 'nearest')>0;
         insideGland = newCellRegion>-1;
         if getappdata(0, 'canModifyOutsideGland') == 0
             insideGland = insideGland & labelledImage(:,:,selectedZ) > 0;
@@ -151,9 +153,21 @@ if roiMask ~= -1
         end
         
         if selectCellId > 0
+            imgActualZ = labelledImage(:, :, selectedZ);
+            mostCommonIndex = mode(imgActualZ(newCellRegion'));
+            if (mostCommonIndex ~= 0 && mostCommonIndex ~= selectCellId) || sum(imgActualZ(newCellRegion') == selectCellId) == 0
+                answer = questdlg(['You are mostly replacing ', num2str(mostCommonIndex) , ' with ', num2str(selectCellId),'. Are you sure you want to proceed?'], ...
+                    'Confirm', ...
+                    'Yes','No', 'No');
+                if strcmp(answer, 'No')
+                    close(progressBar)
+                    return
+                end
+            end
             if selectCellId <= max(labelledImage(:))
                 [y, x] = find(newCellRegion & insideGland');
                 newIndices = sub2ind(size(labelledImage), x, y, ones(length(x), 1)*selectedZ);
+                
                 labelledImage(newIndices) = selectCellId;
                 if getappdata(0, 'canModifyInsideLumen') == 1
                     lumenImage(newIndices) = 0;
@@ -441,7 +455,7 @@ if getappdata(0,'windowListener')==1
         pos = round(eventdata.Source.CurrentObject.Parent.CurrentPoint);
         pos = pos(1,1:2);
 
-        labelledImage = getappdata(0, 'labelledImageTemp_Resized');
+        labelledImage = getappdata(0, 'labelledImageTemp');
         labelledImageZ = labelledImage(:,:,getappdata(0, 'selectedZ'))';
         selectedCell = labelledImageZ(pos(2), pos(1));
 
@@ -474,7 +488,6 @@ if strcmp(answer, 'Yes')
 end
 showSelectedCell();
 
-
 % --- Executes on slider movement.
 function slider1_Callback(hObject, eventdata, handles)
 % hObject    handle to slider1 (see GCBO)
@@ -483,11 +496,6 @@ function slider1_Callback(hObject, eventdata, handles)
 numZ = get(hObject,'Value');
 setappdata(0, 'selectedZ', round(numZ));
 showSelectedCell();
-
-
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
 
 % --- Executes during object creation, after setting all properties.
 function slider1_CreateFcn(hObject, eventdata, handles)
@@ -504,3 +512,13 @@ set(hObject,'SliderStep',[1 1]./(size(imageSequence,3)-1));
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
+
+
+% --- Executes on scroll wheel click while the figure is in focus.
+function figure1_WindowScrollWheelFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.FIGURE)
+%	VerticalScrollCount: signed integer indicating direction and number of clicks
+%	VerticalScrollAmount: number of lines scrolled for each click
+% handles    structure with handles and user data (see GUIDATA)
+
