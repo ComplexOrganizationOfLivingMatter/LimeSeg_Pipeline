@@ -22,9 +22,7 @@ function varargout = window(varargin)
 
 % Edit the above text to modify the response to help window
 
-
-% Last Modified by GUIDE v2.5 13-Mar-2020 13:16:10
-
+% Last Modified by GUIDE v2.5 13-Mar-2020 16:53:10
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -452,22 +450,29 @@ function figure1_WindowButtonDownFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-if getappdata(0,'windowListener')==1
-    try
-        pos = round(eventdata.Source.CurrentObject.Parent.CurrentPoint);
-        pos = pos(1,1:2);
+%% If you are not modifying ROIs
+if strcmp(eventdata.Source.SelectionType, 'normal')
+    if getappdata(0,'windowListener')==1
+        try
+            pos = round(eventdata.Source.CurrentObject.Parent.CurrentPoint);
+            pos = pos(1,1:2);
 
-        labelledImage = getappdata(0, 'labelledImageTemp');
-        labelledImageZ = labelledImage(:,:,getappdata(0, 'selectedZ'))';
-        selectedCell = labelledImageZ(pos(2), pos(1));
+            labelledImage = getappdata(0, 'labelledImageTemp');
+            labelledImageZ = labelledImage(:,:,getappdata(0, 'selectedZ'))';
+            selectedCell = labelledImageZ(pos(2), pos(1));
 
-        setappdata(0,'cellId',selectedCell);
-        set(handles.tbCellId,'string',num2str(selectedCell));
+            setappdata(0,'cellId',selectedCell);
+            set(handles.tbCellId,'string',num2str(selectedCell));
 
-    catch
+        catch
+        end
+
+        showSelectedCell()
     end
-    
-    showSelectedCell()
+else
+    zoomFig = zoom(hObject);
+    zoomFig.Enable = 'on';
+    setappdata(0, 'zoomFig', zoomFig);
 end
 
 
@@ -516,12 +521,37 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
 
-
-% --- Executes on scroll wheel click while the figure is in focus.
-function figure1_WindowScrollWheelFcn(hObject, eventdata, handles)
+% --- Executes on key press with focus on figure1 and none of its controls.
+function figure1_KeyPressFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
 % eventdata  structure with the following fields (see MATLAB.UI.FIGURE)
-%	VerticalScrollCount: signed integer indicating direction and number of clicks
-%	VerticalScrollAmount: number of lines scrolled for each click
+%	Key: name of the key that was pressed, in lower case
+%	Character: character interpretation of the key(s) that was pressed
+%	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
 % handles    structure with handles and user data (see GUIDATA)
+strcmp(eventdata.Key , 'esc');
+zoomFig = getappdata(0, 'zoomFig');
 
+
+% --- Executes on key press with focus on figure1 or any of its controls.
+function figure1_WindowKeyPressFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.FIGURE)
+%	Key: name of the key that was pressed, in lower case
+%	Character: character interpretation of the key(s) that was pressed
+%	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
+% handles    structure with handles and user data (see GUIDATA)
+strcmp(eventdata.Key , 'esc');
+zoomFig = getappdata(0, 'zoomFig');
+
+
+% --- Executes on key release with focus on figure1 or any of its controls.
+function figure1_WindowKeyReleaseFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.FIGURE)
+%	Key: name of the key that was released, in lower case
+%	Character: character interpretation of the key(s) that was released
+%	Modifier: name(s) of the modifier key(s) (i.e., control, shift) released
+% handles    structure with handles and user data (see GUIDATA)
+zoomFig = getappdata(0, 'zoomFig');
+zoomFig.Enable = 'off';
