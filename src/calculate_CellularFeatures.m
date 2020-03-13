@@ -114,7 +114,7 @@ volume_cells=table2array(regionprops3(labelledImage,'Volume'));
 
 %%  Determine if a cell is a scutoid or not
 scutoids_cells=cellfun(@(x,y) double(~isequal(x,y)), neighbours_data.Apical,neighbours_data.Basal);
-apicoBasalTransitions = cellfun(@(x, y) length(unique(vertcat(setdiff(x, y), setdiff(y, x)))), apical3dInfo, basal3dInfo);
+apicoBasalTransitions = cellfun(@(x, y) length(unique(vertcat(setdiff(x, y), setdiff(y, x)))), neighbours_data.Apical,neighbours_data.Basal);
 
 %%  Export to a excel file
 ID_cells=(1:length(basal3dInfo)).';
