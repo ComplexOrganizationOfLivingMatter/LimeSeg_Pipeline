@@ -132,14 +132,13 @@ if roiMask ~= -1
     roiMask = -1;
     setappdata(0, 'roiMask', roiMask);
     labelledImage = getappdata(0, 'labelledImageTemp');
-    labelledImage_Resized = getappdata(0, 'labelledImageTemp_Resized');
     newCellRegion = getappdata(0, 'newCellRegion');
     selectCellId = getappdata(0, 'cellId');
     selectedZ = getappdata(0, 'selectedZ');
     lumenImage = getappdata(0, 'lumenImage');
     
     if sum(newCellRegion(:)) > 0
-        newCellRegion = imresize(double(newCellRegion), [size(labelledImage, 1)  size(labelledImage, 2)], 'nearest')>0;
+        %newCellRegion = imresize(double(newCellRegion), [size(labelledImage, 1)  size(labelledImage, 2)], 'nearest')>0;
         insideGland = newCellRegion>-1;
         if getappdata(0, 'canModifyOutsideGland') == 0
             insideGland = insideGland & labelledImage(:,:,selectedZ) > 0;
@@ -451,13 +450,12 @@ function figure1_WindowButtonDownFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 if getappdata(0,'windowListener')==1
     try
-        resizeImg = getappdata(0,'resizeImg');
         pos = round(eventdata.Source.CurrentObject.Parent.CurrentPoint);
-        pos = pos(1,1:2)/resizeImg;
+        pos = pos(1,1:2);
 
-        labelledImage = getappdata(0, 'labelledImageTemp_Resized');
+        labelledImage = getappdata(0, 'labelledImageTemp');
         labelledImageZ = labelledImage(:,:,getappdata(0, 'selectedZ'))';
-        selectedCell = labelledImageZ(pos(2)/re, pos(1));
+        selectedCell = labelledImageZ(pos(2), pos(1));
 
         setappdata(0,'cellId',selectedCell);
         set(handles.tbCellId,'string',num2str(selectedCell));
