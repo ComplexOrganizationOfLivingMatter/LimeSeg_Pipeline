@@ -495,8 +495,8 @@ function slider1_Callback(hObject, eventdata, handles)
 % hObject    handle to slider1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-numZ = get(hObject,'Value');
-setappdata(0, 'selectedZ', round(numZ));
+numZ = round(get(hObject,'Value'));
+setappdata(0, 'selectedZ', numZ);
 set(handles.tbZFrame,'string',num2str(numZ));
 showSelectedCell();
 
