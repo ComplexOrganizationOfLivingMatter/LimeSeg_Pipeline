@@ -13,6 +13,8 @@ colours = getappdata(0, 'colours');
 
 imgToShow = mat2gray(imageSequence(:, :, selectedZ)');
 
+zoom(gcf, 'off');
+
 cla
 
 if showAllCells==1
