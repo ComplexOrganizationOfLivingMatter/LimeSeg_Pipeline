@@ -376,7 +376,9 @@ function hideLumen_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of modifyInsideLumen
 toggleValue = get(hObject,'Value') == 1;
 setappdata(0, 'hideLumen', toggleValue)
-showSelectedCell();
+XLimOriginal = get(gca, 'XLim');
+YLimOriginal = get(gca, 'YLim');
+showSelectedCell(XLimOriginal, YLimOriginal);
 
 
 % --- Executes on button press in btRemove.
@@ -442,7 +444,9 @@ function chBoxShowAll_Callback(hObject, eventdata, handles)
     
 toggleValue = get(hObject,'Value') == 1;
 setappdata(0, 'showAllCells', toggleValue)
-showSelectedCell();
+XLimOriginal = get(gca, 'XLim');
+YLimOriginal = get(gca, 'YLim');
+showSelectedCell(XLimOriginal, YLimOriginal);
 
 function figure1_WindowButtonDownFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
