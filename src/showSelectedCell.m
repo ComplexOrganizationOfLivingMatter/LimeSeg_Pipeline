@@ -1,4 +1,4 @@
-function [] = showSelectedCell()
+function [] = showSelectedCell(XLimOriginal, YLimOriginal)
 %SHOWSELECTEDCELL Summary of this function goes here
 %   Detailed explanation goes here
 selectCellId = getappdata(0, 'cellId');
@@ -12,8 +12,6 @@ resizeImg = getappdata(0, 'resizeImg');
 colours = getappdata(0, 'colours');
 
 imgToShow = mat2gray(imageSequence(:, :, selectedZ)');
-
-zoom(gcf, 'off');
 
 cla
 
@@ -44,7 +42,6 @@ else
     hold off
 end
 
-
 %% Showing lumen
 [xIndices, yIndices] = find(lumenImage(:, :,  selectedZ) == 1);
 if isempty(xIndices) == 0 && getappdata(0, 'hideLumen') == 0
@@ -54,6 +51,10 @@ if isempty(xIndices) == 0 && getappdata(0, 'hideLumen') == 0
     alpha(s,.5)
 end
 
+if exist('YLimOriginal', 'var')
+    set(gca, 'XLim', XLimOriginal);
+    set(gca, 'YLim', YLimOriginal);
+end
 
 end
 
