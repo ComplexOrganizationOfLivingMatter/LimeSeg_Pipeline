@@ -26,7 +26,7 @@ if showAllCells==1
     imshow(B);
     hold on;
     if isempty(centroids) == 0
-        c = textscatter(centroids(labelsZ(2:end),1)/resizeImg,centroids(labelsZ(2:end),2)/resizeImg,cellfun(@num2str,num2cell(labelsZ(2:end)),'UniformOutput',false),'TextDensityPercentage',100,'ColorData',ones(length(labelsZ(2:end)),3));
+        textscatter(centroids(labelsZ(2:end),1)/resizeImg,centroids(labelsZ(2:end),2)/resizeImg,cellfun(@num2str,num2cell(labelsZ(2:end)),'UniformOutput',false),'TextDensityPercentage',100,'ColorData',ones(length(labelsZ(2:end)),3));
         if selectCellId > 0 && selectCellId <= max(labelsZ(:))
             textscatter(centroids(selectCellId,1)/resizeImg,centroids(selectCellId,2)/resizeImg,num2cell(selectCellId),'TextDensityPercentage',100,'ColorData', [1 1 1], 'FontWeight', 'bold', 'FontSize', 11);
         end
