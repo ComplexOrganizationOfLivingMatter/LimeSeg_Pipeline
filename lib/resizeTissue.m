@@ -13,7 +13,7 @@ if exist(fullfile(files(numFile).folder, 'realSize3dLayers.mat'), 'file') == 0
     labelledImage_realSize = imresize3(labelledImage, zScale, 'nearest');
     lumenImage_realSize = imresize3(double(lumenImage), zScale, 'nearest');
     
-    basalLayer = getBasalFrom3DImage(labelledImage_realSize, lumenImage_realSize, 0, labelledImage_realSize == 0 & lumenImage_realSize == 0);
+    basalLayer = getBasalFrom3DImage(labelledImage_realSize, lumenImage_realSize, labelledImage_realSize == 0 & lumenImage_realSize == 0);
     [apicalLayer] = getApicalFrom3DImage(lumenImage_realSize, labelledImage_realSize);
     
     layers3d=[{apicalLayer},{basalLayer}];
