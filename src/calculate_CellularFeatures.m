@@ -36,6 +36,7 @@ apicoBasalTransitionsLabels = cellfun(@(x, y) unique(vertcat(setdiff(x, y), setd
 apicoBasalTransitions = cellfun(@(x) length(x), apicoBasalTransitionsLabels);
 [verticesInfo] = getVertices3D(labelledImage, apicobasal_neighbours);
 indexCells = find(apicoBasalTransitions>0);
+indexCells=setdiff(indexCells,noValidCells);
 totalMsgs = 'Motives that could not be involved in apico-basal intercalations';
 
 for nIndex= 1:length(indexCells')
@@ -46,7 +47,7 @@ for nIndex= 1:length(indexCells')
         rows = intersect(row,row2);
         chosenNumbers = verticesInfo.verticesConnectCells(rows,:);
         wrongScutoids = unique(chosenNumbers(:)');
-         otherMotifCells = setdiff(wrongScutoids,[pairedCells(indexPairedCells) indexCells(nIndex)]);
+        otherMotifCells = setdiff(wrongScutoids,[pairedCells(indexPairedCells) indexCells(nIndex)]);
         if ismember(otherMotifCells(1) ,apicoBasalTransitionsLabels{1,otherMotifCells(end)}) == 0 || length(otherMotifCells) > 2
             msg1 = 'All cells of this motif could not be involved in a apico-basal intercalation: ';
             msg2= string(num2str(unique(chosenNumbers(:)')));
@@ -57,9 +58,9 @@ for nIndex= 1:length(indexCells')
             end
             if length(otherMotifCells) == 2
                 newApicalNeighs = apical3dInfo{1,indexCells(nIndex)}';
-                  newApicalNeighs(newApicalNeighs == pairedCells(indexPairedCells)) = [];
+                newApicalNeighs(newApicalNeighs == pairedCells(indexPairedCells)) = [];
                 newBasalNeighs = basal3dInfo{1,indexCells(nIndex)}';
-                  newBasalNeighs(newBasalNeighs == pairedCells(indexPairedCells)) = [];
+                newBasalNeighs(newBasalNeighs == pairedCells(indexPairedCells)) = [];
                 apical3dInfo{1,indexCells(nIndex)} = newApicalNeighs';
                 basal3dInfo{1,indexCells(nIndex)} = newBasalNeighs';
             end
@@ -121,7 +122,11 @@ ID_cells=(1:length(basal3dInfo)).';
 CellularFeatures=table(ID_cells,number_neighbours.Var1',number_neighbours.Var2',total_neighbours3DRecount',apicobasal_neighboursRecount',scutoids_cells', apicoBasalTransitions', apical_area_cells,basal_area_cells, surfaceRatio, volume_cells);
 CellularFeatures.Properties.VariableNames = {'ID_Cell','Apical_sides','Basal_sides','Total_neighbours','Apicobasal_neighbours','Scutoids', 'apicoBasalTransitions', 'Apical_area','Basal_area', 'Surface_Ratio','Volume'};
 CellularFeaturesWithNoValidCells = CellularFeatures;
-CellularFeatures(noValidCells,:)=[];
+cellsPixels = regionprops3(labelledImage, 'Volume');
+cellsWithoutPixels = find(cellsPixels.Volume == 0);
+
+noValidCells = unique([noValidCells cellsWithoutPixels']);
+CellularFeatures(noValidCells,:) = [];
 
 
 % if isempty(outputDir) == 0

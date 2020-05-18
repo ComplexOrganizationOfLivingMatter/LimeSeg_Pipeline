@@ -1,7 +1,6 @@
 function [cells3dFeatures, gland3dFeatures, lumen3dFeatures,hollowGland3dFeatures, polygon_distribution_apical, polygon_distribution_basal, cellularFeatures, numCells, surfaceRatio2D, surfaceRatio3D, validCells, polygon_distribution_total,apicoBasalNeighs] = obtain3dFeatures(files,numFile)
 %OBTAIN3DFEATURES Summary of this function goes here
 %   Detailed explanation goes here
-
 load(fullfile(files(numFile).folder, 'valid_cells.mat'));
 
 if exist(fullfile(files(numFile).folder, 'morphological3dFeatures.mat'), 'file') == 0
@@ -13,6 +12,9 @@ if exist(fullfile(files(numFile).folder, 'morphological3dFeatures.mat'), 'file')
     
     [basalLayer,apicalLayer,labelledImage_realSize,lumenImage_realSize]=resizeTissue(numFile,files);
     
+    cellsPixels = regionprops3(labelledImage_realSize, 'Volume');
+    cellsWithoutPixels = find(cellsPixels.Volume == 0);
+    validCells = setdiff(validCells, cellsWithoutPixels');
     %% Cellular features
     [apical3dInfo] = calculateNeighbours3D(apicalLayer, 2, apicalLayer == 0);
     apical3dInfo = apical3dInfo.neighbourhood';

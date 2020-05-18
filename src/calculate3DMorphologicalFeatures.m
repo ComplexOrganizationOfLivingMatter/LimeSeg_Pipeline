@@ -31,6 +31,7 @@ for numFile=1:length(files)
     
     [meanFeatures,stdFeatures, gland3dFeatures, lumen3dFeatures,hollowGland3dFeatures] = convertPixelsToMicrons(files,numFile,meanFeatures,stdFeatures, gland3dFeatures, lumen3dFeatures,hollowGland3dFeatures);
     
+    validCells=setdiff(validCells,find(cellularFeatures.Apical_sides==0 & cellularFeatures.Basal_sides==0));
     cellularFeaturesNoCells = varfun(@(x) cell2mat(x), cellularFeatures(:, 4:5));
     cellularFeatures.Total_neighbours = cellularFeaturesNoCells.Fun_Total_neighbours;
     cellularFeatures.Apicobasal_neighbours = cellularFeaturesNoCells.Fun_Apicobasal_neighbours;

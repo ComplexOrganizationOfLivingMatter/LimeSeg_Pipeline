@@ -10,8 +10,14 @@ if exist(fullfile(files(numFile).folder, 'realSize3dLayers.mat'), 'file') == 0
         [labelledImage] = flattenMutantGland(apicalLayer, basalLayer, labelledImage, lumenImage);
     end
     
-    labelledImage_realSize = imresize3(labelledImage, zScale, 'nearest');
-    lumenImage_realSize = imresize3(double(lumenImage), zScale, 'nearest');
+    if contains(lower(files(numFile).folder), 'oldmethod')
+        labelledImage_realSize = imresize3(labelledImage, zScale, 'nearest');
+        lumenImage_realSize = imresize3(double(lumenImage), zScale, 'nearest');
+    else
+        labelledImage_realSize  = imresize3(labelledImage, [1024 1024 zScale*92], 'nearest');
+        lumenImage_realSize  = imresize3(double(lumenImage), [1024 1024 zScale*92], 'nearest');
+        lumenImage_realSize  = logical(lumenImage_realSize );    
+    end
     
     basalLayer = getBasalFrom3DImage(labelledImage_realSize, lumenImage_realSize, 0, labelledImage_realSize == 0 & lumenImage_realSize == 0);
     [apicalLayer] = getApicalFrom3DImage(lumenImage_realSize, labelledImage_realSize);
