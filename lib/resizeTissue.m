@@ -14,8 +14,8 @@ if exist(fullfile(files(numFile).folder, 'realSize3dLayers.mat'), 'file') == 0
         labelledImage_realSize = imresize3(labelledImage, zScale, 'nearest');
         lumenImage_realSize = imresize3(double(lumenImage), zScale, 'nearest');
     else
-        labelledImage_realSize  = imresize3(labelledImage, [1024 1024 zScale*92], 'nearest');
-        lumenImage_realSize  = imresize3(double(lumenImage), [1024 1024 zScale*92], 'nearest');
+        labelledImage_realSize  = imresize3(labelledImage, [1024 1024 zScale*size(labelledImage,3)], 'nearest');
+        lumenImage_realSize  = imresize3(double(lumenImage), [1024 1024 zScale*size(labelledImage,3)], 'nearest');
         lumenImage_realSize  = logical(lumenImage_realSize );    
     end
     
