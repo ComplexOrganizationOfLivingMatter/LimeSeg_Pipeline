@@ -54,7 +54,9 @@ function unroll_OnlyApicalAndBasal(selpath, testing)
            if any(cellfun(@(x) isequal('labelledImage_realSizeFlatten', x), variablesOfFile))
                load(fullfile(selpath, 'realSize3dLayers.mat'), 'labelledImage_realSizeFlatten');
            else
-               [labelledImage_realSizeFlatten] = flattenMutantGland(apicalLayer, basalLayer, labelledImage_realSize, lumenImage_realSize);
+               [labelledImage_realSizeFlatten] = flattenMutantGlandUsingLateralCellWalls(labelledImage_realSize, lumenImage_realSize);
+               emptyVoxels2Fill = labelledImage_realSizeFlatten(apicalLayer>0)==0;
+               labelledImage_realSizeFlatten(emptyVoxels2Fill)=apicalLayer(emptyVoxels2Fill);
                save(fullfile(selpath, 'realSize3dLayers.mat'), 'labelledImage_realSizeFlatten','-append');
            end
            basalLayer = getBasalFrom3DImage(labelledImage_realSizeFlatten, lumenImage_realSize, 0, labelledImage_realSizeFlatten == 0 & lumenImage_realSize == 0);
@@ -63,15 +65,22 @@ function unroll_OnlyApicalAndBasal(selpath, testing)
     % 
     %     figure; paint3D(apicalLayer)
     %     figure; paint3D(basalLayer)
-
-        %% -------------------------- APICAL -------------------------- %%
+   
+        %% -------------------------- APICAL UNROLL-------------------------- %%
         disp('Apical');
         mkdir(fullfile(selpath, 'unrolledGlands', 'gland_SR_1'));
-        [~, apicalAreaValidCells, apicalRotationsOriginal] = unrollTube(apicalLayer, fullfile(selpath, 'unrolledGlands', 'gland_SR_1'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info.mat'));
+        %% Get gland rotation using the gland lumen
+        if exist(fullfile(selpath, 'unrolledGlands', 'gland_SR_1','apicalRotationsOriginal.mat'), 'file') == 0
+            [rotatedLumen, rotationsOriginal]= rotateImg3(lumenImage_realSize);
+            save(fullfile(selpath, 'unrolledGlands', 'gland_SR_1','apicalRotationsOriginal.mat'),'rotationsOriginal');
+        else
+            load(fullfile(selpath, 'unrolledGlands', 'gland_SR_1','apicalRotationsOriginal.mat'),'rotationsOriginal');
+        end
+        unrollTube(apicalLayer,labelledImage_realSizeFlatten, fullfile(selpath, 'unrolledGlands', 'gland_SR_1'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info.mat'),rotationsOriginal);
 
-        %% -------------------------- BASAL -------------------------- %%
+        %% -------------------------- BASAL UNROLL-------------------------- %%
         disp('Basal');
         mkdir(fullfile(selpath, 'unrolledGlands', 'gland_SR_basal'));
-        unrollTube(basalLayer, fullfile(selpath, 'unrolledGlands', 'gland_SR_basal'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info.mat'), apicalAreaValidCells, apicalRotationsOriginal);
+        unrollTube(basalLayer,labelledImage_realSizeFlatten, fullfile(selpath, 'unrolledGlands', 'gland_SR_basal'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info.mat'), rotationsOriginal);
     end
 end
