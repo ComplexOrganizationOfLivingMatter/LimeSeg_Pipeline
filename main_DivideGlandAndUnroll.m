@@ -6,7 +6,7 @@ addpath(genpath('gui'))
 close all
 clear all
 
-files = dir('**/data/Salivary gland/**/Results/3d_layers_info.mat');
+files = dir('**/data/Salivary gland/E-cadh Inhibited/e-cadhi type II (flatten intermediate)/**/Results/3d_layers_info.mat');
 nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0 && (contains(lower(x), 'echinoid') || contains(lower(x), 'e-cadh')), {files.folder}); %% contains(lower(x), 'echnoid')
 files = files(nonDiscardedFiles);
 
