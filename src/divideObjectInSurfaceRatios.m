@@ -6,18 +6,17 @@ function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
     infoPerSurfaceRatio = [];
     if (exist(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'), 'file') == 0 && exist(fullfile(selpath, 'unrolledGlands', 'gland_SR_1', 'verticesInfo.mat'), 'file')>0) || exist('testing', 'var')
         %% Loading variables
-        load(fullfile(selpath, '3d_layers_info.mat'), 'labelledImage_realSize', 'lumenImage_realSize', 'colours');
+        variablesOfFile = who('-file', fullfile(selpath, 'realSize3dLayers.mat'));
+        if any(cellfun(@(x) isequal('labelledImage_realSizeFlatten', x), variablesOfFile))
+            load(fullfile(selpath, 'realSize3dLayers.mat'), 'labelledImage_realSizeFlatten', 'lumenImage_realSize');
+            labelledImage_realSize = labelledImage_realSizeFlatten;
+            clearvars labelledImage_realSizeFlatten
+        else
+            load(fullfile(selpath, 'realSize3dLayers.mat'), 'labelledImage_realSize', 'lumenImage_realSize');
+        end
         load(fullfile(selpath, 'valid_cells.mat'));
-        
-        load(fullfile(selpath, 'unrolledGlands', 'gland_SR_1', 'verticesInfo.mat'), 'newVerticesNeighs2D');
-        apicalNeighs = newVerticesNeighs2D;
-        apicalRealNeighs = arrayfun(@(x) sum(any(ismember(apicalNeighs, x), 2)), 1:max(validCells));
-        
-        load(fullfile(selpath, 'unrolledGlands', 'gland_SR_basal', 'verticesInfo.mat'), 'newVerticesNeighs2D');
-        basalNeighs = newVerticesNeighs2D;
-        basalRealNeighs = arrayfun(@(x) sum(any(ismember(basalNeighs, x), 2)), 1:max(validCells));
-        
-        obj_img = labelledImage_realSize;
+        load(fullfile(selpath, '3d_layers_info.mat'),'colours');
+       
         %% Obtain layers on its real 3D size
         basalLayer = getBasalFrom3DImage(labelledImage_realSize, lumenImage_realSize, 0, labelledImage_realSize == 0 & lumenImage_realSize == 0);
         [apicalLayer] = getApicalFrom3DImage(lumenImage_realSize, labelledImage_realSize);
@@ -36,7 +35,7 @@ function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
         
         neighbours_data = table(neighboursApical', neighboursBasal_init');
         neighbours_data.Properties.VariableNames = {'Apical','Basal'};
-        [~, apicoBasal_SurfaceRatio] = calculate_CellularFeatures(neighbours_data, neighboursApical', neighboursBasal_init', endSurface, startingSurface, obj_img, noValidCells, validCells, [], []);
+        [~, apicoBasal_SurfaceRatio] = calculate_CellularFeatures(neighbours_data, neighboursApical', neighboursBasal_init', endSurface, startingSurface, labelledImage_realSize, noValidCells, validCells, [], []);
         
         %% Split in 10 pieces
         %             totalPartitions = 10;
@@ -49,7 +48,7 @@ function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
         realSurfaceRatio = 1:0.5:apicoBasal_SurfaceRatio;
         
         imageOfSurfaceRatios = cell(totalPartitions, 1);
-        imageOfSurfaceRatios(:) = {zeros(size(obj_img))};
+        imageOfSurfaceRatios(:) = {zeros(size(labelledImage_realSize))};
         
         
         clearvars labelledImage_realSize lumenImage_realSize
@@ -62,7 +61,7 @@ function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
             [xStarting, yStarting, zStarting] = ind2sub(size(startingSurface), find(startingSurface == numCell));
             [xEnd, yEnd, zEnd] = ind2sub(size(endSurface), find(endSurface == numCell));
             
-            [allXs, allYs, allZs] = ind2sub(size(obj_img), find(obj_img == numCell));
+            [allXs, allYs, allZs] = ind2sub(size(labelledImage_realSize), find(labelledImage_realSize == numCell));
             
             allPixels = [allXs, allYs, allZs];
             startingPixels = [xStarting, yStarting, zStarting];
@@ -101,7 +100,7 @@ function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
                     y = pixelsOfSR(:, 2);
                     z = pixelsOfSR(:, 3);
                     
-                    indicesCell = sub2ind(size(obj_img), x, y, z);
+                    indicesCell = sub2ind(size(labelledImage_realSize), x, y, z);
                     
                     actualPartition = imageOfSurfaceRatios{numPartition+1};
                     
@@ -122,7 +121,7 @@ function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
         clearvars allPixels
         
         imageOfSurfaceRatios(:, 2) = num2cell(realSurfaceRatio);
-        imageOfSurfaceRatios{totalPartitions+1, 1} = obj_img;
+        imageOfSurfaceRatios{totalPartitions+1, 1} = labelledImage_realSize;
         imageOfSurfaceRatios{totalPartitions+1, 2} = apicoBasal_SurfaceRatio;
         
         %% Generate again the images from the previous information
@@ -178,7 +177,7 @@ function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
                 end
                 %basalLayer(imfill(lumenImage, 'holes')) = 0;
                 
-                [imageOfSurfaceRatios{numPartition, 3}] = fill0sWithCells(initialImage.*basalLayer, obj_img, basalLayer == 0);
+                [imageOfSurfaceRatios{numPartition, 3}] = fill0sWithCells(initialImage.*basalLayer, labelledImage_realSize, basalLayer == 0);
                 %unrollTube(imageOfSurfaceRatios{numPartition, 3}, fullfile(selpath, ['gland_SR_' num2str(imageOfSurfaceRatios{numPartition, 2})]), noValidCells, colours, 1);
             else
                 imageOfSurfaceRatios{numPartition, 3} = endSurface;
