@@ -17,8 +17,10 @@ function unrollTube_parallel(selpath)
             load(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'));
             %%mkdir(fullfile(selpath, 'unrolledGlands', 'gland_SR_1'));
             infoPerSurfaceRatio(:, 1) = {[]};
-            
-            [samiraTablePerSR{1}, apicalAreaValidCells, rotationsOriginal] = unrollTube(infoPerSurfaceRatio{1, 3}, fullfile(selpath, 'unrolledGlands', 'gland_SR_1'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info.mat'));
+            %% Get gland rotation using the gland lumen
+            load(fullfile(selpath, 'unrolledGlands', 'gland_SR_1','apicalRotationsOriginal.mat'),'rotationsOriginal');
+                      
+            [samiraTablePerSR{1}, apicalAreaValidCells, ~] = unrollTube(infoPerSurfaceRatio{1, 3},[], fullfile(selpath, 'unrolledGlands', 'gland_SR_1'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info.mat'),rotationsOriginal);
             areaValidCells{1} = apicalAreaValidCells;
             %addAttachedFiles(gcp, fullfile(selpath, 'valid_cells.mat'))
             
@@ -31,11 +33,12 @@ function unrollTube_parallel(selpath)
                 infoPerSurfaceRatio(numPartition, 3) = {ndSparse(infoPerSurfaceRatio{numPartition, 3})};
             end
             
+            load(fullfile(selpath, 'realSize3dLayers.mat'), 'labelledImage_realSizeFlatten')
             for numPartition = 2:nSR
                 if numPartition ~= nSR
-                    [samiraTablePerSR{numPartition}, areaValidCells{numPartition}] = unrollTube(full(infoPerSurfaceRatio{numPartition, 3}), fullfile(selpath, 'unrolledGlands', ['gland_SR_' num2str(numPartition)]), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info'), apicalAreaValidCells, rotationsOriginal);
+                    [samiraTablePerSR{numPartition}, areaValidCells{numPartition}] = unrollTube(full(infoPerSurfaceRatio{numPartition, 3}),labelledImage_realSizeFlatten, fullfile(selpath, 'unrolledGlands', ['gland_SR_' num2str(numPartition)]), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info'), rotationsOriginal);
                 else
-                    [samiraTablePerSR{numPartition}, areaValidCells{numPartition}] = unrollTube(full(infoPerSurfaceRatio{numPartition, 3}), fullfile(selpath, 'unrolledGlands', 'gland_SR_basal'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info'), apicalAreaValidCells, rotationsOriginal);
+                    [samiraTablePerSR{numPartition}, areaValidCells{numPartition}] = unrollTube(full(infoPerSurfaceRatio{numPartition, 3}),labelledImage_realSizeFlatten, fullfile(selpath, 'unrolledGlands', 'gland_SR_basal'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info'), rotationsOriginal);
                 end
             end
             
