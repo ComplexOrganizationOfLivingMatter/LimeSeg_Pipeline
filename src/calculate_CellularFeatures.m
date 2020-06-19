@@ -77,9 +77,14 @@ neighbours_data.Properties.VariableNames = {'Apical','Basal'};
 polygon_distribution.Properties.VariableNames = {'Apical','Basal'};
 
 %%  Calculate number of neighbours of each cell
-if exist('total_neighbours3D', 'var') == 0
+if exist('total_neighbours3D', 'var') ==0
     total_neighbours3D = calculateNeighbours3D(labelledImage, 2);
     total_neighbours3D = checkPairPointCloudDistanceCurateNeighbours(labelledImage, total_neighbours3D.neighbourhood', 1);
+else
+    if isempty(total_neighbours3D)
+        total_neighbours3D = calculateNeighbours3D(labelledImage, 2);
+        total_neighbours3D = checkPairPointCloudDistanceCurateNeighbours(labelledImage, total_neighbours3D.neighbourhood', 1);
+    end
 end
 if length(apical3dInfo) > length(basal3dInfo)
     basal3dInfo(length(apical3dInfo)) = {[]};
@@ -112,7 +117,9 @@ meanSurfaceRatio = sum(basal_area_cells(validCells)) / sum(apical_area_cells(val
 
 %%  Calculate volume cells
 volume_cells=table2array(regionprops3(labelledImage,'Volume'));
-
+if length(apical_area_cells) > length(volume_cells)
+    volume_cells(length(apical_area_cells)) = 0;
+end
 %%  Determine if a cell is a scutoid or not
 scutoids_cells=cellfun(@(x,y) double(~isequal(x,y)), neighbours_data.Apical,neighbours_data.Basal);
 apicoBasalTransitions = cellfun(@(x, y) length(unique(vertcat(setdiff(x, y), setdiff(y, x)))), neighbours_data.Apical,neighbours_data.Basal);
@@ -132,7 +139,7 @@ CellularFeatures(noValidCells,:) = [];
 % if isempty(outputDir) == 0
 %     writetable(CellularFeatures,fullfile(outputDir, 'cellular_features_LimeSeg3DSegmentation.xls'), 'Range','B2');
 % 
-%     % Poligon distribution 
+%     % Polygon distribution 
 %     polygon_distribution_3D=calculate_polygon_distribution(cellfun(@length, apicobasal_neighbours), validCells);
 %     writetable(table('','VariableNames',{'Apical'}),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B2')
 %     writetable(table(polygon_distribution.Apical),fullfile(outputDir,'Results', 'cellular_features_LimeSeg3DSegmentation.xls'), 'Sheet', 2, 'Range', 'B3', 'WriteVariableNames',false);

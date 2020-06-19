@@ -35,7 +35,17 @@ function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
         
         neighbours_data = table(neighboursApical', neighboursBasal_init');
         neighbours_data.Properties.VariableNames = {'Apical','Basal'};
-        [~, apicoBasal_SurfaceRatio] = calculate_CellularFeatures(neighbours_data, neighboursApical', neighboursBasal_init', endSurface, startingSurface, labelledImage_realSize, noValidCells, validCells, [], []);
+
+        %%  Calculate basal surface ratio
+        apical_area_cells=cell2mat(struct2cell(regionprops(apicalLayer,'Area'))).';
+        basal_area_cells=cell2mat(struct2cell(regionprops(basalLayer,'Area'))).';
+        if length(apical_area_cells) > length(basal_area_cells)
+            basal_area_cells(length(apical_area_cells)) = 0;
+        elseif length(apical_area_cells) < length(basal_area_cells)
+            apical_area_cells(length(basal_area_cells)) = 0;
+        end
+        %meanSurfaceRatio = mean(surfaceRatioValidCells);
+        apicoBasal_SurfaceRatio = sum(basal_area_cells(validCells)) / sum(apical_area_cells(validCells));
         
         %% Split in 10 pieces
         %             totalPartitions = 10;
@@ -50,9 +60,7 @@ function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
         imageOfSurfaceRatios = cell(totalPartitions, 1);
         imageOfSurfaceRatios(:) = {zeros(size(labelledImage_realSize))};
         
-        
-        clearvars labelledImage_realSize lumenImage_realSize
-        
+               
         for numCell = unique([validCells, noValidCells])
             % First, We calculated the cell height by estimating the
             % distance between the average voxel positions of the
@@ -186,14 +194,9 @@ function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
             %% Calculate and export information of each concentric layer
             basal3dInfo = calculateNeighbours3D(imageOfSurfaceRatios{numPartition, 3}, 2);
             neighboursBasal = checkPairPointCloudDistanceCurateNeighbours(imageOfSurfaceRatios{numPartition, 3}, basal3dInfo.neighbourhood);
-            neighbours_data = table(neighboursApical', neighboursBasal');
-            neighbours_data.Properties.VariableNames = {'Apical','Basal'};
-            [imageOfSurfaceRatios{numPartition, 4}, meanSurfaceRatio(numPartition)] = calculate_CellularFeatures(neighbours_data, neighboursApical', neighboursBasal', endSurface, imageOfSurfaceRatios{numPartition, 3}, imageOfSurfaceRatios{numPartition, 1}, noValidCells, validCells, [], []);
+            [imageOfSurfaceRatios{numPartition, 4}, meanSurfaceRatio(numPartition)] = calculate_CellularFeatures(neighboursApical', neighboursBasal', endSurface, imageOfSurfaceRatios{numPartition, 3}, imageOfSurfaceRatios{numPartition, 1}, noValidCells, validCells, [], []);
             
-            neighbours_data = table(neighboursBasal_init', neighboursBasal');
-            neighbours_data.Properties.VariableNames = {'Apical','Basal'};
-            [imageOfSurfaceRatios{numPartition, 5}, ~] = calculate_CellularFeatures(neighbours_data, neighboursBasal_init', neighboursBasal', startingSurface, imageOfSurfaceRatios{numPartition, 3}, imageOfSurfaceRatios{numPartition, 1}, noValidCells, validCells, [], []);
-            neighbours{numPartition} = neighboursBasal;
+            [imageOfSurfaceRatios{numPartition, 5}, ~] = calculate_CellularFeatures(neighboursBasal_init', neighboursBasal', startingSurface, imageOfSurfaceRatios{numPartition, 3}, imageOfSurfaceRatios{numPartition, 1}, noValidCells, validCells, [], []);
             %figure; paint3D( imageOfSurfaceRatios{numPartition, 1}, [], colours);
             if ~exist('testing', 'var')
                 h = figure('Visible', 'off');
