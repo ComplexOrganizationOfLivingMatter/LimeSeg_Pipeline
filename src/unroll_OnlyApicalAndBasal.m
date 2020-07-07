@@ -45,6 +45,8 @@ function unroll_OnlyApicalAndBasal(selpath, testing)
             end
         end
 
+        labelledImage_realSize=uint16(labelledImage_realSize);
+        lumenImage_realSize=uint16(lumenImage_realSize);
         %% Obtain layers on its real 3D size
         basalLayer = getBasalFrom3DImage(labelledImage_realSize, lumenImage_realSize, 0, labelledImage_realSize == 0 & lumenImage_realSize == 0);
         [apicalLayer] = getApicalFrom3DImage(lumenImage_realSize, labelledImage_realSize);

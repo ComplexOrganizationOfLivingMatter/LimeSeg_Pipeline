@@ -15,7 +15,7 @@ function [verticesNeighs2D, vertices2D, borderCell] = obtainVerticesOfBorderCell
     newLabelBorderCells(newLabelBorderCells==0) = [];
 
     cellsToCalculateNeighs = ismember(labelledActualCells3x, newLabelBorderCells);
-    regionToCalculateNeighs = double(imdilate(cellsToCalculateNeighs, strel('disk', 4)));
+    regionToCalculateNeighs = uint16(imdilate(cellsToCalculateNeighs, strel('disk', 4)));
 
     [~, y] = find(regionToCalculateNeighs);
     indicesMidImage = find(regionToCalculateNeighs);
@@ -24,7 +24,7 @@ function [verticesNeighs2D, vertices2D, borderCell] = obtainVerticesOfBorderCell
     regionToCalculateNeighs(indicesMidImage(y >= (size(deployedImg3x, 2) / 2))) = 2;
 
     for numSide = 1:2
-        img_sideOfBorderCell = (regionToCalculateNeighs == numSide) .* deployedImg3x;
+        img_sideOfBorderCell = uint16((regionToCalculateNeighs == numSide)) .* deployedImg3x;
         neighbours = calculateNeighbours(img_sideOfBorderCell);
         %neighbours = checkPairPointCloudDistanceCurateNeighbours(img3d, neighbours);
         [newVerticesActual] = getVertices(img_sideOfBorderCell, neighbours);

@@ -26,7 +26,7 @@ function [orderedLabels] = perim2line(filledImage, img3d, img3dComplete, coordZ)
 %                 finalPerimImage = bwperim(validRegion);
 
 
-        finalPerimImage = bwskel(filledImage>0);
+        finalPerimImage = uint16(bwskel(filledImage>0));
         %fill0sWithCells(img3d(:, :, coordZ) ,validRegion);
 
         [X,Y] = meshgrid(1:size(filledImage,2), 1:size(filledImage,1));
@@ -65,14 +65,14 @@ function [orderedLabels] = perim2line(filledImage, img3d, img3dComplete, coordZ)
         angleLabelCoord_NewPerimeter_Sorted = sort(angleLabelCoord_NewPerimeter);
         minDistance = abs(angleLabelCoord_NewPerimeter_Sorted(1) - angleLabelCoord_NewPerimeter_Sorted(2));
         img3dPerimFilled = fill0sWithCells(img3d(:, :, coordZ), img3dComplete(:, :, coordZ),filledImage==0);
-        maskLabel=finalPerimImage.*img3dPerimFilled;
+        maskLabel=uint16(finalPerimImage).*img3dPerimFilled;
     else
         if isequal(filledImage, double(img3d(:, :, coordZ)>0))==0
             img3dPerimFilled = fill0sWithCells(img3d(:, :, coordZ), img3dComplete(:, :, coordZ),filledImage==0);
         else
             img3dPerimFilled = img3d(:, :, coordZ);
         end
-        maskLabel=finalPerimImage.*img3dPerimFilled;
+        maskLabel=uint16(finalPerimImage).*img3dPerimFilled;
     end
     %angles label coord regarding centroid
     angleLabelCoord = atan2(y - centroidY, x - centroidX);

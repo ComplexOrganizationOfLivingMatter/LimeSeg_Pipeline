@@ -37,11 +37,11 @@ function labelledImageRealSR = flattenMutantGlandUsingLateralCellWalls(labelledI
             labelledImageToCalculateSR(indicesCell(pixelsIn)) = numCell;
         catch
             %try/catch for non-valid cells with strange shape (avoid flatten)
-            print(['Cell ' num2str(numCell) ' without flatten'])
+            ['Cell ' num2str(numCell) ' without flatten']
             labelledImageToCalculateSR(labelledImage==numCell)=numCell;
         end
     end
-    labelledImageRealSR = double(imclose(labelledImageToCalculateSR > 0,strel('sphere',2)));
+    labelledImageRealSR = uint16(imclose(labelledImageToCalculateSR > 0,strel('sphere',2)));
     labelledImageRealSR = labelledImageRealSR .* labelledImage;
     labelledImageRealSR(lumenImage>0) = 0;
     

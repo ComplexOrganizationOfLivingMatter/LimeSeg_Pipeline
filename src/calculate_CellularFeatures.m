@@ -30,6 +30,13 @@ if loadEchnoidAtypicalCells
     [apical3dInfo] = checkAtypicalCells(atypicalCells,apical3dInfo);
 end
 
+if length(basal3dInfo)>length(apical3dInfo)
+    apical3dInfo=[apical3dInfo, cell(length(basal3dInfo)-length(apical3dInfo),1)];
+end
+if length(apical3dInfo)>length(basal3dInfo)
+    basal3dInfo=[basal3dInfo, cell(length(apical3dInfo)-length(basal3dInfo),1)];
+end
+
 %% Check cell motives that participate in apico-basal intercalations.
 apicobasal_neighbours=cellfun(@(x,y)(unique(vertcat(x,y))), apical3dInfo, basal3dInfo, 'UniformOutput',false);
 apicoBasalTransitionsLabels = cellfun(@(x, y) unique(vertcat(setdiff(x, y), setdiff(y, x))), apical3dInfo, basal3dInfo, 'UniformOutput', false);

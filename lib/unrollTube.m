@@ -37,9 +37,9 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
                 
         clearvars img3d_originalCropped img3dComplete_Cropped
         
-        img3d = double(img3d_original);
-        img3dComplete = double(img3dComplete);
-        validRegion = double(img3d_original>0);
+        img3d = uint16(img3d_original);
+        img3dComplete = uint16(img3dComplete);
+        validRegion = uint16(img3d_original>0);
         
         [validRegion] = imclose(validRegion>0, strel('sphere', closingPxAreas3D));
         
@@ -47,9 +47,9 @@ function [samiraTable, areaOfValidCells, rotationsOriginal] = unrollTube(img3d_o
         % can't use img3dComplete to empty spaces. We will use the image
         % itself.
         if contains(outputDir, 'E-cadh') && contains(outputDir, 'SR_1')
-            img3d = fill0sWithCells(img3d .* double(validRegion), img3d, (img3dComplete>0 & validRegion)==0);
+            img3d = fill0sWithCells(img3d .* uint16(validRegion), img3d, (img3dComplete>0 & validRegion)==0);
         else
-            img3d = fill0sWithCells(img3d .* double(validRegion), img3dComplete, (img3dComplete>0 & validRegion)==0);
+            img3d = fill0sWithCells(img3d .* uint16(validRegion), img3dComplete, (img3dComplete>0 & validRegion)==0);
         end
         
         save(fullfile(outputDir, 'final3DImg.mat'), 'img3d', 'img3dComplete', '-v7.3');

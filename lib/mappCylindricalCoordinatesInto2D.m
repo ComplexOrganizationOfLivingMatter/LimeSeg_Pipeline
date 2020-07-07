@@ -34,8 +34,8 @@ function [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validC
 
     %% Reconstruct deployed img
     ySize=max(cellfun(@length, imgFinalCoordinates3x));
-    deployedImg3x = zeros(size(img3d,3),ySize);
-    deployedImg = zeros(size(img3d,3),ySize);
+    deployedImg3x = uint16(zeros(size(img3d,3),ySize));
+    deployedImg = uint16(zeros(size(img3d,3),ySize));
 
     for coordZ = 1 : size(img3d,3)
         rowOfCoord3x = imgFinalCoordinates3x{coordZ};
@@ -65,7 +65,7 @@ function [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validC
     midSectionImage(~ismember(relabelFinalImage,labelsFinal))=0;
 
     %% We keep the valid cells from that middle image
-    finalImageWithValidCells = ismember(cylindre2DImage, validCellsFinal).*cylindre2DImage;
+    finalImageWithValidCells = uint16(ismember(cylindre2DImage, validCellsFinal)).*cylindre2DImage;
     %     figure;imshow(finalImageWithValidCells,colours)
 
     if exist('outputDir', 'var')
@@ -98,7 +98,7 @@ function [cylindre2DImage, newVerticesNeighs2D, newVertices2D, centroids, validC
     end
 
     %% Calculating surface ratio
-    areaValidCellsImg = deployedImg .* ismember(deployedImg, validCellsFinal);
+    areaValidCellsImg = deployedImg .* uint16(ismember(deployedImg, validCellsFinal));
     areaOfValidCells = sum(areaValidCellsImg(:) > 0);
 
     if exist('apicalArea', 'var') == 0

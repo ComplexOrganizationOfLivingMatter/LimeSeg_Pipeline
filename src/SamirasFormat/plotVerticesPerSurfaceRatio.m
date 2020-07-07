@@ -1,6 +1,6 @@
 function plotVerticesPerSurfaceRatio(cellsVertices,missingVerticesCoord,dir2save,nameSimulation,nSurfR)
 
-    figure('Visible', 'off', 'units','normalized','outerposition',[0 0 1 1]);
+    figure('Visible', 'on', 'units','normalized','outerposition',[0 0 1 1]);
     faceColours = [1 1 1; 1 1 0; 1 0.5 0];
     edgeColours = [0 0 1; 0 1 0];
     for nRow = 1: size(cellsVertices,1)

@@ -5,7 +5,7 @@ function [apicalLayer] = getApicalFrom3DImage(lumenImage, labelledImage)
     lumenImage = imclose(lumenImage, strel('sphere', 5));
     dilatedLumen = imdilate(lumenImage, se);
     apical1Pixel = (dilatedLumen - lumenImage);
-    apicalLayer = labelledImage .* apical1Pixel;
+    apicalLayer = labelledImage .* uint16(apical1Pixel);
     apicalLayer = fill0sWithCells(apicalLayer, labelledImage, apical1Pixel == 0);
     %% For ecadhi
 %     glandPlusLumenImage = fill0sWithCells(labelledImage, labelledImage, imdilate(lumenImage, strel('sphere', 5))==0);

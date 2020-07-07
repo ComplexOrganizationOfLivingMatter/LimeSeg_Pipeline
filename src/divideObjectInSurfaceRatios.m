@@ -129,8 +129,8 @@ function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
         clearvars allPixels
         
         imageOfSurfaceRatios(:, 2) = num2cell(realSurfaceRatio);
-        imageOfSurfaceRatios{totalPartitions+1, 1} = labelledImage_realSize;
-        imageOfSurfaceRatios{totalPartitions+1, 2} = apicoBasal_SurfaceRatio;
+        imageOfSurfaceRatios{totalPartitions+1, 1} = uint16(labelledImage_realSize);
+        imageOfSurfaceRatios{totalPartitions+1, 2} = uint16(apicoBasal_SurfaceRatio);
         
         %% Generate again the images from the previous information
         for numPartition = 1:(totalPartitions+1)
@@ -185,7 +185,7 @@ function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
                 end
                 %basalLayer(imfill(lumenImage, 'holes')) = 0;
                 
-                [imageOfSurfaceRatios{numPartition, 3}] = fill0sWithCells(initialImage.*basalLayer, labelledImage_realSize, basalLayer == 0);
+                [imageOfSurfaceRatios{numPartition, 3}] = uint16(fill0sWithCells(uint16(initialImage).*uint16(basalLayer), labelledImage_realSize, basalLayer == 0));
                 %unrollTube(imageOfSurfaceRatios{numPartition, 3}, fullfile(selpath, ['gland_SR_' num2str(imageOfSurfaceRatios{numPartition, 2})]), noValidCells, colours, 1);
             else
                 imageOfSurfaceRatios{numPartition, 3} = endSurface;
@@ -200,7 +200,7 @@ function [infoPerSurfaceRatio] = divideObjectInSurfaceRatios(selpath, testing)
             %figure; paint3D( imageOfSurfaceRatios{numPartition, 1}, [], colours);
             if ~exist('testing', 'var')
                 h = figure('Visible', 'off');
-                paint3D( ismember(imageOfSurfaceRatios{numPartition, 3}, validCells) .* imageOfSurfaceRatios{numPartition, 3}, [], colours, 2);
+                paint3D( ismember(imageOfSurfaceRatios{numPartition, 3}, validCells) .* double(imageOfSurfaceRatios{numPartition, 3}), [], colours, 2);
                 mkdir(fullfile(selpath, 'dividedGland'));
                 savefig(h, fullfile(selpath, 'dividedGland' , ['gland_SR' num2str(meanSurfaceRatio(numPartition)), '.fig']))
                 print(h, fullfile(selpath, 'dividedGland' , ['gland_SR' num2str(meanSurfaceRatio(numPartition)), '.jpeg']),'-djpeg','-r300')
