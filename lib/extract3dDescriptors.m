@@ -12,8 +12,7 @@ for indexCell= 1: max(max(max(labelledImage)))
         end
         actualImg = bwlabeln(labelledImage==indexCell);
         [x, y, z] = ind2sub(size(labelledImage), find(actualImg==indMax));
-        DT = delaunayTriangulation(x, y, z);
-        [~, convexVolume] = convexHull(DT);
+        [~, convexVolume] = convhull(x, y, z);
         oneCell3dFeatures.ConvexVolume = convexVolume;
         oneCell3dFeatures.Solidity = sum(actualImg(:)==indMax) / convexVolume;
         aspectRatio = max(oneCell3dFeatures.PrincipalAxisLength,[],2) ./ min(oneCell3dFeatures.PrincipalAxisLength,[],2);
