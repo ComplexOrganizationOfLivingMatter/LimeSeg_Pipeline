@@ -51,7 +51,6 @@ for nGland = 1:size(pathGlands,1)
 
             end
 
-            load(fullfile(pathGlands(nGland).folder,'pixelScaleOfGland.mat'),'pixelScale')    
             fileName = [splittedFolder{end-2} '/' splittedFolder{end-1}];
             
             %%get apical and basal layers, and Lumen
@@ -64,7 +63,8 @@ for nGland = 1:size(pathGlands,1)
                 labelledImage = []; apicalLayer=[]; basalLayer = []; lateralLayer =[]; lumenImage=[];
             end
         end
-
+        load(fullfile(pathGlands(nGland).folder,'pixelScaleOfGland.mat'),'pixelScale')    
+        
         [allGeneralInfo{nGland},allTissues{nGland},allLumens{nGland},allHollowTissue3dFeatures{nGland},allNetworkFeatures{nGland},totalMeanCellsFeatures{nGland},totalStdCellsFeatures{nGland}]=calculate3DMorphologicalFeatures(labelledImage,apicalLayer,basalLayer,lateralLayer,lumenImage,folderFeatures,fileName,pixelScale,contactThreshold);
 end
 
