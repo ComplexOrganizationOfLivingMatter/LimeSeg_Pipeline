@@ -1,6 +1,7 @@
 %%main features extraction segmented Cysts
 clear all
 close all
+addpath(genpath('src'))
 addpath(genpath('..\..\NaturalVariation\Code\'))
 
 %1. Load final segmented glands
@@ -33,16 +34,19 @@ for nGland = 1:size(pathGlands,1)
 
         if ~exist(fullfile(pathGlands(nGland).folder, '\layersTissue.mat'),'file')
             if exist(fullfile(pathGlands(nGland).folder,'realSize3dLayers.mat'),'file')
-                load(fullfile(pathGlands(nGland).folder,'realSize3dLayers.mat'),'labelledImage_realSize')
+                load(fullfile(pathGlands(nGland).folder,'realSize3dLayers.mat'),'labelledImage_realSize','lumenImage_realSize')
                 labelledImage = labelledImage_realSize;
-                clearvars labelledImage_realSize
+                lumenImage = lumenImage_realSize;
+                clearvars labelledImage_realSize lumenImage_realSize
             else
-                load(fullfile(pathGlands(nGland).folder,pathGlands(nGland).name),'labelledImage')
+                load(fullfile(pathGlands(nGland).folder,pathGlands(nGland).name),'labelledImage','lumenImage')
                 load(fullfile(pathGlands(nGland).folder,'zScaleOfGland.mat'),'zScale')
 
                 labelledImage = imresize3(labelledImage,[size(labelledImage,1),size(labelledImage,2),round(size(labelledImage,3)*zScale)],'nearest');
+                lumenImage = imresize3(lumenImage,[size(lumenImage,1),size(lumenImage,2),round(size(lumenImage,3)*zScale)],'nearest');
                 if size(labelledImage,3)>size(labelledImage,1)
                     labelledImage = imresize3(labelledImage,[size(labelledImage,1)*zScale,size(labelledImage,2)*zScale,round(size(labelledImage,3))],'nearest');
+                    lumenImage = imresize3(lumenImage,[size(lumenImage,1)*zScale,size(lumenImage,2)*zScale,round(size(lumenImage,3))],'nearest');
                 end
 
             end
@@ -51,7 +55,7 @@ for nGland = 1:size(pathGlands,1)
             fileName = [splittedFolder{end-2} '/' splittedFolder{end-1}];
             
             %%get apical and basal layers, and Lumen
-            [apicalLayer,basalLayer,lateralLayer,lumenImage] = getApicalBasalLateralAndLumenFromCyst(labelledImage);
+            [apicalLayer,basalLayer,lateralLayer] = getApicalBasalLateralFromGlands(labelledImage,lumenImage);
             save(fullfile(pathGlands(nGland).folder, '\layersTissue.mat'),'apicalLayer','basalLayer','lateralLayer','lumenImage','labelledImage','-v7.3')
         else
             if ~exist(fullfile(folderFeatures, 'global_3dFeatures.mat'),'file')
