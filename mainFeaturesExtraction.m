@@ -1,4 +1,4 @@
-%%main features extraction segmented Cysts
+%%main features extraction glands
 clear all
 close all
 addpath(genpath('..\NaturalVariation\Code\'))
@@ -61,9 +61,10 @@ for nGland = 1:size(pathGlands,1)
             end
         end
         load(fullfile(pathGlands(nGland).folder,'pixelScaleOfGland.mat'),'pixelScale')    
+        load(fullfile(pathGlands(nGland).folder,'valid_cells.mat'),'validCells','noValidCells') 
         fileName = [splittedFolder{end-2} '/' splittedFolder{end-1}];
         
-        [allGeneralInfo{nGland},allTissues{nGland},allLumens{nGland},allHollowTissue3dFeatures{nGland},allNetworkFeatures{nGland},totalMeanCellsFeatures{nGland},totalStdCellsFeatures{nGland}]=calculate3DMorphologicalFeatures(labelledImage,apicalLayer,basalLayer,lateralLayer,lumenImage,folderFeatures,fileName,pixelScale,contactThreshold);
+        [allGeneralInfo{nGland},allTissues{nGland},allLumens{nGland},allHollowTissue3dFeatures{nGland},allNetworkFeatures{nGland},totalMeanCellsFeatures{nGland},totalStdCellsFeatures{nGland}]=calculate3DMorphologicalFeatures(labelledImage,apicalLayer,basalLayer,lateralLayer,lumenImage,folderFeatures,fileName,pixelScale,contactThreshold,validCells,noValidCells);
 end
 
 summarizeAllTissuesProperties(allGeneralInfo,allTissues,allLumens,allHollowTissue3dFeatures,allNetworkFeatures,totalMeanCellsFeatures,totalStdCellsFeatures,path2saveSummary);
