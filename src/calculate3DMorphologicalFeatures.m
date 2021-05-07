@@ -25,7 +25,7 @@ allHollowGland3dFeatures = cell([length(files) 19]);
 for numFile=1:length(files)
    [cells3dFeatures, gland3dFeatures, lumen3dFeatures,hollowGland3dFeatures, polygon_distribution_apical, polygon_distribution_basal, cellularFeatures, numCells, surfaceRatio2D, surfaceRatio3D, validCells, polygon_distribution_total,apicoBasalNeighs] = obtain3dFeatures(files,numFile);
     %% Calculate mean and std of 3D features
-    cells3dFeatures(find(cells3dFeatures.ID_Cell == "Lumen" | cells3dFeatures.ID_Cell == "Gland and Lumen"),:)=[];
+    cells3dFeatures((cells3dFeatures.ID_Cell == "Lumen" | cells3dFeatures.ID_Cell == "Gland and Lumen"),:)=[];
     meanFeatures = varfun(@(x) mean(x),cells3dFeatures(:, 2:end));
     stdFeatures = varfun(@(x) std(x),cells3dFeatures(:, 2:end));
     
