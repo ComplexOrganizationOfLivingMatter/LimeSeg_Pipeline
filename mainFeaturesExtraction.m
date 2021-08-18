@@ -9,8 +9,8 @@ pathGlands = dir(fullfile(pathKindPhenotype,'**','\3d_layers_info.mat'));
 
 %At least the 0.5% of lateral membrane contacting with other cell to be
 %considered as neighbor.
-contactThreshold = 0.5;
-
+% contactThreshold = 0.5;
+contactThreshold = 0.1;
 
 allGeneralInfo = cell(size(pathGlands,1),1);
 allTissues = cell(size(pathGlands,1),1);
@@ -22,19 +22,20 @@ totalStdCellsFeatures = cell(size(pathGlands,1),1);
 
 path2saveSummary = [pathKindPhenotype '_' num2str(contactThreshold) '%_'];
 
-parpool(3)
+parpool(5)
 parfor nGland = 1:size(pathGlands,1)
         
         splittedFolder = strsplit(pathGlands(nGland).folder,'\');
         display([splittedFolder{end-2} '_' splittedFolder{end-1}])
-        folderFeatures = [fullfile(pathGlands(nGland).folder,'Features'), num2str(contactThreshold)];
+        folderFeatures = [fullfile(pathGlands(nGland).folder,'Features_vx4_'), num2str(contactThreshold)];
+        
         if ~exist(folderFeatures,'dir')
             mkdir(folderFeatures);
         end
 
-        if ~exist(fullfile(pathGlands(nGland).folder, '\layersTissue.mat'),'file')
+        if ~exist(fullfile(pathGlands(nGland).folder, '\layersTissue_v3.mat'),'file')
             if exist(fullfile(pathGlands(nGland).folder,'realSize3dLayers.mat'),'file')
-                realSizeImages = load(fullfile(pathGlands(nGland).folder,'realSize3dLayers.mat'),'labelledImage_realSize','lumenImage_realSize')
+                realSizeImages = load(fullfile(pathGlands(nGland).folder,'realSize3dLayers.mat'),'labelledImage_realSize','lumenImage_realSize');
                 labelledImage = realSizeImages.labelledImage_realSize;
                 lumenImage = realSizeImages.lumenImage_realSize;
             else
@@ -52,18 +53,19 @@ parfor nGland = 1:size(pathGlands,1)
             end
             
             %%get apical and basal layers, and Lumen
-            path2saveLayers = fullfile(pathGlands(nGland).folder, '\layersTissue.mat');
+            path2saveLayers = fullfile(pathGlands(nGland).folder, '\layersTissue_v3.mat');
             [apicalLayer,basalLayer,lateralLayer] = getApicalBasalLateralFromGlands(labelledImage,lumenImage,path2saveLayers);
             
         else
             if ~exist(fullfile(folderFeatures, 'global_3dFeatures.mat'),'file')
-                allImages = load(fullfile(pathGlands(nGland).folder, '\layersTissue.mat'),'apicalLayer','basalLayer','lateralLayer','lumenImage','labelledImage');
+                allImages = load(fullfile(pathGlands(nGland).folder, '\layersTissue_v2.mat'),'apicalLayer','basalLayer','lateralLayer','lumenImage','labelledImage');
                 labelledImage = allImages.labelledImage;lumenImage = allImages.lumenImage;lateralLayer = allImages.lateralLayer; basalLayer = allImages.basalLayer;apicalLayer = allImages.apicalLayer;
                 
             else
                 labelledImage = []; apicalLayer=[]; basalLayer = []; lateralLayer =[]; lumenImage=[];
             end
         end
+        
         pixelScale=struct2array(load(fullfile(pathGlands(nGland).folder,'pixelScaleOfGland.mat'),'pixelScale'));    
         validNoValidCells = load(fullfile(pathGlands(nGland).folder,'valid_cells.mat'),'validCells','noValidCells'); 
         validCells = validNoValidCells.validCells;
