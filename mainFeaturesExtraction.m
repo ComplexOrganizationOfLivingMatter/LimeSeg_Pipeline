@@ -22,7 +22,8 @@ totalStdCellsFeatures = cell(size(pathGlands,1),1);
 
 path2saveSummary = [pathKindPhenotype '_' num2str(contactThreshold) '%_'];
 
-parpool(5)
+parpool(10)
+realisticSR=zeros(size(pathGlands,1),1);
 parfor nGland = 1:size(pathGlands,1)
         
         splittedFolder = strsplit(pathGlands(nGland).folder,'\');
@@ -33,7 +34,7 @@ parfor nGland = 1:size(pathGlands,1)
             mkdir(folderFeatures);
         end
 
-        if ~exist(fullfile(pathGlands(nGland).folder, '\layersTissue_v3.mat'),'file')
+        if ~exist(fullfile(pathGlands(nGland).folder, '\layersTissue_v2.mat'),'file')
             if exist(fullfile(pathGlands(nGland).folder,'realSize3dLayers.mat'),'file')
                 realSizeImages = load(fullfile(pathGlands(nGland).folder,'realSize3dLayers.mat'),'labelledImage_realSize','lumenImage_realSize');
                 labelledImage = realSizeImages.labelledImage_realSize;
@@ -53,16 +54,17 @@ parfor nGland = 1:size(pathGlands,1)
             end
             
             %%get apical and basal layers, and Lumen
-            path2saveLayers = fullfile(pathGlands(nGland).folder, '\layersTissue_v3.mat');
-            [apicalLayer,basalLayer,lateralLayer] = getApicalBasalLateralFromGlands(labelledImage,lumenImage,path2saveLayers);
+            path2saveLayers = fullfile(pathGlands(nGland).folder, '\layersTissue_v2.mat');
+            [apicalLayer,basalLayer,lateralLayer,lumenSkeleton] = getApicalBasalLateralFromGlands(labelledImage,lumenImage,path2saveLayers);
             
         else
             if ~exist(fullfile(folderFeatures, 'global_3dFeatures.mat'),'file')
-                allImages = load(fullfile(pathGlands(nGland).folder, '\layersTissue_v2.mat'),'apicalLayer','basalLayer','lateralLayer','lumenImage','labelledImage');
-                labelledImage = allImages.labelledImage;lumenImage = allImages.lumenImage;lateralLayer = allImages.lateralLayer; basalLayer = allImages.basalLayer;apicalLayer = allImages.apicalLayer;
+                allImages = load(fullfile(pathGlands(nGland).folder, '\layersTissue_v2.mat'),'apicalLayer','basalLayer','lateralLayer','lumenImage','labelledImage','lumenSkeleton');
+                labelledImage = allImages.labelledImage;lumenImage = allImages.lumenImage;lateralLayer = allImages.lateralLayer; basalLayer = allImages.basalLayer;apicalLayer = allImages.apicalLayer;lumenSkeleton=allImages.lumenSkeleton;
                 
             else
-                labelledImage = []; apicalLayer=[]; basalLayer = []; lateralLayer =[]; lumenImage=[];
+                allImages = load(fullfile(pathGlands(nGland).folder, '\layersTissue_v2.mat'),'apicalLayer','lumenSkeleton');
+                labelledImage = []; apicalLayer=allImages.apicalLayer; basalLayer = []; lateralLayer =[]; lumenImage=[]; lumenSkeleton=allImages.lumenSkeleton;
             end
         end
         
@@ -73,6 +75,8 @@ parfor nGland = 1:size(pathGlands,1)
         fileName = [splittedFolder{end-2} '/' splittedFolder{end-1}];
         
         [allGeneralInfo{nGland},allTissues{nGland},allLumens{nGland},allHollowTissue3dFeatures{nGland},allNetworkFeatures{nGland},totalMeanCellsFeatures{nGland},totalStdCellsFeatures{nGland}]=calculate3DMorphologicalFeatures(labelledImage,apicalLayer,basalLayer,lateralLayer,lumenImage,folderFeatures,fileName,pixelScale,contactThreshold,validCells,noValidCells);
+        
+        realisticSR(nGland) = calculateRealisticSR(totalMeanCellsFeatures{nGland},apicalLayer,lumenSkeleton,validCells,pixelScale);
 end
 
 summarizeAllTissuesProperties(allGeneralInfo,allTissues,allLumens,allHollowTissue3dFeatures,allNetworkFeatures,totalMeanCellsFeatures,totalStdCellsFeatures,path2saveSummary);
