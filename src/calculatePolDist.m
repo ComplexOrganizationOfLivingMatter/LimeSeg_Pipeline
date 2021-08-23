@@ -1,8 +1,7 @@
 %calculate polygon distribution
-function calculatePolDist(H,W,nSeeds,nDiagram,nRealizations)
+function calculatePolDist(path2load,nDiagram,nRealizations)
 
 addpath(genpath('..\Epithelia3D\InSilicoModels\TubularModel\src'))
-path2load = ['..\Epithelia3D\InSilicoModels\TubularModel\data\tubularCVT\Data\' num2str(H) 'x' num2str(W) '_' num2str(nSeeds) 'seeds\'];
 
 polygonDis = cell(1,nRealizations);
 logNormArea = cell(1,nRealizations);

@@ -6,12 +6,15 @@ addpath(genpath('lib'))
 addpath(genpath(fullfile('..','Epithelia3D', 'InSilicoModels', 'TubularModel', 'src')));
 
 % %% Extracting and organizing information from segmented 3D Salivary Glands
-% files = dir('**/Salivary gland/**/Results/3d_layers_info.mat');
+
+% files = dir('**/data/Salivary gland_ExtractedVertices_Correct/**/Results/3d_layers_info.mat');
 % 
 % nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0, {files.folder});
-% files = files(nonDiscardedFiles);
+% nonDiscardedFilesEcadh = cellfun(@(x) contains(lower(x), 'inhibited') == 0, {files.folder});
 % 
-% surfLayers = {'apical','basal'};
+% files = files((nonDiscardedFiles.*nonDiscardedFilesEcadh)>0);
+% 
+% surfLayers = {'1','basal'};
 % 
 % polyDistApical = cell(size(files,1),1);
 % polyDistBasal = cell(size(files,1),1);
@@ -30,8 +33,9 @@ addpath(genpath(fullfile('..','Epithelia3D', 'InSilicoModels', 'TubularModel', '
 % for nFile = 1 : size(files,1)
 %       
 %     for nSurf = 1:2
-%         load([files(nFile).folder '\' surfLayers{nSurf} '\final3DImg.mat'],'img3d')
-%         load([files(nFile).folder '\' surfLayers{nSurf} '\verticesInfo.mat'],'validCellsFinal','newVerticesNeighs2D')
+
+%         load([files(nFile).folder '\unrolledGlands\gland_SR_' surfLayers{nSurf} '\final3DImg.mat'],'img3d')
+%         load([files(nFile).folder '\unrolledGlands\gland_SR_' surfLayers{nSurf} '\verticesInfo.mat'],'validCellsFinal','newVerticesNeighs2D')
 % 
 %         neighsCells = cell(1,max(newVerticesNeighs2D(:)));
 %         for nCell = 1 : max(newVerticesNeighs2D(:))
@@ -107,7 +111,9 @@ addpath(genpath(fullfile('..','Epithelia3D', 'InSilicoModels', 'TubularModel', '
 % %relationNsidesApical-basal
 % totalSidesCells = horzcat(totalSidesCells{:})';
 % totalSidesTotalApical = arrayfun(@(x) totalSidesCells(horzcat(totalSidesCellsApical{:})' == x),4:9,'UniformOutput',false);
+% totalSidesTotalBasal = arrayfun(@(x) totalSidesCells(horzcat(totalSidesCellsBasal{:})' == x),4:9,'UniformOutput',false);
 % 
+ 
 % uniqSidesBasal = unique(horzcat(totalSidesCellsBasal{:}));
 % uniqSidesApical = unique(horzcat(totalSidesCellsApical{:}));
 % uniqSides3D = unique(totalSidesCells);
@@ -129,14 +135,16 @@ addpath(genpath(fullfile('..','Epithelia3D', 'InSilicoModels', 'TubularModel', '
 % stdNeighExchanges = std(neighExchanges);
 % 
 % mkdir('docs\figuresMathPaper\');
-% save(['docs\figuresMathPaper\lewis2D_3D_averagePolygon_AreasDistribution_' date '.mat'],'meanScutoids','stdScutoids','meanNeighExchanges','stdNeighExchanges','meanPolyDistBasal','stdPolyDistBasal','meanPolyDistApical','stdPolyDistApical','dispersionLogNormAreaBasal','dispersionLogNormAreaApical','dispersionNormAreaBasal','dispersionNormAreaApical','dispersionNormVolume','listPolygons','lewisBasal_NormArea','lewisApical_NormArea','lewis3D_NormVol','totalSidesTotalApical')
-% 
+
+% save(['docs\figuresMathPaper\lewis2D_3D_averagePolygon_AreasDistribution_' date '.mat'],'meanScutoids','stdScutoids','meanNeighExchanges','stdNeighExchanges','meanPolyDistBasal','stdPolyDistBasal','meanPolyDistApical','stdPolyDistApical','dispersionLogNormAreaBasal','dispersionLogNormAreaApical','dispersionNormAreaBasal','dispersionNormAreaApical','dispersionNormVolume','listPolygons','lewisBasal_NormArea','lewisApical_NormArea','lewis3D_NormVol','totalSidesTotalApical','totalSidesTotalBasal')
+
 
 
 %% Represent paper figures (LEWIS 2D and 3D, and 'poor get richer')
 
 % folderSalGland = 'docs\figuresMathPaper\lewis2D_3D_averagePolygon_AreasDistribution_29-Mar-2019.mat';
-folderSalGland = ['docs\figuresMathPaper\lewis2D_3D_averagePolygon_AreasDistribution_04-Nov-2019.mat'];
+
+folderSalGland = ['docs\figuresMathPaper\lewis2D_3D_averagePolygon_AreasDistribution_09-Nov-2019.mat'];
 
 load(folderSalGland)
 lewis3D_glands = lewis3D_NormVol;
@@ -144,7 +152,6 @@ lewisApical_glands = lewisApical_NormArea;
 lewisBasal_glands = lewisBasal_NormArea;
 
 %%  figure area distribution
-
 VorN = 8;
 
 if VorN == 8
@@ -162,39 +169,79 @@ colorPlotBasG = [0,0.4,0.2];
 colorPlotGland = round(mean([[0.2,0.8,0];[0,0.4,0.2]]),2);
 
 
-% %% load tubes data
-% nRealizations = 20;
-% H = 512;
-% W = 4096;
-% nSeeds = 200;
-% 
-% folderTube = ['..\Epithelia3D\InSilicoModels\TubularModel\data\tubularCVT\Data\' num2str(H) 'x' num2str(W) 'seeds\polygonDistribution_diag_' num2str(VorN) '.mat'];
-% if ~exist(folderTube,'file')
-%     calculatePolDist(H,W,nSeeds,VorN,nRealizations)
-% end
-% path2save = 'docs\figuresMathPaper\';
-% load(folderTube)
-% lewisApical_tube = lewis_NormArea; 
+%% load tubes data
+nRealizations = 20;
+H = 512;
+W = 4096;
+nSeeds = 200;
+
+folderTube = ['..\Epithelia3D\InSilicoModels\TubularModel\data\tubularCVT\Data\' num2str(H) 'x' num2str(W) '_' num2str(nSeeds) 'seeds\'];
+if ~exist([folderTube 'polygonDistribution_diag_' num2str(VorN) '.mat'],'file')
+    calculatePolDist(H,W,nSeeds,VorN,nRealizations)
+end
+load([folderTube 'polygonDistribution_diag_' num2str(VorN) '.mat'])
+lewisApical_tube = lewis_NormArea; 
+path2save = 'docs\figuresMathPaper\';
+
 
 
 %% tube basal - 1.75
-folderTube = ['D:\Pedro\Epithelia3D\InSilicoModels\TubularModel\data\tubularVoronoiModel\expansion\512x4096_200seeds\diagram' num2str(VorN) '_Markov\'];
+folderTube = strrep(folderTube,'tubularCVT\Data','tubularVoronoiModel\expansion');
+folderTube = [folderTube 'diagram' num2str(VorN) '_Markov\'];
 load([folderTube 'polygonDistribution_diag_' num2str(VorN) 'sr1.75_volume.mat']);
-apicalSidesCellsTube175 = apicalSidesCells;
+apicalSidesCellsTube = apicalSidesCells;
+basalSidesCellsTube175 = basalSidesCells;
 totalSidesCellsTube175 = totalSidesCells;
+neighsApical=neighsApicalRealizations;
+neighsBasal175=neighsBasalRealizations;
+validCells_tube_175 = validCellsRealizations;
+
 lewisBasal_tube_175 = lewis_NormArea; 
 lewis3D_tube_175 = lewis3D_volNorm;
 validCells_tube_175 = validCellsRealizations;
 
-
 %% tube basal - 4
 load([folderTube 'polygonDistribution_diag_' num2str(VorN) 'sr4_volume.mat'])
-apicalSidesCellsTube4 = apicalSidesCells;
+
+basalSidesCellsTube4 = basalSidesCells;
 totalSidesCellsTube4 = totalSidesCells;
+neighsBasal4=neighsBasalRealizations;
+validCells_tube_4 = validCellsRealizations;
+
 lewisBasal_tube_4 = lewis_NormArea; 
 lewis3D_tube_4 = lewis3D_volNorm;
-validCells_tube_4 = validCellsRealizations;
+
+
+
+
+%%Group and apply valid cells
+validCells_global = cellfun(@(x,y) intersect(x,y),validCells_tube_175,validCells_tube_4,'UniformOutput',false);
+
+for nRea = 1:nRealizations
     
+    neighsAp = neighsApical{nRea};
+    neighsApical{nRea}=neighsAp(validCells_global{nRea});
+    neighs175 = neighsBasal175{nRea};
+    neighsBasal175{nRea}=neighs175(validCells_global{nRea});
+    neighs4 = neighsBasal4{nRea};
+    neighsBasal4{nRea}=neighs4(validCells_global{nRea});
+    
+    sidesAp = apicalSidesCellsTube{nRea};
+    apicalSidesCellsTube{nRea} = sidesAp(validCells_global{nRea});
+    sidesBas175 = basalSidesCellsTube175{nRea};
+    basalSidesCellsTube175{nRea} = sidesBas175(validCells_global{nRea});
+    sidesBas4 = basalSidesCellsTube4{nRea};
+    basalSidesCellsTube4{nRea} = sidesBas4(validCells_global{nRea});
+    
+    sidestot175 = totalSidesCellsTube175{nRea};
+    totalSidesCellsTube175{nRea} = sidestot175(validCells_global{nRea});
+    sidestot4 = totalSidesCellsTube4{nRea};
+    totalSidesCellsTube4{nRea} = sidestot4(validCells_global{nRea});
+    
+    totalSidesCellsTubeFrom175toApical{nRea} = cellfun(@(x,y) length(unique([x;y])),neighsBasal175{nRea},neighsApical{nRea});
+    totalSidesCellsTubeFrom4toApical{nRea} = cellfun(@(x,y,z) length(unique([x;y;z])),neighsBasal4{nRea},neighsBasal175{nRea},neighsApical{nRea});
+end
+
 
 % %% Fig LEWIS 2D
 %     h = figure('units','normalized','outerposition',[0 0 1 1],'Visible','on');
@@ -258,7 +305,8 @@ validCells_tube_4 = validCellsRealizations;
 %     hold off
 %     print(h,[path2save 'fig_Lewis2D_Vor_' num2str(VorN) '_' date],'-dtiff','-r300')
 %     savefig(h,[path2save 'fig_Lewis2D_Vor_' num2str(VorN) '_' date])
-% 
+
+
 % %% Fig LEWIS 3D
 %     h = figure('units','normalized','outerposition',[0 0 1 1],'Visible','on');
 %     markerSiz = 20;
@@ -312,86 +360,99 @@ validCells_tube_4 = validCellsRealizations;
 
 
 %%  figure Relation apical - basal nSides. 'Poor get richer'
-totalSidesCellsTube175 = cellfun(@(x,y) x(y), totalSidesCellsTube175,validCells_tube_175,'UniformOutput',false);
-apicalSidesCellsTube175 = cellfun(@(x,y) x(y), apicalSidesCellsTube175,validCells_tube_175,'UniformOutput',false);
 
+%from apical to basal
+sidesTotalApical = arrayfun(@(x) totalSidesTotalApical{x-3}-x,4:9,'UniformOutput',false);
 totalSidesCellsTube175 = horzcat(totalSidesCellsTube175{:});
 
 totalSidesCellsTube4 = cellfun(@(x,y) x(y), totalSidesCellsTube4,validCells_tube_4,'UniformOutput',false);
 apicalSidesCellsTube4 = cellfun(@(x,y) x(y), apicalSidesCellsTube4,validCells_tube_4,'UniformOutput',false);
 totalSidesCellsTube4 = horzcat(totalSidesCellsTube4{:});
 
-sidesTotalTub175 = arrayfun(@(x) totalSidesCellsTube175(horzcat(apicalSidesCellsTube175{:})' == x)-x,4:9,'UniformOutput',false);
-sidesTotalTub4 = arrayfun(@(x) totalSidesCellsTube4(horzcat(apicalSidesCellsTube4{:})' == x)-x,4:9,'UniformOutput',false);
-totalSidesTotalApical = arrayfun(@(x) totalSidesTotalApical{x-3}-x,4:9,'UniformOutput',false);
-
-% sidesTotalTub175 = arrayfun(@(x) totalSidesCellsTube175(horzcat(apicalSidesCellsTube175{:})' == x),4:9,'UniformOutput',false);
-% sidesTotalTub4 = arrayfun(@(x) totalSidesCellsTube4(horzcat(apicalSidesCellsTube4{:})' == x),4:9,'UniformOutput',false);
+sidesTotalTub175 = arrayfun(@(x) totalSidesCellsTube175(horzcat(apicalSidesCellsTube{:})' == x)-x,4:9,'UniformOutput',false);
+sidesTotalTub4 = arrayfun(@(x) totalSidesCellsTube4(horzcat(apicalSidesCellsTube{:})' == x)-x,4:9,'UniformOutput',false);
 
 
+%from basal to apical
+sidesTotalBasal = arrayfun(@(x) totalSidesTotalBasal{x-3}-x,4:9,'UniformOutput',false);
+totalSidesCellsFrom175toApical = horzcat(totalSidesCellsTubeFrom175toApical{:});
+totalSidesCellsFrom4toApical = horzcat(totalSidesCellsTubeFrom4toApical{:});
+
+sidesTotalTub175toApical = arrayfun(@(x) totalSidesCellsFrom175toApical(horzcat(basalSidesCellsTube175{:})' == x)-x,4:9,'UniformOutput',false);
+sidesTotalTub4toApical = arrayfun(@(x) totalSidesCellsFrom4toApical(horzcat(basalSidesCellsTube4{:})' == x)-x,4:9,'UniformOutput',false);
+
+%selectMethod {from apical to basal -> 0, from basal to apical ->1}
+selectMethod=1;
+if selectMethod == 1
+    sidesTotalGenericInitGl = sidesTotalBasal;
+    sidesTotalGenericTubeStep1 = sidesTotalTub175toApical;
+    sidesTotalGenericTubeStep2 = sidesTotalTub4toApical;
+else
+    sidesTotalGenericInitGl = sidesTotalApical;
+    sidesTotalGenericTubeStep1 = sidesTotalTub175;
+    sidesTotalGenericTubeStep2 = sidesTotalTub4;
+end
 h = figure('units','normalized','outerposition',[0 0 1 1],'Visible','on');
 hold on
 
-nApicalGland = cellfun(@(x,y) ones(size(x))*y,totalSidesTotalApical,[{4},{5},{6},{7},{8},{9}],'UniformOutput',false);
-relGland = [vertcat(nApicalGland{:}),vertcat(totalSidesTotalApical{:})];
-
-nApicalTube175 = cellfun(@(x,y) (ones(size(x))*y),sidesTotalTub175,[{4},{5},{6},{7},{8},{9}],'UniformOutput',false);
-relTube175 = [horzcat(nApicalTube175{:});horzcat(sidesTotalTub175{:})]';
-
-nApicalTube4 = cellfun(@(x,y) (ones(size(x))*y),sidesTotalTub4,[{4},{5},{6},{7},{8},{9}],'UniformOutput',false);
-relTube4 = [horzcat(nApicalTube4{:});horzcat(sidesTotalTub4{:})]';
-
-x = [totalSidesTotalApical{1};sidesTotalTub175{1}';...%;sidesTotalTub4{1}';...%
-    totalSidesTotalApical{2};sidesTotalTub175{2}';...%;sidesTotalTub4{2}';...
-    totalSidesTotalApical{3};sidesTotalTub175{3}';...%;sidesTotalTub4{3}';...
-    totalSidesTotalApical{4};sidesTotalTub175{4}';...%;sidesTotalTub4{4}';...
-    totalSidesTotalApical{5};sidesTotalTub175{5}'];%;sidesTotalTub4{5}'];
-
-g = [zeros(length(totalSidesTotalApical{1}), 1); ones(length(sidesTotalTub175{1}), 1);...%;2*ones(length(sidesTotalTub4{1}), 1);...
-    2*ones(length(totalSidesTotalApical{2}), 1); 3*ones(length(sidesTotalTub175{2}), 1);...%;5*ones(length(sidesTotalTub4{2}), 1);...
-    4*ones(length(totalSidesTotalApical{3}), 1); 5*ones(length(sidesTotalTub175{3}), 1);...%;8*ones(length(sidesTotalTub4{3}), 1);...
-    6*ones(length(totalSidesTotalApical{4}), 1); 7*ones(length(sidesTotalTub175{4}), 1);...%;11*ones(length(sidesTotalTub4{4}), 1);...
-    8*ones(length(totalSidesTotalApical{5}), 1); 9*ones(length(sidesTotalTub175{5}), 1)];%14*ones(length(sidesTotalTub4{5}), 1)];
-
-% % G = iosr.statistics.boxPlot(x',g');
-
-% H = notBoxPlot(x,g,'markMedian',true,'jitter', 0.3);
+% nInitGland = cellfun(@(x,y) ones(size(x))*y,sidesTotalGenericInitGl,[{4},{5},{6},{7},{8},{9}],'UniformOutput',false);
+% relGland = [vertcat(nInitGland{:}),vertcat(sidesTotalGenericInitGl{:})];
 % 
-% set([H.data],'MarkerSize',4,...
-%     'markerFaceColor','none',...
-%     'markerEdgeColor', 'none')
-% %mean line color
-% set([H.mu],'color','k')
+% nInitTube1 = cellfun(@(x,y) (ones(size(x))*y),sidesTotalGenericTubeStep1,[{4},{5},{6},{7},{8},{9}],'UniformOutput',false);
+% relTube1 = [horzcat(nInitTube1{:});horzcat(sidesTotalGenericTubeStep1{:})]';
 % 
-% for ii=1:length(H)
-%     set(H(ii).perc1,'FaceColor','none',...
-%                    'EdgeColor','k','lineStyle','-')
-%                
-%     set(H(ii). perc1,'FaceColor','none',...
-%                    'EdgeColor','k','lineStyle','-')           
-%     set(H(ii).sd,'FaceColor','none',...
-%                    'EdgeColor',[0.6 0.6 0.6],'lineStyle',':')        
-%     set(H(ii).sd1,'Color',[0.6 0.6 0.6])     
-%     set(H(ii).sd2,'Color',[0.6 0.6 0.6])            
-% %     set(H(ii).sdPtch,'FaceColor','none',...
-% %                    'EdgeColor','k')
-% %     set(H(ii).semPtch,'FaceColor','none',...
-% %                    'EdgeColor','k')
-% end
+% nInitTube2 = cellfun(@(x,y) (ones(size(x))*y),sidesTotalGenericTubeStep2,[{4},{5},{6},{7},{8},{9}],'UniformOutput',false);
+% relTube2 = [horzcat(nInitTube2{:});horzcat(sidesTotalGenericTubeStep2{:})]';
+
+x = [sidesTotalGenericInitGl{1};sidesTotalGenericTubeStep1{1}';sidesTotalGenericTubeStep2{1}';...
+    sidesTotalGenericInitGl{2};sidesTotalGenericTubeStep1{2}';sidesTotalGenericTubeStep2{2}';...
+    sidesTotalGenericInitGl{3};sidesTotalGenericTubeStep1{3}';sidesTotalGenericTubeStep2{3}';...
+    sidesTotalGenericInitGl{4};sidesTotalGenericTubeStep1{4}';sidesTotalGenericTubeStep2{4}';...
+    sidesTotalGenericInitGl{5};sidesTotalGenericTubeStep1{5}';sidesTotalGenericTubeStep2{5}'];
+
+g = [zeros(length(sidesTotalGenericInitGl{1}), 1); ones(length(sidesTotalGenericTubeStep1{1}), 1);2*ones(length(sidesTotalGenericTubeStep2{1}), 1);...
+    3*ones(length(sidesTotalGenericInitGl{2}), 1); 4*ones(length(sidesTotalGenericTubeStep1{2}), 1);5*ones(length(sidesTotalGenericTubeStep2{2}), 1);...
+    6*ones(length(sidesTotalGenericInitGl{3}), 1); 7*ones(length(sidesTotalGenericTubeStep1{3}), 1);8*ones(length(sidesTotalGenericTubeStep2{3}), 1);...
+    9*ones(length(sidesTotalGenericInitGl{4}), 1); 10*ones(length(sidesTotalGenericTubeStep1{4}), 1);11*ones(length(sidesTotalGenericTubeStep2{4}), 1);...
+    12*ones(length(sidesTotalGenericInitGl{5}), 1); 13*ones(length(sidesTotalGenericTubeStep1{5}), 1);14*ones(length(sidesTotalGenericTubeStep2{5}), 1)];
+
+%G = iosr.statistics.boxPlot(x',g');
+
+H = notBoxPlot(x,g,'markMedian',true,'jitter', 0.3);
+
+set([H.data],'MarkerSize',4,...
+    'markerFaceColor','none',...
+    'markerEdgeColor', 'none')
+%mean line color
+set([H.mu],'color','k')
+
+for ii=1:length(H)
+    set(H(ii).perc1,'FaceColor','none',...
+                   'EdgeColor','k','lineStyle','-')
+          
+    set(H(ii).sd,'FaceColor','none',...
+                   'EdgeColor',[0.6 0.6 0.6],'lineStyle',':')        
+    set(H(ii).sd1,'Color',[0.6 0.6 0.6])     
+    set(H(ii).sd2,'Color',[0.6 0.6 0.6])            
+%     set(H(ii).sdPtch,'FaceColor','none',...
+%                    'EdgeColor','k')
+%     set(H(ii).semPtch,'FaceColor','none',...
+%                    'EdgeColor','k')
+end
 
 typeOfPoly = 4:8;
 for nSideAp = 1:10 %(4:8)
     switch nSideAp
-        case {1,3,5,7,9}
-            freqSides = totalSidesTotalApical{ceil(nSideAp/2)};
+
+        case {1,4,7,10,13}
+            freqSides = sidesTotalGenericInitGl{ceil(nSideAp/3)};
             c = [0.2,0.8,0];
-        otherwise
-        %case {2,5,8,11,14}
-            freqSides = sidesTotalTub175{ceil(nSideAp/2)};
+        case {2,5,8,11,14}
+            freqSides = sidesTotalGenericTubeStep1{ceil(nSideAp/3)};
             c = [0,112/255,192/255];
-%         otherwise
-%             freqSides = sidesTotalTub4{ceil(nSideAp/3)};
-%             c = [27/255,39/255,201/255];
+        otherwise
+            freqSides = sidesTotalGenericTubeStep2{ceil(nSideAp/3)};
+            c = [27/255,39/255,201/255];
     end
     
     typeCell = typeOfPoly(ceil(nSideAp/2));
@@ -411,20 +472,18 @@ for nSideAp = 1:10 %(4:8)
 end
 
 
-xlim([-1 10])
-xticks([0.5,2.5,4.5,6.5,8.5])
-ylim([-1 4])
-yticks([0 1 2 3 4 5])
+% xlim([-1 30])
+% xticks([-1:30])
+ylim([-1 6])
 title('relation apical sides - added neigh')
 xlabel('number of sides - apical')
 ylabel('number gain total')
-% set(gca,'FontSize', 24,'FontName','Helvetica','YGrid','on','TickDir','out','Box','off');
-set(gca,'FontSize', 24,'FontName','Helvetica','YGrid','off','TickDir','out','Box','off');
+set(gca,'FontSize', 24,'FontName','Helvetica','YGrid','on','TickDir','out','Box','off');
 
 xticklabels({'4','5','6','7','8'})
 
-path2save= 'E:\Pedro\LimeSeg_Pipeline\docs\figuresMathPaper\';
-print(h,[path2save 'fig_sidesRelationApicalGainSides_numbers_' date],'-dtiff','-r600')
+savefig(h,[path2save 'fig_PoorGetRicherFromBasal_' date]);
+print(h,[path2save 'fig_PoorGetRicherFromBasal_' date],'-dtiff','-r300')
 
 
 
