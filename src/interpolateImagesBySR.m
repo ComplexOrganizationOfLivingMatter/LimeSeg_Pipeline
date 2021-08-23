@@ -1,4 +1,4 @@
-function interpolateImagesBySR(labelledImage,apicalLayer, basalLayer,finalSR, desiredSRs,path2save)
+function tableDividedImages = interpolateImagesBySR(labelledImage,apicalLayer, basalLayer,finalSR, desiredSRs,path2save)
 %% function designed to interpolate images at different heights between 2 surfaces
 
     %get closest apical coordinate from each basal coordinate
@@ -15,7 +15,7 @@ function interpolateImagesBySR(labelledImage,apicalLayer, basalLayer,finalSR, de
             [rowApi,colApi,zApi]=ind2sub(size(apicalLayer),find(apicalCell));
 
             apicalIdsClosest=zeros(size(rowBas));
-            parfor nId = 1:length(rowBas)
+            for nId = 1:length(rowBas)
                 distCoord = pdist2([colBas(nId),rowBas(nId), zBas(nId)],[colApi,rowApi, zApi]);
                 [~,idClosest]=min(distCoord);
                 apicalIdsClosest(nId) = idClosest;
@@ -38,10 +38,18 @@ function interpolateImagesBySR(labelledImage,apicalLayer, basalLayer,finalSR, de
     
     mkdir(fullfile(path2save,'dividedGlandBySr'))
     
-    for selSR = desiredSRs
+    tableDividedImages = table('Size',[length(desiredSRs+2),2],'VariableTypes',["double","cell"],'VariableNames',{'SR_theoteritical', 'image'});
+    
+    tableDividedImages.SR_theoteritical(1)=1;
+    tableDividedImages.SR_theoteritical(end) = finalSR;
+    tableDividedImages.image{1} = apicalLayer;
+    tableDividedImages.image{end} = labelledImage;
+    for selSR = 1:length(desiredSRs)
+        
+        tableDividedImages.SR_theoteritical(selSR+1)=desiredSRs(selSR);
         
         interpImage=zeros(size(labelledImage));
-        distanceFactor = (selSR-1)/(finalSR-1);
+        distanceFactor = (desiredSRs(selSR)-1)/(finalSR-1);
         interpolatedCoord = cellfun(@(x,y) round(((x-y).*distanceFactor)+y) ,basalCoordCell,closestApiCoordCell,'UniformOutput',false);
         coordInterp = unique(vertcat(interpolatedCoord{:}),'rows');
         idsInterp = sub2ind(size(labelledImage),coordInterp(:,1),coordInterp(:,2),coordInterp(:,3));
@@ -51,14 +59,15 @@ function interpolateImagesBySR(labelledImage,apicalLayer, basalLayer,finalSR, de
         shp = alphaShape(coordInterp(:,2),coordInterp(:,1),coordInterp(:,3));
         pc = criticalAlpha(shp,'one-region');
         
-        shp.Alpha = pc*5;
+        shp.Alpha = pc*2;
         tf = inShape(shp,qCol,qRow,qZ);
         
         idsCellIn = idsCells(tf);
         interpImageCells=uint8(zeros(size(labelledImage)));
         interpImageCells(idsCellIn)=labelledImage(idsCellIn);
         
-        save(fullfile(path2save,'dividedGlandBySr',['SR_' num2str(selSR) '.mat']),'interpImageCells')
+        tableDividedImages.image{selSR+1}=interpImageCells;
+        save(fullfile(path2save,'dividedGlandBySr',['slicedImage.mat']),'tableDividedImages')
     end
 end
 

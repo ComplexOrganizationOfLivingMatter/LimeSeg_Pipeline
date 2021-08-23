@@ -4,9 +4,23 @@ close all
 
 addpath(genpath('src'))
 
-path2save = 'E:\Pedro\LimeSeg_Pipeline\data\Salivary gland\Wildtype\2017-12-04\1a\Results\';
-load(fullfile(path2save, 'layersTissue_v3.mat'),'labelledImage', 'apicalLayer', 'basalLayer')
+%%select phenotype
+pathKindPhenotype = uigetdir();
+pathGlands = dir(fullfile(pathKindPhenotype,'**','\layersTissue.mat'));
 
-finalSR = 5.28815299623935;
-desiredSR = 1.5:0.5:finalSR;
-interpolateImagesBySR(labelledImage, apicalLayer, basalLayer,finalSR,desiredSR,path2save)
+%%select excel with extracted features
+pathExcelFeatures = uigetfile([pathKindPhenotype '/*xls'],'Get excel of extracted features');
+T_features = readtable(fullfile(pathKindPhenotype,pathExcelFeatures));
+
+parfor nGland = 1:size(pathGlands,1)
+    
+    idGland = cellfun(@(x) contains(pathGlands(nGland).folder,strrep(x,'/','\')),vertcat(T_features.ID_Glands(:)));    
+    allImages = load(fullfile(pathGlands.folder(nGland), 'layersTissue_v3.mat'),'labelledImage', 'apicalLayer', 'basalLayer');
+    labelledImage = allImages.labelledImage; basalLayer = allImages.basalLayer;apicalLayer = allImages.apicalLayer;
+    finalSR = T_features.SurfaceRatio3D(idGland);
+    desiredSR = 1.5:0.5:finalSR;
+    interpolateImagesBySR(labelledImage, apicalLayer, basalLayer,finalSR,desiredSR,pathGlands.folder(nGland))
+
+end
+
+
