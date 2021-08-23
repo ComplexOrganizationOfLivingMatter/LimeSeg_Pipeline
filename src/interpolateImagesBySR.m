@@ -37,24 +37,11 @@ function tableDividedImages = interpolateImagesBySR(labelledImage,apicalLayer, b
     [qRow,qCol,qZ]=ind2sub(size(basalLayer),idsCells);
     
     mkdir(fullfile(path2save,'dividedGlandBySr'))
-    
-    tableDividedImages = table('Size',[length(desiredSRs+2),2],'VariableTypes',["double","cell"],'VariableNames',{'SR_theoteritical', 'image'});
-    
-    tableDividedImages.SR_theoteritical(1)=1;
-    tableDividedImages.SR_theoteritical(end) = finalSR;
-    tableDividedImages.image{1} = apicalLayer;
-    tableDividedImages.image{end} = labelledImage;
     for selSR = 1:length(desiredSRs)
         
-        tableDividedImages.SR_theoteritical(selSR+1)=desiredSRs(selSR);
-        
-        interpImage=zeros(size(labelledImage));
         distanceFactor = (desiredSRs(selSR)-1)/(finalSR-1);
         interpolatedCoord = cellfun(@(x,y) round(((x-y).*distanceFactor)+y) ,basalCoordCell,closestApiCoordCell,'UniformOutput',false);
         coordInterp = unique(vertcat(interpolatedCoord{:}),'rows');
-        idsInterp = sub2ind(size(labelledImage),coordInterp(:,1),coordInterp(:,2),coordInterp(:,3));
-        
-        interpImage(idsInterp)=1;
         
         shp = alphaShape(coordInterp(:,2),coordInterp(:,1),coordInterp(:,3));
         pc = criticalAlpha(shp,'one-region');
@@ -66,8 +53,7 @@ function tableDividedImages = interpolateImagesBySR(labelledImage,apicalLayer, b
         interpImageCells=uint8(zeros(size(labelledImage)));
         interpImageCells(idsCellIn)=labelledImage(idsCellIn);
         
-        tableDividedImages.image{selSR+1}=interpImageCells;
-        save(fullfile(path2save,'dividedGlandBySr',['slicedImage.mat']),'tableDividedImages')
+        save(fullfile(path2save,'dividedGlandBySr',['sr_' num2str(desiredSRs(selSR)) '.mat']),'interpImageCells')
     end
 end
 
