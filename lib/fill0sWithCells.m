@@ -11,7 +11,7 @@ function [labelMask] = fill0sWithCells(labelMask, img3dComplete, invalidRegion)
     edgePixels = find(missingRegions);
     if isempty(edgePixels) == 0
         [xEdge, yEdge, zEdge] = ind2sub(size(labelMask), edgePixels);
-        pixelsIndices = find((imdilate(missingRegions, strel('sphere', 4)).*labelMask)>0);
+        pixelsIndices = find((uint16(imdilate(missingRegions, strel('sphere', 4))).*uint16(labelMask))>0);
         [x, y, z] = ind2sub(size(labelMask), pixelsIndices);
 
         %% Splitting calculation to perform it in batches
@@ -19,16 +19,20 @@ function [labelMask] = fill0sWithCells(labelMask, img3dComplete, invalidRegion)
         indices = cell(numPartitions, 1);
         distances = cell(numPartitions, 1);
         partialPxs = floor(length(x)/numPartitions);
-        for nPart = 1 : numPartitions
-            subIndCoord = (1 + (nPart-1) * partialPxs) : (nPart * partialPxs);
-            if nPart == numPartitions
-                subIndCoord = (1 + (nPart-1) * partialPxs) : length(x);
+        if partialPxs ~= 0
+            for nPart = 1 : numPartitions
+                subIndCoord = (1 + (nPart-1) * partialPxs) : (nPart * partialPxs);
+                if nPart == numPartitions
+                    subIndCoord = (1 + (nPart-1) * partialPxs) : length(x);
+                end
+                [distances{nPart}, indices_nPart] = pdist2([x(subIndCoord), y(subIndCoord), z(subIndCoord)], [xEdge, yEdge, zEdge], 'euclidean', 'Smallest', 1);
+                indices{nPart} = subIndCoord(indices_nPart);
             end
-            [distances{nPart}, indices_nPart] = pdist2([x(subIndCoord), y(subIndCoord), z(subIndCoord)], [xEdge, yEdge, zEdge], 'euclidean', 'Smallest', 1);
-            indices{nPart} = subIndCoord(indices_nPart);
+            distances_all = vertcat(distances{:});
+            indices_all = vertcat(indices{:});
+        else
+            [distances_all, indices_all] = pdist2([x, y, z], [xEdge, yEdge, zEdge], 'euclidean', 'Smallest', 1);
         end
-        distances_all = vertcat(distances{:});
-        indices_all = vertcat(indices{:});
         
         
         if size(distances_all,1)==1

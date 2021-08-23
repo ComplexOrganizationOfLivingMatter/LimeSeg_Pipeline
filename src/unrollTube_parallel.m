@@ -2,10 +2,11 @@ function unrollTube_parallel(selpath)
 %UNROLLTUBE_PARALLEL Perform unrolling all the layers
 %   
     minNumberOfSurfaceRatios = 7;
+    steps3D = 0.5;
+    
     idName_splitted = strsplit(selpath, filesep);
     idName = strjoin(idName_splitted(end-3:end-1), '_');
     
-    load(fullfile(selpath, '3d_layers_info.mat'), 'labelledImage', 'apicalLayer', 'basalLayer', 'colours', 'glandOrientation', 'lumenImage');
     load(fullfile(selpath, 'valid_cells.mat'), 'validCells', 'noValidCells');
     
     if exist(strcat(selpath, '\', idName ,'_samirasFormat.xls'), 'file') == 0
@@ -14,25 +15,43 @@ function unrollTube_parallel(selpath)
         if exist(fullfile(selpath, 'dividedGland' ,'glandDividedInSurfaceRatios.mat'), 'file') > 0
             %% Apical and basal and all the artificial surface ratios
             load(fullfile(selpath, 'dividedGland', 'glandDividedInSurfaceRatios.mat'));
-            
-            mkdir(fullfile(selpath, 'unrolledGlands', 'gland_SR_1'));
-            [samiraTablePerSR{1}, apicalAreaValidCells, rotationsOriginal] = unrollTube(infoPerSurfaceRatio{1, 3}, fullfile(selpath, 'unrolledGlands', 'gland_SR_1'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info.mat'));
+            %%mkdir(fullfile(selpath, 'unrolledGlands', 'gland_SR_1'));
+            infoPerSurfaceRatio(:, 1) = {[]};
+            %% Get gland rotation using the gland lumen
+            load(fullfile(selpath, 'unrolledGlands', 'gland_SR_1','apicalRotationsOriginal.mat'),'rotationsOriginal');
+                      
+            [samiraTablePerSR{1}, apicalAreaValidCells, ~] = unrollTube(infoPerSurfaceRatio{1, 3},[], fullfile(selpath, 'unrolledGlands', 'gland_SR_1'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info.mat'),rotationsOriginal);
             areaValidCells{1} = apicalAreaValidCells;
             %addAttachedFiles(gcp, fullfile(selpath, 'valid_cells.mat'))
             
             surfaceRatioOfGland = vertcat(infoPerSurfaceRatio{:,2})';
+            
+            infoPerSurfaceRatio(1, :) = {[]};
             nSR = length(surfaceRatioOfGland);
+            
+            for numPartition = 2:nSR
+                infoPerSurfaceRatio(numPartition, 3) = {ndSparse(infoPerSurfaceRatio{numPartition, 3})};
+            end
+            
+            load(fullfile(selpath, 'realSize3dLayers.mat'), 'labelledImage_realSizeFlatten')
             for numPartition = 2:nSR
                 if numPartition ~= nSR
-                    [samiraTablePerSR{numPartition}, areaValidCells{numPartition}] = unrollTube(infoPerSurfaceRatio{numPartition, 3}, fullfile(selpath, 'unrolledGlands', ['gland_SR_' num2str(numPartition)]), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info'), apicalAreaValidCells, rotationsOriginal);
+                    [samiraTablePerSR{numPartition}, areaValidCells{numPartition}] = unrollTube(full(infoPerSurfaceRatio{numPartition, 3}),labelledImage_realSizeFlatten, fullfile(selpath, 'unrolledGlands', ['gland_SR_' num2str(numPartition)]), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info'), rotationsOriginal);
                 else
-                    [samiraTablePerSR{numPartition}, areaValidCells{numPartition}] = unrollTube(infoPerSurfaceRatio{numPartition, 3}, fullfile(selpath, 'unrolledGlands', 'gland_SR_basal'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info'), apicalAreaValidCells, rotationsOriginal);
+                    [samiraTablePerSR{numPartition}, areaValidCells{numPartition}] = unrollTube(full(infoPerSurfaceRatio{numPartition, 3}),labelledImage_realSizeFlatten, fullfile(selpath, 'unrolledGlands', 'gland_SR_basal'), fullfile(selpath, 'valid_cells.mat'), fullfile(selpath, '3d_layers_info'), rotationsOriginal);
                 end
             end
             
             %% Calculate theoretical surface ratio
             steps = 2.5/(minNumberOfSurfaceRatios-1);
             surfaceRatioOfGland = 1:steps:((steps*(minNumberOfSurfaceRatios-1))+1);
+            
+            if minNumberOfSurfaceRatios > length(samiraTablePerSR)
+                minNumberOfSurfaceRatios = length(samiraTablePerSR);
+                surfaceRatioOfGland = surfaceRatioOfGland(1:minNumberOfSurfaceRatios);
+                realFinalStep = steps * ((infoPerSurfaceRatio{end, 2} - infoPerSurfaceRatio{end-1, 2}) / steps3D);
+                surfaceRatioOfGland(length(samiraTablePerSR)) = surfaceRatioOfGland(end-1) + realFinalStep;
+            end
             
             for numPartition = 2:minNumberOfSurfaceRatios
                 sT_Actual = samiraTablePerSR{numPartition};
@@ -51,7 +70,10 @@ function unrollTube_parallel(selpath)
         writetable(samiraTableT, strcat(selpath, '\', idName ,'_samirasFormat.xls'));
         writetable(newCrossesTable, strcat(selpath, '\', idName ,'_VertCrosses.xls'));
     end
-        
+    if exist('infoPerSurfaceRatio', 'var') 
+        clearvars infoPerSurfaceRatio
+    end
+    close all
     %% Saving final information with the right order
     filesOf2DUnroll = dir(fullfile(selpath, '**', 'verticesInfo.mat'));
     if exist(fullfile(selpath, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'file') == 0
@@ -70,12 +92,8 @@ function unrollTube_parallel(selpath)
         
         neighboursOfAllSurfaces = cell(nSR, 1);
         for numSR = 1:nSR
-            load(fullfile(filesOf2DUnroll(numSR).folder, 'final3DImg.mat'), 'img3d', 'neighbours');
-            load(fullfile(filesOf2DUnroll(numSR).folder, 'verticesInfo.mat'), 'cylindre2DImage', 'newVerticesNeighs2D');
-            %                 if isempty(newVerticesNeighs2D)
-            %                     neighbours = calculateNeighbours3D(img3d, 2);
-            %                     neighbours = checkPairPointCloudDistanceCurateNeighbours(img3d, neighbours.neighbourhood', 1);
-            %                 end
+            load(fullfile(filesOf2DUnroll(numSR).folder, 'final3DImg.mat'), 'img3d');
+            load(fullfile(filesOf2DUnroll(numSR).folder, 'verticesInfo.mat'), 'cylindre2DImage', 'newVerticesNeighs2D')
             [total_neighbours3D] = getNeighboursFromVertices(newVerticesNeighs2D);
             midLayer = cylindre2DImage;
             
@@ -95,7 +113,7 @@ function unrollTube_parallel(selpath)
             neighbours_data.Properties.VariableNames = {'Apical','Basal'};
             neighboursOfAllSurfaces{idToSave} = neighboursMid;
             
-            [infoPerSurfaceRatio{idToSave, 8}, infoPerSurfaceRatio{idToSave, 7}] = calculate_CellularFeatures(neighbours_data, neighboursApical, neighboursMid, apicalLayer, midLayer, img3d, noValidCells, validCells, [], [], total_neighbours3D);
+            [infoPerSurfaceRatio{idToSave, 8}, infoPerSurfaceRatio{idToSave, 7}] = calculate_CellularFeatures(neighboursApical, neighboursMid, apicalLayer, midLayer, img3d, noValidCells, validCells, [], total_neighbours3D);
             
         end
         
@@ -109,7 +127,7 @@ function unrollTube_parallel(selpath)
         
         infoPerSurfaceRatio = cell2table(infoPerSurfaceRatio, 'VariableNames', {'Image3DWithVolumen', 'SR3D', 'Layer3D', 'ApicalBasalCellFeatures3D', 'BasalApicalCellFeatures3D', 'UnrolledLayer2D', 'SR2D', 'ApicalBasalCellFeatures2D'});
         %             save(fullfile(selpath, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'cellularFeatures_BasalToApical', 'cellularFeatures_ApicalToBasal', 'meanSurfaceRatio');
-        save(fullfile(selpath, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'infoPerSurfaceRatio', 'neighboursOfAllSurfaces');
+        save(fullfile(selpath, 'glandDividedInSurfaceRatios_AllUnrollFeatures.mat'), 'infoPerSurfaceRatio', 'neighboursOfAllSurfaces', '-v7.3');
     end
 end
 

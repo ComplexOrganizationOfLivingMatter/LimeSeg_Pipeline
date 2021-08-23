@@ -6,6 +6,7 @@ addpath(genpath('lib'))
 addpath(genpath(fullfile('..','Epithelia3D', 'InSilicoModels', 'TubularModel', 'src')));
 
 % %% Extracting and organizing information from segmented 3D Salivary Glands
+
 % files = dir('**/data/Salivary gland_ExtractedVertices_Correct/**/Results/3d_layers_info.mat');
 % 
 % nonDiscardedFiles = cellfun(@(x) contains(lower(x), 'discarded') == 0, {files.folder});
@@ -32,6 +33,7 @@ addpath(genpath(fullfile('..','Epithelia3D', 'InSilicoModels', 'TubularModel', '
 % for nFile = 1 : size(files,1)
 %       
 %     for nSurf = 1:2
+
 %         load([files(nFile).folder '\unrolledGlands\gland_SR_' surfLayers{nSurf} '\final3DImg.mat'],'img3d')
 %         load([files(nFile).folder '\unrolledGlands\gland_SR_' surfLayers{nSurf} '\verticesInfo.mat'],'validCellsFinal','newVerticesNeighs2D')
 % 
@@ -111,7 +113,7 @@ addpath(genpath(fullfile('..','Epithelia3D', 'InSilicoModels', 'TubularModel', '
 % totalSidesTotalApical = arrayfun(@(x) totalSidesCells(horzcat(totalSidesCellsApical{:})' == x),4:9,'UniformOutput',false);
 % totalSidesTotalBasal = arrayfun(@(x) totalSidesCells(horzcat(totalSidesCellsBasal{:})' == x),4:9,'UniformOutput',false);
 % 
-% 
+ 
 % uniqSidesBasal = unique(horzcat(totalSidesCellsBasal{:}));
 % uniqSidesApical = unique(horzcat(totalSidesCellsApical{:}));
 % uniqSides3D = unique(totalSidesCells);
@@ -133,6 +135,7 @@ addpath(genpath(fullfile('..','Epithelia3D', 'InSilicoModels', 'TubularModel', '
 % stdNeighExchanges = std(neighExchanges);
 % 
 % mkdir('docs\figuresMathPaper\');
+
 % save(['docs\figuresMathPaper\lewis2D_3D_averagePolygon_AreasDistribution_' date '.mat'],'meanScutoids','stdScutoids','meanNeighExchanges','stdNeighExchanges','meanPolyDistBasal','stdPolyDistBasal','meanPolyDistApical','stdPolyDistApical','dispersionLogNormAreaBasal','dispersionLogNormAreaApical','dispersionNormAreaBasal','dispersionNormAreaApical','dispersionNormVolume','listPolygons','lewisBasal_NormArea','lewisApical_NormArea','lewis3D_NormVol','totalSidesTotalApical','totalSidesTotalBasal')
 
 
@@ -140,6 +143,7 @@ addpath(genpath(fullfile('..','Epithelia3D', 'InSilicoModels', 'TubularModel', '
 %% Represent paper figures (LEWIS 2D and 3D, and 'poor get richer')
 
 % folderSalGland = 'docs\figuresMathPaper\lewis2D_3D_averagePolygon_AreasDistribution_29-Mar-2019.mat';
+
 folderSalGland = ['docs\figuresMathPaper\lewis2D_3D_averagePolygon_AreasDistribution_09-Nov-2019.mat'];
 
 load(folderSalGland)
@@ -194,9 +198,11 @@ validCells_tube_175 = validCellsRealizations;
 
 lewisBasal_tube_175 = lewis_NormArea; 
 lewis3D_tube_175 = lewis3D_volNorm;
+validCells_tube_175 = validCellsRealizations;
 
 %% tube basal - 4
 load([folderTube 'polygonDistribution_diag_' num2str(VorN) 'sr4_volume.mat'])
+
 basalSidesCellsTube4 = basalSidesCells;
 totalSidesCellsTube4 = totalSidesCells;
 neighsBasal4=neighsBasalRealizations;
@@ -204,6 +210,8 @@ validCells_tube_4 = validCellsRealizations;
 
 lewisBasal_tube_4 = lewis_NormArea; 
 lewis3D_tube_4 = lewis3D_volNorm;
+
+
 
 
 %%Group and apply valid cells
@@ -233,7 +241,6 @@ for nRea = 1:nRealizations
     totalSidesCellsTubeFrom175toApical{nRea} = cellfun(@(x,y) length(unique([x;y])),neighsBasal175{nRea},neighsApical{nRea});
     totalSidesCellsTubeFrom4toApical{nRea} = cellfun(@(x,y,z) length(unique([x;y;z])),neighsBasal4{nRea},neighsBasal175{nRea},neighsApical{nRea});
 end
-
 
 
 % %% Fig LEWIS 2D
@@ -299,6 +306,7 @@ end
 %     print(h,[path2save 'fig_Lewis2D_Vor_' num2str(VorN) '_' date],'-dtiff','-r300')
 %     savefig(h,[path2save 'fig_Lewis2D_Vor_' num2str(VorN) '_' date])
 
+
 % %% Fig LEWIS 3D
 %     h = figure('units','normalized','outerposition',[0 0 1 1],'Visible','on');
 %     markerSiz = 20;
@@ -352,13 +360,18 @@ end
 
 
 %%  figure Relation apical - basal nSides. 'Poor get richer'
+
 %from apical to basal
 sidesTotalApical = arrayfun(@(x) totalSidesTotalApical{x-3}-x,4:9,'UniformOutput',false);
 totalSidesCellsTube175 = horzcat(totalSidesCellsTube175{:});
+
+totalSidesCellsTube4 = cellfun(@(x,y) x(y), totalSidesCellsTube4,validCells_tube_4,'UniformOutput',false);
+apicalSidesCellsTube4 = cellfun(@(x,y) x(y), apicalSidesCellsTube4,validCells_tube_4,'UniformOutput',false);
 totalSidesCellsTube4 = horzcat(totalSidesCellsTube4{:});
 
 sidesTotalTub175 = arrayfun(@(x) totalSidesCellsTube175(horzcat(apicalSidesCellsTube{:})' == x)-x,4:9,'UniformOutput',false);
 sidesTotalTub4 = arrayfun(@(x) totalSidesCellsTube4(horzcat(apicalSidesCellsTube{:})' == x)-x,4:9,'UniformOutput',false);
+
 
 %from basal to apical
 sidesTotalBasal = arrayfun(@(x) totalSidesTotalBasal{x-3}-x,4:9,'UniformOutput',false);
@@ -428,8 +441,9 @@ for ii=1:length(H)
 end
 
 typeOfPoly = 4:8;
-for nSideAp = 1:15 %(4:8)
+for nSideAp = 1:10 %(4:8)
     switch nSideAp
+
         case {1,4,7,10,13}
             freqSides = sidesTotalGenericInitGl{ceil(nSideAp/3)};
             c = [0.2,0.8,0];
@@ -441,16 +455,19 @@ for nSideAp = 1:15 %(4:8)
             c = [27/255,39/255,201/255];
     end
     
-    typeCell = typeOfPoly(ceil(nSideAp/3));
+    typeCell = typeOfPoly(ceil(nSideAp/2));
     
     numbers=unique(freqSides);       %list of elements
-    countN=hist(freqSides,numbers); 
+    countN=arrayfun(@(x) sum(ismember(freqSides,x)),numbers); 
     countP = countN./sum(countN);
-    
-    for nUniqSides = 1:length(numbers)
-        hold on
-        scatter(nSideAp-1, numbers(nUniqSides),2300*countP(nUniqSides), 'filled','MarkerFaceColor',c, 'MarkerEdgeColor', 'k','MarkerFaceAlpha',0.5)
-        text(nSideAp-1,numbers(nUniqSides),num2str(countN(nUniqSides)),'HorizontalAlignment','center')
+    try
+        for nUniqSides = 1:length(numbers)
+            hold on
+%             scatter(nSideAp-1, numbers(nUniqSides),4000*countP(nUniqSides), 'filled','MarkerFaceColor',c, 'MarkerEdgeColor', 'k','MarkerFaceAlpha',0.5)
+            text(nSideAp-1,numbers(nUniqSides),num2str(countN(nUniqSides)),'HorizontalAlignment','center','FontSize',12)
+        end
+    catch
+        
     end
 end
 
@@ -463,7 +480,7 @@ xlabel('number of sides - apical')
 ylabel('number gain total')
 set(gca,'FontSize', 24,'FontName','Helvetica','YGrid','on','TickDir','out','Box','off');
 
-xticklabels({'','4','','','5','','','6','','','7','','','8',''})
+xticklabels({'4','5','6','7','8'})
 
 savefig(h,[path2save 'fig_PoorGetRicherFromBasal_' date]);
 print(h,[path2save 'fig_PoorGetRicherFromBasal_' date],'-dtiff','-r300')

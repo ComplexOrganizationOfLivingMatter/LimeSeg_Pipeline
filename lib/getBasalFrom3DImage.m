@@ -47,6 +47,6 @@ function [basalLayer] = getBasalFrom3DImage(labelledImage, lumenImage, tipValue,
         basalLayer(badIds) = 0;
     end
     %basalLayer = completeImageOfCells(labelledImage .* basalLayer, basalLayer == 0);
-    basalLayer = labelledImage .* basalLayer;
+    basalLayer = labelledImage .* uint16(basalLayer);
 end
 

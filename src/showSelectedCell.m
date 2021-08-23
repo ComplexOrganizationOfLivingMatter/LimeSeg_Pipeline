@@ -30,7 +30,7 @@ hold on;
 
 
 %% Showing lumen
-if isempty(xIndices) == 0
+if isempty(xIndices) == 0 && getappdata(0, 'hideLumen') == 0
     hold on
     s = scatter(xIndices, yIndices, 'red', 'filled','SizeData',10);
     hold off

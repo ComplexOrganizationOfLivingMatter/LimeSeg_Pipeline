@@ -1,4 +1,4 @@
-function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(outputDir)
+function limeSeg_PostProcessing(outputDir)
 %PIPELINE Summary of this function goes here
 %   Detailed explanation goes here
     mkdir(fullfile(outputDir, 'Cells', 'OutputLimeSeg'));
@@ -15,6 +15,15 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
         save(fullfile(outputDir, 'Results', 'zScaleOfGland.mat'), 'zScale');
     else
         load(fullfile(outputDir, 'Results', 'zScaleOfGland.mat')); 
+    end
+    
+    if exist(fullfile(outputDir, 'Results', 'pixelScaleOfGland.mat'), 'file') == 0
+        pixelScale = inputdlg('Insert pixel width of Gland');
+        pixelScale = str2double(pixelScale{1});
+
+        save(fullfile(outputDir, 'Results', 'pixelScaleOfGland.mat'), 'pixelScale');
+    else
+        load(fullfile(outputDir, 'Results', 'pixelScaleOfGland.mat')); 
     end
     
     resizeImg = 1/zScale;
@@ -34,9 +43,13 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
     else
         colours = [];
         [labelledImage, outsideGland] = processCells(fullfile(outputDir, 'Cells', filesep), resizeImg, imgSize, tipValue);
-
-        [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
         
+     if size(dir(fullfile(outputDir, 'Lumen/SegmentedLumen', '*.tif')),1) > 0
+        [labelledImage, lumenImage] = processLumen(fullfile(outputDir, 'Lumen', filesep), labelledImage, resizeImg, tipValue);
+     else
+        [labelledImage, lumenImage] = inferLumen(labelledImage);
+     end
+     
         %It add pixels and remove some
         validRegion = imfill(bwmorph3(labelledImage>0 | imdilate(lumenImage, strel('sphere', 5)), 'majority'), 'holes');
         %outsideGland = validRegion == 0;
@@ -63,12 +76,17 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
     setappdata(0,'tipValue', tipValue);
     setappdata(0, 'glandOrientation', glandOrientation);
     setappdata(0, 'canModifyOutsideGland', 0);
+    setappdata(0, 'hideLumen',0);
+    setappdata(0, 'canModifyInsideLumen',0);
 
     if exist(fullfile(outputDir, 'Results', 'valid_cells.mat'), 'file')
         load(fullfile(outputDir, 'Results', 'valid_cells.mat'))
     else
         [noValidCells] = insertNoValidCells();
         validCells = setdiff(1:max(labelledImage(:)), noValidCells);
+        if noValidCells == -1
+            noValidCells = [];
+        end 
         save(fullfile(outputDir, 'Results', 'valid_cells.mat'), 'noValidCells', 'validCells')
     end
     [answer, apical3dInfo, notFoundCellsApical, basal3dInfo, notFoundCellsBasal] = calculateMissingCells(labelledImage, lumenImage, apicalLayer, basalLayer, colours, noValidCells);
@@ -85,7 +103,10 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
             lumenImage = getappdata(0, 'lumenImage');
             close all
             [labelledImage, basalLayer, apicalLayer] = postprocessGland(labelledImage,labelledImage==0, lumenImage, outputDir, colours, tipValue);
-
+           
+            %% Save apical and basal 3d information
+            save(fullfile(outputDir, 'Results', '3d_layers_info.mat'), 'labelledImage', 'basalLayer', 'apicalLayer', 'apical3dInfo', 'basal3dInfo', 'colours', 'lumenImage','glandOrientation', '-v7.3')
+    
             [answer, apical3dInfo, notFoundCellsApical, basal3dInfo, notFoundCellsBasal] = calculateMissingCells(labelledImage, lumenImage, apicalLayer, basalLayer, colours, noValidCells);
         else
             [answer] = isEverythingCorrect();
@@ -96,17 +117,9 @@ function [polygon_distribution, neighbours_data] = limeSeg_PostProcessing(output
     %% Save apical and basal 3d information
     save(fullfile(outputDir, 'Results', '3d_layers_info.mat'), 'labelledImage', 'basalLayer', 'apicalLayer', 'apical3dInfo', 'basal3dInfo', 'colours', 'lumenImage','glandOrientation', '-v7.3')
 
-    %% Calculate poligon distribution
-    [polygon_distribution_Apical] = calculate_polygon_distribution(cellfun(@length, apical3dInfo), validCells);
-    [polygon_distribution_Basal] = calculate_polygon_distribution(cellfun(@length, basal3dInfo), validCells);
-    neighbours_data = table(apical3dInfo, basal3dInfo);
-    polygon_distribution = table(polygon_distribution_Apical, polygon_distribution_Basal);
-    neighbours_data.Properties.VariableNames = {'Apical','Basal'};
-    polygon_distribution.Properties.VariableNames = {'Apical','Basal'};
-
-%     %% Export to excel cellular features
-%     cellularFeatures = calculate_CellularFeatures(neighbours_data,apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,polygon_distribution,outputDir);
-%     
-%     save(fullfile(outputDir, 'Results', 'cellularFeaturesExcel.mat'), cellularFeatures); 
+    %% Export to excel cellular features
+    cellularFeatures = calculate_CellularFeatures(apical3dInfo,basal3dInfo,apicalLayer,basalLayer,labelledImage,noValidCells,validCells,outputDir);
+    
+    save(fullfile(outputDir, 'Results', 'cellularFeaturesExcel.mat'), 'cellularFeatures'); 
 end
 
