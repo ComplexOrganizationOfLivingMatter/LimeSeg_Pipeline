@@ -48,7 +48,6 @@ for nSR =1:numOfSRs
                 dividedImage = load(fullfile(pathGlands(nGland).folder,'dividedGlandBySr',['sr_' num2str(SRs(nSR)) '.mat']),'interpImageCells');
                 
                 labelledImage = dividedImage.interpImageCells;lumenImage = allImages.lumenImage;lateralLayer = allImages.lateralLayer; apicalLayer = allImages.apicalLayer;lumenSkeleton=allImages.lumenSkeleton;
-                lateralLayer(labelledImage==0)=0;    
                 cystFilled = imfill(labelledImage>0 | lumenImage>0,'holes');
                 perimCystFilled = bwperim(cystFilled);
                 basalLayer = uint8(zeros(size(labelledImage)));
