@@ -1,11 +1,11 @@
 %% Main features extraction of divided glands for each SR
 clear all
 close all
-addpath(genpath('..\NaturalVariation\Code\'))
+addpath(genpath(fullfile('..','NaturalVariation','Code')))
 
 %1. Load final segmented glands
 pathKindPhenotype = uigetdir();
-pathGlands = dir(fullfile(pathKindPhenotype,'**','\layersTissue.mat'));
+pathGlands = dir(fullfile(pathKindPhenotype,'**','layersTissue.mat'));
 
 pathSRs = dir(fullfile(pathGlands(1).folder,'dividedGlandBySr','*mat'));
 
@@ -43,7 +43,7 @@ for nSR =1:numOfSRs
 
             
             if ~exist(fullfile(folderFeatures, 'global_3dFeatures.mat'),'file')
-                allImages = load(fullfile(pathGlands(nGland).folder, '\layersTissue.mat'),'apicalLayer','lateralLayer','lumenImage','lumenSkeleton');
+                allImages = load(fullfile(pathGlands(nGland).folder, 'layersTissue.mat'),'apicalLayer','lateralLayer','lumenImage','lumenSkeleton');
                 
                 dividedImage = load(fullfile(pathGlands(nGland).folder,'dividedGlandBySr',['sr_' num2str(SRs(nSR)) '.mat']),'interpImageCells');
                 
@@ -55,7 +55,7 @@ for nSR =1:numOfSRs
                 basalLayer(perimCystFilled) = labelledImage(perimCystFilled);
 
             else
-                allImages = load(fullfile(pathGlands(nGland).folder, '\layersTissue.mat'),'apicalLayer','lumenSkeleton');
+                allImages = load(fullfile(pathGlands(nGland).folder, 'layersTissue.mat'),'apicalLayer','lumenSkeleton');
                 labelledImage = []; apicalLayer=allImages.apicalLayer; basalLayer = []; lateralLayer =[]; lumenImage=[]; lumenSkeleton=allImages.lumenSkeleton;
             end
             
