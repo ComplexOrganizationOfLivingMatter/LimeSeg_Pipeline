@@ -5,9 +5,9 @@ addpath(genpath('..\NaturalVariation\Code\'))
 
 %1. Load final segmented glands
 pathKindPhenotype = uigetdir();
-pathGlands = dir(fullfile(pathKindPhenotype,'**','\3d_layers_info.mat'));
+pathGlands = dir(fullfile(pathKindPhenotype,'**','\layersTissue.mat'));
 
-pathSRs = dir(fullfile(pathGlands(1).folder, 'Results','dividedGlandBySr','*mat'));
+pathSRs = dir(fullfile(pathGlands(1).folder,'dividedGlandBySr','*mat'));
 
 numOfSRs = size(pathSRs,1);
 SRs = 1.5:0.5:(numOfSRs*0.5+1);
@@ -17,6 +17,8 @@ for nSR =1:numOfSRs
     % contactThreshold = 0.5;
     contactThreshold = 0.1;
 
+    disp(['-----Surface ratio : '  num2str(SRs(nSR)) ' -----'])
+    
     allGeneralInfo = cell(size(pathGlands,1),1);
     allTissues = cell(size(pathGlands,1),1);
     allLumens = cell(size(pathGlands,1),1);
@@ -25,15 +27,15 @@ for nSR =1:numOfSRs
     totalMeanCellsFeatures = cell(size(pathGlands,1),1);
     totalStdCellsFeatures = cell(size(pathGlands,1),1);
 
-    path2saveSummary = [pathKindPhenotype '_' num2str(contactThreshold) '%_SR_' num2str(numOfSRs(nSR)) ' _'];
+    path2saveSummary = [pathKindPhenotype '_' num2str(contactThreshold) '%_SR_' num2str(SRs(nSR)) ' _'];
 
     % parpool(10)
     realisticSR=zeros(size(pathGlands,1),1);
     parfor nGland = 1:size(pathGlands,1)
 
             splittedFolder = strsplit(pathGlands(nGland).folder,'\');
-            display([splittedFolder{end-2} '_' splittedFolder{end-1}])
-            folderFeatures = [fullfile(pathGlands(nGland).folder,'dividedGlandBySr','Features_vx4_'), num2str(contactThreshold) '_sr' num2str(numOfSRs(nSR))];
+            disp([splittedFolder{end-2} '_' splittedFolder{end-1}])
+            folderFeatures = [fullfile(pathGlands(nGland).folder,'dividedGlandBySr','Features_vx4_'), num2str(contactThreshold) '_sr' num2str(SRs(nSR))];
 
             if ~exist(folderFeatures,'dir')
                 mkdir(folderFeatures);
@@ -41,14 +43,15 @@ for nSR =1:numOfSRs
 
             
             if ~exist(fullfile(folderFeatures, 'global_3dFeatures.mat'),'file')
-                allImages = load(fullfile(pathGlands(nGland).folder, '\layersTissue.mat'),'apicalLayer','basalLayer','lateralLayer','lumenImage','lumenSkeleton');
+                allImages = load(fullfile(pathGlands(nGland).folder, '\layersTissue.mat'),'apicalLayer','lateralLayer','lumenImage','lumenSkeleton');
                 
-                dividedImage = load(fullfile(pathGlands(nGland).folder,'dividedGlandBySr',['sr_' num2str(numOfSRs(nSR)) '.mat']),'interpImageCells');
+                dividedImage = load(fullfile(pathGlands(nGland).folder,'dividedGlandBySr',['sr_' num2str(SRs(nSR)) '.mat']),'interpImageCells');
                 
-                labelledImage = dividedImage.interpImageCells;lumenImage = allImages.lumenImage;lateralLayer = allImages.lateralLayer; basalLayer = allImages.basalLayer;apicalLayer = allImages.apicalLayer;lumenSkeleton=allImages.lumenSkeleton;
+                labelledImage = dividedImage.interpImageCells;lumenImage = allImages.lumenImage;lateralLayer = allImages.lateralLayer; apicalLayer = allImages.apicalLayer;lumenSkeleton=allImages.lumenSkeleton;
                 lateralLayer(labelledImage==0)=0;    
                 cystFilled = imfill(labelledImage>0 | lumenImage>0,'holes');
                 perimCystFilled = bwperim(cystFilled);
+                basalLayer = uint8(zeros(size(labelledImage)));
                 basalLayer(perimCystFilled) = labelledImage(perimCystFilled);
 
             else
