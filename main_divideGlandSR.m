@@ -14,7 +14,7 @@ T_features = readtable(fullfile(pathKindPhenotype,pathExcelFeatures));
 
 finalDesiredSR=min(T_features.SurfaceRatio3D_radii);
 
-% parpool(10)
+parpool(10)
 parfor nGland = 1:size(pathGlands,1)
     
     idGland = cellfun(@(x) contains(pathGlands(nGland).folder,strrep(x,'/','\')),vertcat(T_features.ID_Glands(:)));    
@@ -32,4 +32,3 @@ parfor nGland = 1:size(pathGlands,1)
 end
 
 
-develop

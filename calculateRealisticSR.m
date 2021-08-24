@@ -1,4 +1,4 @@
-function realisticSR = calculateRealisticSR(meanCellProperties, apicalLayer,lumenSkeleton, validCells,pixelScale)
+function realisticSR = calculateRealisticSR(meanCellProperties, apicalLayer,lumenSkeleton, validCells,pixelScale,folderFeatures)
 
 
     centroidsApical = table2array(regionprops3(apicalLayer,'Centroid'));
@@ -30,4 +30,6 @@ function realisticSR = calculateRealisticSR(meanCellProperties, apicalLayer,lume
     meanLumenDiameter = mean(lumenRadius2cell(validCells))*pixelScale;
     realisticSR = (meanCellProperties.Fun_cell_height+meanLumenDiameter)/meanLumenDiameter;
     
+    save(fullfile(folderFeatures,'realisticSR.mat'),'realisticSR')
+
 end
